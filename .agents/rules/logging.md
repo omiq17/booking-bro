@@ -1,19 +1,26 @@
 ---
-description: Mandatory append-only turn logging to root log.txt following AGENTS.md §5
+description: Append a structured per-turn entry with readable time and token stats to log.txt
 ---
 
-# Mandatory Turn Logging (`log.txt`)
+# Per-Turn Audit Logging (`log.txt`)
 
-On every user turn in `/Users/rakib/code/booking-bro`, you MUST follow `/Users/rakib/code/booking-bro/AGENTS.md`:
+On every user turn in `/Users/rakib/code/booking-bro`, append a new turn entry to `/Users/rakib/code/booking-bro/log.txt` using `write_file` (`Append: true`) following `/Users/rakib/code/booking-bro/AGENTS.md`:
 
-1. **Append-Only:** Append a per-turn entry (§5.2 of `AGENTS.md`) to `/Users/rakib/code/booking-bro/log.txt` using `write_file` with `Append: true` before finishing your response. Never overwrite, reorder, or truncate `log.txt`.
-2. **Exact Format:**
+1. **No Session Start Banner:** Only log per-turn entries.
+2. **Token Stats:** Sum `input_tokens`, `cache_read_tokens`, and `output_tokens` for the turn from `<appDataDir>/brain/<conversation-id>/.system_generated/logs/transcript.jsonl` (if the final response step is still in progress when writing `log.txt`, include tokens recorded across the turn's steps so far).
+3. **Format:**
    ```markdown
-   ## [ISO-8601 TIMESTAMP] <short title, max 80 chars>
-   User Prompt (verbatim, secrets redacted): <exact user message, with secrets replaced by [REDACTED]>
-   Agent Response Summary: <2-5 sentences: what was done, why, and any important decision>
-   Actions:
-   - <file edited / command run / tool invoked>
-   Context: tool=Antigravity model=<exact_runtime_model_name> Branch: <git_branch_or_unknown>
+   ---
+   ### Turn #<NN> — <YYYY-MM-DD HH:MM:SS (UTC+8)> — <Short Title>
+   - **Model:** `<Model Name>` (`Antigravity`) | **Branch:** `<git_branch>`
+   - **Tokens:** Input: `<in>` (Cached: `<cached>`) | Output: `<out>`
+
+   **User Prompt:**
+   > <Verbatim user prompt, secrets redacted>
+
+   **Output Summary:**
+   <Concise summary of the response and decisions>
+
+   **Actions:**
+   - <Files modified or commands run>
    ```
-3. **No Secrets:** Redact any credentials, tokens, cookies, or keys as `[REDACTED]`.

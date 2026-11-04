@@ -1,164 +1,300 @@
-## [2026-11-03T18:09:16+08:00] SESSION START
-tool=Antigravity model=Claude Sonnet 5.5
-Repo Root: /Users/rakib/code/booking-bro
-Branch: unknown
-Worktree: main
-Parent Agent: none
-Language: ts
-Time Remaining: 5d 0h 0m
+# AI Prompt & Output Log
 
-## [2026-11-03T18:09:16+08:00] Initial overview of the assignment PDF (page 1)
-User Prompt (verbatim, secrets redacted): simply give the overview of the task
-Agent Response Summary: Inspected the workspace and found `ThoughtFull_TakeHome_Booking_Task.pdf`. Rendered page 1 to an image using `sips` because no PDF text extraction CLI was installed yet, and summarised the context, constraints, domain rules, and first two required features (auth and professional availability). Offered to install `poppler` to extract pages 2 and 3.
-Actions:
+ Append-only turn log for the **ThoughtFull — Session Booking with Reminders** project. See [AGENTS.md](AGENTS.md) for format rules.
+
+---
+### Turn #01 — 2026-11-03 18:09:16 (UTC+8) — Initial Overview of the Assignment (Page 1)
+- **Model:** `Claude Sonnet 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `20,105` (Cached: `167,993`) | Output: `2,585`
+
+**User Prompt:**
+> simply give the overview of the task
+
+**Output Summary:**
+- Inspected the workspace and found `ThoughtFull_TakeHome_Booking_Task.pdf`.
+- Rendered page 1 to an image using macOS `sips` because no PDF text-extraction CLI was installed yet.
+- Summarised the context, 5-day deadline, open tech stack, domain rules (member vs professional roles, user timezones, 50-minute sessions), and the first two required features (authentication and professional availability), and offered to install `poppler` to read pages 2–3.
+
+**Actions:**
 - Ran `ls -la` to inspect workspace files
-- Attempted `pdftotext`, `PyPDF2`, `swift PDFKit`, and `Quartz` (unavailable in sandbox)
-- Ran `sips -s format png` on `ThoughtFull_TakeHome_Booking_Task.pdf` and read page 1 image
-Context: tool=Antigravity model=Claude Sonnet 5.5 Branch: unknown
+- Rendered page 1 of `ThoughtFull_TakeHome_Booking_Task.pdf` via `sips` and read the image
 
-## [2026-11-03T18:11:24+08:00] Install poppler and extract full 3-page assignment brief
-User Prompt (verbatim, secrets redacted): install the pdf tool and complete the read
-Agent Response Summary: Installed `poppler` via Homebrew and ran `pdftotext -layout` on `ThoughtFull_TakeHome_Booking_Task.pdf` to read all 3 pages. Provided the complete overview covering all must-have features (auth, availability, finding a professional, 4-week timezone-aware calendar, no double-booking, my sessions, 24h cancel/reschedule rule, 24h/1h in-app reminders, persistence, access control), optional extras, testing focus, and required deliverables (`README.md`, `DECISIONS.md`, `AI_USAGE.md`).
-Actions:
+---
+### Turn #02 — 2026-11-03 18:11:24 (UTC+8) — Install Poppler & Read Full 3-Page Brief
+- **Model:** `Claude Sonnet 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `33,488` (Cached: `444,783`) | Output: `3,089`
+
+**User Prompt:**
+> install the pdf tool and complete the read
+
+**Output Summary:**
+- Installed `poppler` via Homebrew and extracted all 3 pages of `ThoughtFull_TakeHome_Booking_Task.pdf` using `pdftotext -layout`.
+- Summarised all must-have features: sign up/login with server-side session identity, weekly availability in the professional's timezone, professional directory, 4-week calendar in the member's timezone, concurrency-safe booking (no double-booking or member overlap), upcoming/past sessions, 24-hour cancel/reschedule rule, 24h & 1h in-app reminders (surviving restarts, delivered once), database persistence, and backend access control.
+- Listed optional extras, out-of-scope items, unit-test focus areas, and required deliverables (`README.md`, `DECISIONS.md`, `AI_USAGE.md`).
+
+**Actions:**
 - Ran `brew install poppler`
 - Ran `/opt/homebrew/bin/pdftotext -layout ThoughtFull_TakeHome_Booking_Task.pdf -`
-Context: tool=Antigravity model=Claude Sonnet 5.5 Branch: unknown
 
-## [2026-11-03T18:53:01+08:00] Recommend full-stack TypeScript and PostgreSQL architecture
-User Prompt (verbatim, secrets redacted): Considering the fact that I am a JavaScript, TypeScript, and Node.js expert, what tech stack should I choose? Also note that I have cloud experience, data engineering experience, and Python experience.
-Agent Response Summary: Recommended an end-to-end TypeScript monorepo (`pnpm` workspaces) with Node.js + Fastify + Zod on the backend, PostgreSQL + Drizzle ORM for persistence and exclusion constraints, React + Vite + TanStack Query on the frontend, Luxon for IANA timezone math, and Vitest + Testcontainers for real-Postgres concurrency tests. Explained how the stack directly addresses double-booking, transactional rescheduling, reminders, and how to highlight cloud and data engineering experience in `DECISIONS.md`.
-Actions:
-- Analysed user background against assignment requirements and proposed stack table
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: unknown
+---
+### Turn #03 — 2026-11-03 18:53:01 (UTC+8) — Recommend Full-Stack TypeScript & Postgres Architecture
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `39,125` (Cached: `6,231`) | Output: `1,938`
 
-## [2026-11-03T18:53:48+08:00] Compare Luxon vs date-fns for timezone handling
-User Prompt (verbatim, secrets redacted): date-fns or luxon
-confused what to use??
-Agent Response Summary: Recommended Luxon over `date-fns` because Luxon attaches IANA timezones directly to immutable `DateTime` instances and handles local-to-UTC conversions and DST transitions in a single library, whereas `date-fns` operates on native `Date` and requires add-on timezone packages. Demonstrated slot generation in the professional's zone and display conversion in the member's zone with Luxon.
-Actions:
-- Checked Node environment and compared Luxon vs `date-fns` for IANA timezone and DST handling
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: unknown
+**User Prompt:**
+> Considering the fact that I am a JavaScript, TypeScript, and Node.js expert, what tech stack should I choose? Also note that I have cloud experience, data engineering experience, and Python experience.
 
-## [2026-11-04T12:26:40+08:00] Explain session cookie + Argon2 auth flow and pg-boss vs Redis/BullMQ
-User Prompt (verbatim, secrets redacted): Session cookie (httpOnly) backed by a sessions table, passwords hashed with argon2 -> help me to understand it, how will login/logout/user identification flow will work?
-why are we not using redis/bullmq? is pg-boss simple and fast?
-Agent Response Summary: Walked through the signup, login, authenticated request (`preHandler` hook resolving `req.user` from `sha256(token)` in `sessions`), and logout flows with a sequence diagram and security rationale (`argon2id`, `HttpOnly`, `SameSite=Lax`, instant revocation vs JWT). Explained why Redis + BullMQ introduces a dual-write consistency hazard between Postgres bookings and Redis jobs plus extra infrastructure, and compared `pg-boss` with a custom `reminders` table polled via `FOR UPDATE SKIP LOCKED`.
-Actions:
+**Output Summary:**
+- Recommended an end-to-end TypeScript monorepo (`pnpm` workspaces: `apps/api`, `apps/web`, `packages/shared`) with Fastify + Zod, PostgreSQL + Drizzle ORM, React + Vite + TanStack Query, Luxon for IANA timezone math, and Vitest + Testcontainers for real-Postgres concurrency tests.
+- Explained how PostgreSQL exclusion constraints prevent double-booking, how single-transaction updates make rescheduling atomic, and how to highlight cloud and data engineering experience in the healthcare production section of `DECISIONS.md`.
+
+**Actions:**
+- Analysed user background against assignment requirements and proposed the stack
+
+---
+### Turn #04 — 2026-11-03 18:53:48 (UTC+8) — Compare Luxon vs date-fns for Timezone Handling
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `2,836` (Cached: `92,447`) | Output: `1,145`
+
+**User Prompt:**
+> date-fns or luxon
+> confused what to use??
+
+**Output Summary:**
+- Recommended **Luxon** over `date-fns` because Luxon binds an IANA timezone directly to immutable `DateTime` objects and handles local-to-UTC conversions and DST transitions natively, whereas `date-fns` operates on plain `Date` objects and requires an extra timezone package.
+- Provided a slot-generation code snippet showing local wall-clock working hours converted to UTC in Luxon and rendered in the member's timezone on the frontend.
+
+**Actions:**
+- Compared Luxon and `date-fns` for cross-timezone scheduling and DST transitions
+
+---
+### Turn #05 — 2026-11-04 12:26:40 (UTC+8) — Session Cookie + Argon2 Auth Flow & pg-boss vs Redis/BullMQ
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `49,080` (Cached: `0`) | Output: `3,574`
+
+**User Prompt:**
+> Session cookie (httpOnly) backed by a sessions table, passwords hashed with argon2 -> help me to understand it, how will login/logout/user identification flow will work?
+> why are we not using redis/bullmq? is pg-boss simple and fast?
+
+**Output Summary:**
+- Detailed the signup, login, authenticated request (`preHandler` hook looking up `sha256(token)` in `sessions` and attaching `req.user`), and logout flows with a Mermaid sequence diagram and security rationale (`argon2id`, `HttpOnly`, `SameSite=Lax`, instant logout revocation vs JWT).
+- Explained why Redis + BullMQ introduces a dual-write consistency risk between Postgres bookings and Redis jobs plus an extra service to run.
+- Evaluated `pg-boss` and also proposed a custom Postgres `reminders` table polled with `FOR UPDATE SKIP LOCKED` as an alternative.
+
+**Actions:**
 - Documented session-based authentication architecture and compared Redis/BullMQ, `pg-boss`, and a Postgres `reminders` table
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: unknown
 
-## [2026-11-04T12:34:45+08:00] Clarify why Postgres exclusion constraints (not pg-boss) prevent double-booking
-User Prompt (verbatim, secrets redacted): A slot can only be booked once, even w
-hen two members try to book the
-same slot at the same moment. -> will pg-boss handles this situation?
-Agent Response Summary: Clarified that `pg-boss` is an asynchronous background job queue for reminders and should not handle synchronous booking requests. Showed how PostgreSQL `EXCLUDE USING gist` constraints (`no_professional_overlap` and `no_member_overlap` using `btree_gist` and `tstzrange`) serialize concurrent overlapping inserts at the database level so exactly one succeeds and the other immediately returns SQLSTATE `23P01` (`409 Conflict`).
-Actions:
-- Provided SQL exclusion constraints, transactional booking handler snippet, and `Promise.allSettled` concurrency test pattern
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: unknown
+---
+### Turn #06 — 2026-11-04 12:34:45 (UTC+8) — Why Postgres Exclusion Constraints (Not pg-boss) Prevent Double-Booking
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `46,551` (Cached: `6,231`) | Output: `1,859`
 
-## [2026-11-04T12:37:50+08:00] Explain PostgreSQL EXCLUDE USING gist table constraint mechanics
-User Prompt (verbatim, secrets redacted): -- A professional can't have two overlapping active sessions
-ALTER TABLE sessions ADD CONSTRAINT no_professional_overlap
-  EXCLUDE USING gist (
-    professional_id WITH =,
-    tstzrange(start_at, end_at, '[)') WITH &&
-  ) WHERE (status = 'booked');
+**User Prompt:**
+> A slot can only be booked once, even w
+> hen two members try to book the
+> same slot at the same moment. -> will pg-boss handles this situation?
 
-is it a table rule or what? it will ensure double block restriction right?
-Agent Response Summary: Explained that `EXCLUDE USING gist` is a declarative PostgreSQL table constraint (backed by a GiST index) that generalises `UNIQUE` to disallow equal `professional_id` combined with overlapping `[start_at, end_at)` ranges when `status = 'booked'`. Detailed how Postgres locks index entries during concurrent transactions so overlapping inserts cannot both commit, and noted the companion `CHECK` constraint and custom Drizzle migration needed.
-Actions:
-- Broke down each clause of the `EXCLUDE USING gist` constraint and concurrent transaction behaviour
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: unknown
+**Output Summary:**
+- Clarified that `pg-boss` is an asynchronous background job queue for reminders, whereas booking is a synchronous request that requires an immediate confirmation or conflict response.
+- Demonstrated how PostgreSQL `EXCLUDE USING gist` constraints (`no_professional_overlap` and `no_member_overlap`) serialize concurrent overlapping inserts at the database level so one commits and the other fails with SQLSTATE `23P01` (`409 Conflict`).
+- Included a `Promise.allSettled` concurrency test example.
 
-## [2026-11-04T12:40:02+08:00] Analyse 9 approaches to preventing double-booking across layers
-User Prompt (verbatim, secrets redacted): got it, is the best way to handle double book situation? or any way to handle it via api side or server side or using cache or any other way... analyse
-Agent Response Summary: Compared 9 concurrency control options (API check-then-insert, in-memory mutex, Redis distributed lock, Redis slot cache, per-professional queue, `SELECT ... FOR UPDATE` / advisory lock, `SERIALIZABLE` isolation, pre-generated slots table, and Postgres exclusion constraints) across concurrency safety, multi-server support, member-overlap coverage, and complexity. Recommended layered defence: UI hides taken slots, API validates business rules, and Postgres exclusion constraints guarantee no overlap. Also explained sharding implications for system design interviews.
-Actions:
-- Produced 9-option comparison matrix and layered architecture analysis
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: unknown
+**Actions:**
+- Provided SQL exclusion constraints, transactional booking handler snippet, and concurrency test pattern
 
-## [2026-11-04T12:44:31+08:00] Deep dive into row locks (SELECT FOR UPDATE / advisory locks) vs exclusion constraints
-User Prompt (verbatim, secrets redacted): Row lock (SELECT ... FOR UPDATE or pg_advisory_xact_lock)
-what is this row lock? how it works?
-compare with no 9
-Agent Response Summary: Explained pessimistic locking with `SELECT ... FOR UPDATE` on parent `users` rows and `pg_advisory_xact_lock`, including why locking must happen in deterministic ID order to avoid deadlocks and why the overlap query must run after lock acquisition under `READ COMMITTED`. Contrasted row locks against exclusion constraints (#9), showing why exclusion constraints win for pure time-range overlap while row locks remain useful for aggregate business rules like daily session caps.
-Actions:
+---
+### Turn #07 — 2026-11-04 12:37:50 (UTC+8) — Explain PostgreSQL EXCLUDE USING gist Table Constraint
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `2,208` (Cached: `52,652`) | Output: `1,502`
+
+**User Prompt:**
+> -- A professional can't have two overlapping active sessions
+> ALTER TABLE sessions ADD CONSTRAINT no_professional_overlap
+>   EXCLUDE USING gist (
+>     professional_id WITH =,
+>     tstzrange(start_at, end_at, '[)') WITH &&
+>   ) WHERE (status = 'booked');
+>
+> is it a table rule or what? it will ensure double block restriction right?
+
+**Output Summary:**
+- Explained that `EXCLUDE USING gist` is a declarative PostgreSQL table constraint (backed by a GiST index) that generalises `UNIQUE`: it forbids two active (`status = 'booked'`) rows from having the same `professional_id` and overlapping half-open time ranges `[start_at, end_at)`.
+- Walked through how Postgres locks the GiST index entry when two transactions race so both cannot succeed, and noted the companion `CHECK` constraint and custom Drizzle migration needed.
+
+**Actions:**
+- Explained each clause of `EXCLUDE USING gist` and concurrent transaction locking
+
+---
+### Turn #08 — 2026-11-04 12:40:02 (UTC+8) — Analyse 9 Approaches to Preventing Double-Booking
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `1,847` (Cached: `54,639`) | Output: `3,094`
+
+**User Prompt:**
+> got it, is the best way to handle double book situation? or any way to handle it via api side or server side or using cache or any other way... analyse
+
+**Output Summary:**
+- Compared 9 concurrency-control options (API check-then-insert, in-memory mutex, Redis distributed lock, Redis taken-slot cache, per-professional queue, row/advisory lock, `SERIALIZABLE` isolation, pre-generated slots table, and Postgres exclusion constraints) across concurrency safety, multi-server scaling, member-overlap coverage, and complexity.
+- Recommended a layered architecture: UI hides taken slots for UX, API validates business rules, and Postgres exclusion constraints act as the final correctness guarantee.
+- Added notes on how database sharding affects the member-overlap constraint for system design interviews.
+
+**Actions:**
+- Produced 9-option comparison table and layered defence analysis
+
+---
+### Turn #09 — 2026-11-04 12:44:31 (UTC+8) — Compare Row Locks (SELECT FOR UPDATE / Advisory Lock) vs Exclusion Constraints
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `3,355` (Cached: `56,360`) | Output: `2,843`
+
+**User Prompt:**
+> Row lock (SELECT ... FOR UPDATE or pg_advisory_xact_lock)
+> what is this row lock? how it works?
+> compare with no 9
+
+**Output Summary:**
+- Explained how pessimistic row locking (`SELECT ... FOR UPDATE` on the parent `users` rows or `pg_advisory_xact_lock`) serializes bookings by locking both the professional and member IDs in ascending order before running an overlap `SELECT` and `INSERT`.
+- Highlighted the pitfalls of row locks (forgetting to lock on a new code path, deadlock if IDs aren't sorted, serializing non-overlapping bookings for the same professional) and compared them directly against exclusion constraints (#9).
+
+**Actions:**
 - Compared `SELECT ... FOR UPDATE`, `pg_advisory_xact_lock`, and `EXCLUDE USING gist`
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: unknown
 
-## [2026-11-04T14:41:30+08:00] Draft initial plan for DECISIONS.md and AI_USAGE.md
-User Prompt (verbatim, secrets redacted): Okay, let go with exclution constraint regarding the fact that is built in done by postgres system, not much management/handling, no deadlock risk, easy to implement.
+---
+### Turn #10 — 2026-11-04 14:41:30 (UTC+8) — Plan Initial DECISIONS.md (Exclusion Constraints, pg-boss, Luxon)
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `66,774` (Cached: `134,776`) | Output: `7,124`
 
+**User Prompt:**
+> Okay, let go with exclution constraint regarding the fact that is built in done by postgres system, not much management/handling, no deadlock risk, easy to implement.
+>
+>
+> Lets creat the decisions.md
+> also writte up why I choose pg-boss over redis/bullMQ -> need one more service to run/handle, built for high-troughput queues. PG boss handy to implement with postgres directly. 
+> You requested for a simple reminders table, but i think pg-boss with idempotency key is better choice, isn't it?
+> We can mention that llm(you) suggested to use a reminders table, but i decided to go with pg-boss. there is point where I need to show where i take my decission, right?
+>
+> then also can write how i choose luxon over date-fns as it got better timezone support and comfottablity, better as we have high timezone condition/dependency
+>
+> /plan check all these and make the plan first decisions
 
-Lets creat the decisions.md
-also writte up why I choose pg-boss over redis/bullMQ -> need one more service to run/handle, built for high-troughput queues. PG boss handy to implement with postgres directly. 
-You requested for a simple reminders table, but i think pg-boss with idempotency key is better choice, isn't it?
-We can mention that llm(you) suggested to use a reminders table, but i decided to go with pg-boss. there is point where I need to show where i take my decission, right?
+**Output Summary:**
+- Confirmed that `pg-boss` is a strong choice when paired with three safeguards to guarantee effectively-once delivery: queuing in the same DB transaction, `UNIQUE (session_id, user_id, kind)` with `ON CONFLICT DO NOTHING` on `notifications`, and re-checking session status/start time when the worker fires.
+- Noted that overriding the AI's `reminders`-table suggestion in favour of `pg-boss` directly satisfies the brief's requirement in `AI_USAGE.md`.
+- Created the `decisions_plan.md` artifact and asked clarifying questions on slot layout.
 
-then also can write how i choose luxon over date-fns as it got better timezone support and comfottablity, better as we have high timezone condition/dependency
-
-/plan check all these and make the plan first decisions
-Agent Response Summary: Validated choosing `pg-boss` over a plain reminders table and specified the three safeguards required to achieve effectively-once delivery (transactional enqueue, `UNIQUE (session_id, user_id, kind)` with `ON CONFLICT DO NOTHING`, and send-time session status/time verification). Created the `decisions_plan.md` artifact outlining `DECISIONS.md` and `AI_USAGE.md` and asked clarifying questions on slot layout.
-Actions:
-- Ran `ls -la; git status` to check repository status
+**Actions:**
+- Checked workspace git state (`ls -la; git status`)
 - Created plan artifact `decisions_plan.md`
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: unknown
 
-## [2026-11-04T15:22:54+08:00] Refine DECISIONS.md & AI_USAGE.md plan with flexible slot layout and configurable buffer
-User Prompt (verbatim, secrets redacted): looks good, but need some correction I guess
+---
+### Turn #11 — 2026-11-04 15:22:54 (UTC+8) — Refine Plan with Flexible Slot Layout & Configurable Professional Buffer
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `pre-init`
+- **Tokens:** Input: `74,305` (Cached: `78,376`) | Output: `8,245`
 
-I actually didn't look the AI uses before. So I want to write like which AI or LLM tools models I'm using for taking what decisions. Like for getting the overview of the task and choosing tech stacks and business logics and like going forward for making the bootstrap template. I'm using you, Claude Opus. It can also say which skill I use. Or agent or sub agent. And then comes to the decisions plan. Overall, looks good. But currently only list out that we have finished deciding like tech stack you can keep but going forward I will change something here. Prevent double booking looks okay. Reminders looks okay. Time zone like as I we choose luxon over dateF n S. 
+**User Prompt:**
+> looks good, but need some correction I guess
+>
+> I actually didn't look the AI uses before. So I want to write like which AI or LLM tools models I'm using for taking what decisions. Like for getting the overview of the task and choosing tech stacks and business logics and like going forward for making the bootstrap template. I'm using you, Claude Opus. It can also say which skill I use. Or agent or sub agent. And then comes to the decisions plan. Overall, looks good. But currently only list out that we have finished deciding like tech stack you can keep but going forward I will change something here. Prevent double booking looks okay. Reminders looks okay. Time zone like as I we choose luxon over dateF n S. 
+>
+> regarding slot layout, i want to provide professional to choose their buffer time from 5 mins to 1 hour. within prof's avaialable time user can choose anytime to start, 5/10 minutes gap. does it looks good? better than your recom? any edge case?
+>
+> authentication okay, other okay, i will refine later one by one
+>
+> overall keep the decision and ai usage files readable to human. not too much deatail and wordy. user best starndards though to make it reliable
+>
+> you got it? any more issue?
+> update the plan accordingly
 
-regarding slot layout, i want to provide professional to choose their buffer time from 5 mins to 1 hour. within prof's avaialable time user can choose anytime to start, 5/10 minutes gap. does it looks good? better than your recom? any edge case?
+**Output Summary:**
+- Analysed the user's flexible slot layout (professional-configurable buffer + fixed start-time grid) across 8 edge cases, updating the professional exclusion constraint to cover `[start_at, blocked_until)` where `blocked_until = end_at + buffer` (snapshotted on each booking).
+- Revised `decisions_plan.md` so `DECISIONS.md` only includes finalised decisions (with open items in a "Still to decide" section) and `AI_USAGE.md` tracks tools/models by phase plus both user overrides (`pg-boss` and flexible slot layout).
 
-authentication okay, other okay, i will refine later one by one
-
-overall keep the decision and ai usage files readable to human. not too much deatail and wordy. user best starndards though to make it reliable
-
-you got it? any more issue?
-update the plan accordingly
-Agent Response Summary: Evaluated the user's flexible slot layout (professional-configurable buffer + fixed start-time step) against 8 edge cases (short unusable gaps, choice overload, DB enforcement via `[start_at, blocked_until)`, buffer snapshots per booking, end-of-day buffers, 30/45-minute timezone offsets, off-grid validation, and DST gaps). Updated `decisions_plan.md` to keep `DECISIONS.md` and `AI_USAGE.md` concise, human-readable, and focused on finalised decisions, documenting both overrides (`pg-boss` and flexible slot layout).
-Actions:
+**Actions:**
 - Updated plan artifact `decisions_plan.md` (v2)
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: unknown
 
-## [2026-11-04T15:34:44+08:00] Create DECISIONS.md and AI_USAGE.md and initialize git repository
-User Prompt (verbatim, secrets redacted): yup, looks excellent for now.
-regarding slot lets use 10 minutes step. prof can choose 10-60 minutes.
-okay the two md files first
-Agent Response Summary: Created `DECISIONS.md` (with 10-minute start steps and 10–60 minute configurable professional buffer) and `AI_USAGE.md` in the repository root. Initialized the git repository on branch `main` and created the initial commit with both documentation files.
-Actions:
-- Created `/Users/rakib/code/booking-bro/DECISIONS.md`
-- Created `/Users/rakib/code/booking-bro/AI_USAGE.md`
+---
+### Turn #12 — 2026-11-04 15:34:44 (UTC+8) — Write DECISIONS.md & AI_USAGE.md and Initialize Git Repo
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `79,449` (Cached: `86,921`) | Output: `4,607`
+
+**User Prompt:**
+> yup, looks excellent for now.
+> regarding slot lets use 10 minutes step. prof can choose 10-60 minutes.
+> okay the two md files first
+
+**Output Summary:**
+- Wrote `DECISIONS.md` (incorporating the 10-minute start step and 10–60 minute configurable buffer) and `AI_USAGE.md` in the repository root.
+- Initialized the git repository on `main` and created the initial commit with both files.
+
+**Actions:**
+- Created `DECISIONS.md` and `AI_USAGE.md`
 - Ran `git init -b main && git add DECISIONS.md AI_USAGE.md && git commit -m "docs: add initial DECISIONS.md and AI_USAGE.md"`
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: main
 
-## [2026-11-04T16:09:46+08:00] Scrutinize Argon2i vs Argon2id for password hashing
-User Prompt (verbatim, secrets redacted): Regarding the argon2i, I see there are three types. I got a basic understanding from wiki, you gave me the understanding of types to me again. And I think what I found, the argon2i is resistance to side-channel attack, which is important in case of our web or SaaS application. That's why I think argon2i is better. Verify and scrutinize my decision.
-Agent Response Summary: Compared `Argon2d`, `Argon2i`, and `Argon2id` against RFC 9106 and OWASP guidelines. Explained that while `Argon2i` uses data-independent memory access for side-channel resistance, it is weaker against offline GPU and time-memory trade-off (TMTO) attacks after a database leak, whereas `Argon2id` uses data-independent access in the first half of the first pass (preserving side-channel resistance) and data-dependent access thereafter (maximising GPU cracking resistance). Proposed adding this rationale to `DECISIONS.md`.
-Actions:
-- Analysed Argon2 variants (`Argon2d`, `Argon2i`, `Argon2id`) against RFC 9106 and OWASP Password Storage Cheat Sheet
-Context: tool=Antigravity model=Claude Opus 5.5 Branch: main
+---
+### Turn #13 — 2026-11-04 16:09:46 (UTC+8) — Scrutinize Argon2i vs Argon2id for Password Hashing
+- **Model:** `Claude Opus 5.5` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `80,001` (Cached: `6,244`) | Output: `1,685`
 
-## [2026-11-04T17:02:34+08:00] Plan AGENTS.md and append-only log.txt audit trail
-User Prompt (verbatim, secrets redacted): https://github.com/omiq17/hackerrank-orchestrate-october26/blob/main/AGENTS.md#5-log-format
+**User Prompt:**
+> Regarding the argon2i, I see there are three types. I got a basic understanding from wiki, you gave me the understanding of types to me again. And I think what I found, the argon2i is resistance to side-channel attack, which is important in case of our web or SaaS application. That's why I think argon2i is better. Verify and scrutinize my decision.
 
-Can you check this documentation? I actually like the log format and I want this for this project. So whatever I am doing with my LLM or coding agent, I want to be logged in a file, log.txt, and with the rules and conditions we can follow mostly like this documentation. Make a plan first.
-Agent Response Summary: Researched the `AGENTS.md` specification (specifically sections 1–5 including `#5-log-format`) from `omiq17/hackerrank-orchestrate-october26`. Created `logging_plan.md` proposing `AGENTS.md` in the repository root, `.agents/rules/logging.md` for automatic per-turn enforcement in Antigravity, an append-only `log.txt` backfilled from the start of the project, and the `Argon2id` update in `DECISIONS.md`.
-Actions:
-- Searched web for `omiq17/hackerrank-orchestrate-october26` `AGENTS.md` `#5-log-format`
+**Output Summary:**
+- Compared `Argon2d`, `Argon2i`, and `Argon2id` against RFC 9106 and OWASP guidelines.
+- Explained that `Argon2id` uses data-independent memory access in the first half of the first pass (giving the side-channel resistance of `Argon2i`) and data-dependent access in later passes (protecting against GPU and time-memory trade-off cracking after a database leak, where `Argon2i` is weakest).
+- Recommended keeping `Argon2id` and offered to add the rationale to `DECISIONS.md`.
+
+**Actions:**
+- Evaluated Argon2 variants against RFC 9106 and OWASP Password Storage Cheat Sheet
+
+---
+### Turn #14 — 2026-11-04 17:02:34 (UTC+8) — Plan Prompt Logging System (AGENTS.md & log.txt)
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `66,458` (Cached: `225,849`) | Output: `2,725`
+
+**User Prompt:**
+> https://github.com/omiq17/hackerrank-orchestrate-october26/blob/main/AGENTS.md#5-log-format
+>
+> Can you check this documentation? I actually like the log format and I want this for this project. So whatever I am doing with my LLM or coding agent, I want to be logged in a file, log.txt, and with the rules and conditions we can follow mostly like this documentation. Make a plan first.
+
+**Output Summary:**
+- Looked up the `AGENTS.md` logging specification from `omiq17/hackerrank-orchestrate-october26`.
+- Created `logging_plan.md` proposing `AGENTS.md`, `.agents/rules/logging.md`, an append-only `log.txt` backfilled from Turn 1, and the pending `Argon2id` update in `DECISIONS.md`.
+
+**Actions:**
+- Searched web for the reference `AGENTS.md` log format specification
 - Created plan artifact `logging_plan.md`
-Context: tool=Antigravity model=Gemini 4 Argon Branch: main
 
-## [2026-11-04T17:11:03+08:00] Create AGENTS.md, workspace logging rule, and backfilled log.txt
-User Prompt (verbatim, secrets redacted): Add 3. Password hashing-no need to add this to the ai_usage
-otherwise okay
-start logging from start
-Agent Response Summary: Created `AGENTS.md` and `.agents/rules/logging.md` enforcing the append-only `log.txt` format across all turns and subagents. Updated `DECISIONS.md` §6 with the `argon2id` vs `argon2i` rationale and `AI_USAGE.md` with the logging rule reference (omitting the password hashing section from `AI_USAGE.md` as requested). Created `log.txt` backfilled with the initial `SESSION START` entry and all 15 turns from the beginning of the project.
-Actions:
-- Created `/Users/rakib/code/booking-bro/AGENTS.md`
-- Created `/Users/rakib/code/booking-bro/.agents/rules/logging.md`
-- Edited `/Users/rakib/code/booking-bro/DECISIONS.md` (§6 argon2id rationale)
-- Edited `/Users/rakib/code/booking-bro/AI_USAGE.md` (added Gemini 4 Argon and `log.txt` reference)
-- Created `/Users/rakib/code/booking-bro/log.txt` with full backfilled history from Turn 1
-Context: tool=Antigravity model=Gemini 4 Argon Branch: main
+---
+### Turn #15 — 2026-11-04 17:11:03 (UTC+8) — Create Initial AGENTS.md, Logging Rule & Backfilled log.txt
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `75,623` (Cached: `135,667`) | Output: `8,892`
+
+**User Prompt:**
+> Add 3. Password hashing-no need to add this to the ai_usage
+> otherwise okay
+> start logging from start
+
+**Output Summary:**
+- Created `AGENTS.md`, `.agents/rules/logging.md`, and `log.txt` backfilled from Turn 1.
+- Added the `argon2id` vs `argon2i` rationale to `DECISIONS.md` §6 and updated `AI_USAGE.md` without adding the password hashing section.
+- Committed all changes to `main`.
+
+**Actions:**
+- Created `AGENTS.md`, `.agents/rules/logging.md`, and `log.txt`
+- Updated `DECISIONS.md` and `AI_USAGE.md`
+- Committed changes to `main`
+
+---
+### Turn #16 — 2026-11-04 17:20:52 (UTC+8) — Customize AGENTS.md & log.txt Format with Token Telemetry
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `83,196` (Cached: `227,070`) | Output: `1,533+`
+
+**User Prompt:**
+> There are some things to update in logs. I don't want the session start, no need, so per entry is needed, that's good. I want to organize the format of each entry logs, improve the time format so that it is easily understood, and then include model name. Can we get token input output statistics? And then show the user prompt and output in a good format. Otherwise, it seems okay. I just want to ask one question, which is, as in my last prompt, I told you to take the documentation, and you exactly took the documentation from the GitHub hackerrank-orchestrate repository. Is it okay, or is there any copyright or violation issue? In this case, I don't want to, just now I have made some updated and I have given some choices on logs from my side, so reflect this in my AGENTS.md. Don't just take exactly from the GitHub hackerrank-orchestrate repository.
+
+**Output Summary:**
+- Advised rewriting `AGENTS.md` from scratch rather than copying the HackerRank Orchestrate template so the repository remains 100% original work and avoids any reviewer or copyright concerns.
+- Extracted exact per-turn token metrics (`input_tokens`, `cache_read_tokens`, `output_tokens`) from `.system_generated/logs/transcript.jsonl`.
+- Rewrote `AGENTS.md`, `.agents/rules/logging.md`, and `log.txt` with the user's custom format: no `SESSION START` block, human-readable `YYYY-MM-DD HH:MM:SS (UTC+8)` timestamps, model and branch metadata, per-turn input/cached/output token counts, blockquoted user prompts, and structured output summaries.
+
+**Actions:**
+- Read `.system_generated/logs/transcript.jsonl` and extracted per-turn token counts via Python
+- Rewrote `AGENTS.md`, `.agents/rules/logging.md`, and `log.txt` in the custom format
