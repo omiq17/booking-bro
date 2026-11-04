@@ -19,7 +19,7 @@ No subagents used so far.
 | Phase          | What the AI did                                                                   | What I decided                                         |
 | -------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | Task overview  | Read the PDF and summarised requirements                                          | Checked it against the original brief                  |
-| Tech stack     | Compared options (date-fns vs Luxon, Redis vs Postgres queues, JWT vs sessions)   | Chose TypeScript, Postgres, Luxon, pg-boss             |
+| Tech stack     | Compared options (Vite vs Next.js, date-fns vs Luxon, Redis vs Postgres queues, JWT vs sessions) | Chose TypeScript, Next.js, Fastify + Zod, Postgres, Luxon, pg-boss |
 | Double-booking | Explained 9 approaches and their trade-offs                                       | Chose Postgres exclusion constraints                   |
 | Slot layout    | Proposed a fixed hourly grid and reviewed my alternative for edge cases           | Chose flexible 10-minute steps with a professional-set buffer |
 | Scaffold       | *(to be filled in)*                                                               |                                                        |
@@ -39,3 +39,9 @@ No subagents used so far.
 - **I chose:** a buffer each professional sets (10–60 minutes) and start times every 10 minutes
 - **Why:** more choice for members and more control for professionals
 - **Effect:** the double-booking constraint now covers session + buffer (`blocked_until`)
+
+### 3. Web framework: Next.js instead of React + Vite
+
+- **AI suggested:** a plain React + Vite SPA
+- **I chose:** Next.js (App Router) paired with the standalone Fastify + Zod API
+- **Why:** Next.js gives structured file-based routing, layouts, and a production growth path (such as SSR/SEO for public professional profiles), while `/api` rewrites and client-rendered calendar views keep the clean Fastify boundary and avoid timezone hydration issues

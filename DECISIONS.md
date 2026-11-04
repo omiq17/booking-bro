@@ -5,17 +5,21 @@ Sections marked *Provisional* may change during the build.
 
 ## 1. Tech stack *(Provisional)*
 
-| Area     | Choice                          | Why                                                           |
-| -------- | ------------------------------- | ------------------------------------------------------------- |
-| Language | TypeScript (Node.js) end to end | My strongest stack; shared types between API and web          |
-| API      | Fastify + Zod                   | Lightweight, typed request validation                         |
-| Database | PostgreSQL                      | Exclusion constraints, `timestamptz`, transactional job queue |
-| ORM      | Drizzle                         | Close to SQL; custom migrations for constraints               |
-| Web      | React + Vite + TanStack Query   | Simple SPA, clean API boundary                                |
-| Jobs     | pg-boss                         | See [§3](#3-reminders)                                        |
-| Time     | Luxon                           | See [§4](#4-time-and-timezones)                               |
-| Tests    | Vitest + Testcontainers         | Real Postgres for concurrency tests                           |
-| Repo     | pnpm workspaces monorepo        | `apps/api`, `apps/web`, `packages/shared`                     |
+| Area     | Choice                                | Why                                                                                  |
+| -------- | ------------------------------------- | ------------------------------------------------------------------------------------ |
+| Language | TypeScript (Node.js) end to end       | My strongest stack; shared types and Zod schemas between API and web                 |
+| API      | Fastify + Zod                         | Lightweight, typed request validation; clean standalone API boundary                 |
+| Database | PostgreSQL                            | Exclusion constraints, `timestamptz`, transactional job queue                        |
+| ORM      | Drizzle                               | Close to SQL; custom migrations for constraints                                      |
+| Web      | Next.js (App Router) + TanStack Query | File-based routing, layouts, and production/SEO readiness while proxying `/api` to Fastify |
+| Jobs     | pg-boss                               | See [§3](#3-reminders)                                                               |
+| Time     | Luxon                                 | See [§4](#4-time-and-timezones)                                                      |
+| Tests    | Vitest + Testcontainers               | Real Postgres for concurrency tests                                                  |
+| Repo     | pnpm workspaces monorepo              | `apps/api`, `apps/web`, `packages/shared`                                            |
+
+### Why Next.js + standalone Fastify API
+- **Structured frontend & growth:** Next.js App Router provides file-based routing, role-based layouts, and SSR/SEO capability as the platform grows (for example, public professional profiles and directories).
+- **Separate Fastify backend:** All business logic, database access, session validation, and `pg-boss` workers stay in `apps/api`. Next.js proxies `/api/*` via `rewrites()` so `HttpOnly` session cookies remain same-origin, and client components (`"use client"` + TanStack Query) render timezone-sensitive calendars without SSR hydration mismatches. Keeping the API separate also means future mobile apps can share the exact same backend contract.
 
 ## 2. Preventing double-booking
 

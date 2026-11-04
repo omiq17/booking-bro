@@ -288,7 +288,8 @@
 - **Tokens:** Input: `83,196` (Cached: `227,070`) | Output: `1,533+`
 
 **User Prompt:**
-> There are some things to update in logs. I don't want the session start, no need, so per entry is needed, that's good. I want to organize the format of each entry logs, improve the time format so that it is easily understood, and then include model name. Can we get token input output statistics? And then show the user prompt and output in a good format. Otherwise, it seems okay. I just want to ask one question, which is, as in my last prompt, I told you to take the documentation, and you exactly took the documentation from the GitHub hackerrank-orchestrate repository. Is it okay, or is there any copyright or violation issue? In this case, I don't want to, just now I have made some updated and I have given some choices on logs from my side, so reflect this in my AGENTS.md. Don't just take exactly from the GitHub hackerrank-orchestrate repository.
+> There are some things to update in logs. I don't want the session start, no need, so per entry is needed, that's good. I want to organize the format of each entry logs, improve the time format so that it is easily understood, and then include model name. Can we get token input output statistics? And then show the user prompt and output in a good format. Otherwise, it seems okay. 
+I just want to ask one question, which is, as in my last prompt, I told you to take the documentation, and you exactly took the documentation from the GitHub hackerrank-orchestrate repository. Is it okay, or is there any copyright or violation issue? In this case, I don't want to, just now I have made some updated and I have given some choices on logs from my side, so reflect this in my AGENTS.md. Don't just take exactly from the GitHub hackerrank-orchestrate repository.
 
 **Output Summary:**
 - Advised rewriting `AGENTS.md` from scratch rather than copying the HackerRank Orchestrate template so the repository remains 100% original work and avoids any reviewer or copyright concerns.
@@ -298,3 +299,53 @@
 **Actions:**
 - Read `.system_generated/logs/transcript.jsonl` and extracted per-turn token counts via Python
 - Rewrote `AGENTS.md`, `.agents/rules/logging.md`, and `log.txt` in the custom format
+
+---
+### Turn #17 — 2026-11-04 17:32:07 (UTC+8) — Compare React + Vite vs Next.js for the Web App
+- **Model:** `Claude Sonnet 5.5` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `250,171` (Cached: `1,405,253`) | Output: `2,022+` *(counted when the entry was written; excludes the final reply)*
+
+**User Prompt:**
+> In the tech stack web section, you mentioned to use React + Vite, but I am thinking of Next.js, a React framework, and as it is a framework, by default it gives many features and a structured way to develop and build. So what do you think? Compare between these two options and scrutinize.
+
+**Output Summary:**
+- Fetched current Next.js docs via `ctx7` (rewrites/proxying to an external API, route handlers, cookie sessions).
+- Compared React + Vite SPA against Next.js for this project (separate Fastify API, session cookies, pg-boss worker, concurrency-critical booking) and gave a recommendation with trade-offs.
+
+**Actions:**
+- Ran `npx ctx7@latest library Next.js ...` and `npx ctx7@latest docs /vercel/next.js/v16.2.9 ...` (network access approved)
+
+---
+### Turn #18 — 2026-11-04 17:53:29 (UTC+8) — Evaluate Next.js for Long-Term Production Growth
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `96,530` (Cached: `0`) | Output: `361+`
+
+**User Prompt:**
+> If we think of a production app or making this app to increase features and add more functionality later, to grow up, should we think of Next.js?
+
+**Output Summary:**
+- Analysed how the frontend architecture scales as a mental-health platform like ThoughtFull grows into a full production product.
+- Separated the product into two distinct surfaces: public acquisition/directory pages (where Next.js SSR/SEO/metadata shine) vs authenticated clinical/booking workspaces (where client-driven React + TanStack Query + a standalone Fastify API remain ideal).
+- Explained how to use Next.js now (App Router + `/api` rewrites to Fastify) if building for production growth, or how to record this exact trade-off in `DECISIONS.md`.
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #18 to `log.txt`
+
+---
+### Turn #19 — 2026-11-04 17:58:37 (UTC+8) — Adopt Next.js + Fastify + Zod in DECISIONS.md & AI_USAGE.md
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `3,102` (Cached: `95,493`) | Output: `2,149+`
+
+**User Prompt:**
+> okay, lets use next js, fastify, zod
+> update the md files according to it
+
+**Output Summary:**
+- Updated `DECISIONS.md` §1 to replace `React + Vite` with `Next.js (App Router) + TanStack Query` paired with the standalone `Fastify + Zod` API, documenting the `/api/*` rewrite boundary, client-rendered timezone views, and future mobile/SEO growth path.
+- Updated `AI_USAGE.md` to record choosing Next.js over the AI's initial React + Vite recommendation as a third override example.
+
+**Actions:**
+- Edited `DECISIONS.md` (§1 Tech stack & Next.js + Fastify rationale)
+- Edited `AI_USAGE.md` (updated Tech stack row and added §3 Web framework override)
+- Appended Turn #19 to `log.txt`
