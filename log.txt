@@ -349,3 +349,69 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 - Edited `DECISIONS.md` (§1 Tech stack & Next.js + Fastify rationale)
 - Edited `AI_USAGE.md` (updated Tech stack row and added §3 Web framework override)
 - Appended Turn #19 to `log.txt`
+
+---
+### Turn #20 — 2026-11-04 18:04:43 (UTC+8) — Compare TanStack Query vs Next.js Built-In Data Fetching
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `12,679` (Cached: `504,569`) | Output: `1,109+`
+
+**User Prompt:**
+> Hey, how TanStack Query helps here? What is its main feature? I guess Next.js has its own query system as well. Compare both and scrutinize.
+
+**Output Summary:**
+- Fetched current TanStack Query v5 documentation via `ctx7` (`invalidateQueries`, `useMutation`, `refetchInterval`).
+- Explained what Next.js's built-in data system actually is (server-side `fetch` in React Server Components + Server Actions / `revalidatePath`), and why it does not manage interactive client-side state, polling, or fine-grained cache invalidation when calling a separate Fastify API.
+- Compared Next.js native fetching vs TanStack Query across the exact features of this booking app (live calendar updates after booking/conflict, in-app notification polling, reschedule mutations) and showed when you need TanStack Query vs when Next.js alone is enough.
+
+**Actions:**
+- Ran `npx ctx7 library "TanStack Query" ...` and `npx ctx7 docs /tanstack/query/v5.90.3 ...`
+- Appended Turn #20 to `log.txt`
+
+---
+### Turn #21 — 2026-11-04 18:13:35 (UTC+8) — State Management Strategy (Server State vs Client UI State)
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,131` (Cached: `105,980`) | Output: `393+`
+
+**User Prompt:**
+> Okay, I got it. TanStack Query seems good, let's stick with it. Now I want to know about the state management of my app. Will it be handled by Next.js internally, or are we using any library? Previously I used to use Redux or Zustand, or the state management provided by React—Context API?
+
+**Output Summary:**
+- Broke down every piece of state in the booking app into three buckets: **Server State** (~90% of the app: current user, professionals, slots, sessions, notifications), **URL State** (selected professional, date/slot in confirmation flow), and **Local UI State** (modals, form inputs, dropdowns).
+- Explained why **TanStack Query replaces Redux/Zustand for server state**, why **URL search params + local `useState`** cover the rest, and why adding Redux or Zustand here would only duplicate the TanStack Query cache.
+- Showed how `useAuth()` (`useQuery({ queryKey: ['me'] })`) works globally across components without needing a custom React Context or Redux store.
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #21 to `log.txt`
+
+---
+### Turn #22 — 2026-11-04 18:53:44 (UTC+8) — UI & CSS Choice (Tailwind CSS in Next.js)
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,127` (Cached: `108,186`) | Output: `391+`
+
+**User Prompt:**
+> got it, So the last thing is, for the UI and CSS, are we using Tailwind?
+
+**Output Summary:**
+- Confirmed **Tailwind CSS** (v4, built into `create-next-app` by default) as the best fit for the UI and styling layer, optionally paired with `lucide-react` icons and a few lightweight `shadcn/ui` (Radix) primitives or clean Tailwind components.
+- Compared Tailwind CSS against CSS Modules and component libraries (MUI/Chakra) for Next.js App Router, noting zero runtime JS cost and fast styling for calendar grids, slot pills, badges, and notification drawers.
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #22 to `log.txt`
+
+---
+### Turn #23 — 2026-11-04 18:56:18 (UTC+8) — Add Tailwind CSS to Tech Stack in DECISIONS.md
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,578` (Cached: `109,288`) | Output: `485+`
+
+**User Prompt:**
+> keep tailwind css for now
+
+**Output Summary:**
+- Updated `DECISIONS.md` §1 to include `Tailwind CSS` alongside `Next.js (App Router) + TanStack Query` in the Web stack table.
+- Appended Turn #23 to `log.txt` and committed the update.
+
+**Actions:**
+- Edited `DECISIONS.md` (§1 Web row)
+- Appended Turn #23 to `log.txt`

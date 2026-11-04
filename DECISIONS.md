@@ -11,7 +11,7 @@ Sections marked *Provisional* may change during the build.
 | API      | Fastify + Zod                         | Lightweight, typed request validation; clean standalone API boundary                 |
 | Database | PostgreSQL                            | Exclusion constraints, `timestamptz`, transactional job queue                        |
 | ORM      | Drizzle                               | Close to SQL; custom migrations for constraints                                      |
-| Web      | Next.js (App Router) + TanStack Query | File-based routing, layouts, and production/SEO readiness while proxying `/api` to Fastify |
+| Web      | Next.js (App Router) + TanStack Query + Tailwind CSS | File-based routing, server-state caching, utility-first styling, and `/api` rewrites to Fastify |
 | Jobs     | pg-boss                               | See [§3](#3-reminders)                                                               |
 | Time     | Luxon                                 | See [§4](#4-time-and-timezones)                                                      |
 | Tests    | Vitest + Testcontainers               | Real Postgres for concurrency tests                                                  |
