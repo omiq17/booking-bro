@@ -117,7 +117,7 @@ monitoring and an easy path to real email or SMS later.
 **Decision:** server-side sessions.
 
 - An HttpOnly, Secure, SameSite=Lax cookie holds a random token; only its SHA-256 hash is stored in the database
-- Passwords are hashed with argon2id
+- Passwords are hashed with **argon2id** (OWASP baseline: 19 MiB memory, 2 iterations, parallelism 1). Chosen over argon2i because argon2id keeps argon2i's data-independent side-channel resistance in its first pass while remaining strong against GPU and time-memory trade-off (TMTO) cracking after a database leak (RFC 9106 / OWASP recommendation).
 - Every request gets the user from the session; client-sent user IDs are never trusted
 - **Why not JWT:** logout and revocation need a denylist; with sessions, logout is deleting a row
 

@@ -8,9 +8,10 @@ and I can explain them.
 | Tool                      | Model             | Used for                                                                          |
 | ------------------------- | ----------------- | --------------------------------------------------------------------------------- |
 | Antigravity (agentic IDE) | Claude Sonnet 5.5 | Reading the task PDF and summarising the requirements                             |
-| Antigravity (agentic IDE) | Claude Opus 5.5   | Choosing the stack, business logic discussions, planning docs, project scaffold   |
+| Antigravity (agentic IDE) | Claude Opus 5.5   | Choosing the stack, business logic discussions, planning docs, security review    |
+| Antigravity (agentic IDE) | Gemini 4 Argon    | Setting up `AGENTS.md` and the append-only `log.txt` audit trail                  |
 
-**Agent features used:** planning mode (`/plan`) to draft and review plans before any files were written.
+**Agent features used:** planning mode (`/plan`) to draft and review plans before any files were written, and a workspace rule (`.agents/rules/logging.md`) enforcing turn-by-turn logging into [log.txt](log.txt) per [AGENTS.md](AGENTS.md).
 No subagents used so far.
 
 ## How I used it, by phase
