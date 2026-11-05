@@ -1,6 +1,6 @@
 # AI Prompt & Output Log
 
- Append-only turn log for the **ThoughtFull — Session Booking with Reminders** project. See [AGENTS.md](AGENTS.md) for format rules.
+Append-only turn log for the **BookingBro — A Session Booking App with Reminders** project. See [AGENTS.md](AGENTS.md) for format rules.
 
 ---
 ### Turn #01 — 2026-11-03 18:09:16 (UTC+8) — Initial Overview of the Assignment (Page 1)
@@ -449,3 +449,159 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 - Edited `DECISIONS.md` (§5 Slot layout)
 - Edited `AI_USAGE.md` (§2 Slot layout override)
 - Appended Turn #25 to `log.txt` and committed changes
+
+---
+### Turn #26 — 2026-11-05 19:00:34 (UTC+8) — Explain 25-Hour Repeated Clock Hour & IANA vs UTC Timezones
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,193` (Cached: `118,929`) | Output: `504+`
+
+**User Prompt:**
+> Okay, I see that the daylight time zone actually empties one hour for six months, and then adds one hour to the whole day, like 25 hours for a day in the next six months. Oh, that's amazing. I want to know when the day is 25 hours, how the clock works. Does the same hour repeat twice? And which hour will repeat twice? How is it decided? And then I want to also know the IANA time zone. How is it different from the UTC time zone? And how using this IANA time zone will resolve the scheduling issue in this project?
+
+**Output Summary:**
+- Explained how the 25-hour "Fall Back" day works on a wall clock: just before `02:00 AM` (or `03:00 AM` in parts of Australia), the clock jumps back 1 hour so `01:00–01:59 AM` literally repeats twice — once in Daylight Time (`UTC+1` in London) and once in Standard Time (`UTC+0` in London) — and explained that governments choose the middle of Sunday night by law to minimise disruption.
+- Contrasted **UTC** (universal reference clock), **UTC Offsets** (`+01:00`, static numbers that go stale when DST changes), and **IANA Timezones** (`Europe/London`, a rulebook containing a region's full history and schedule of offset changes).
+- Showed step-by-step how combining IANA timezones (for generating local availability slots) with UTC timestamps (for database storage, overlap constraints, and reminders) eliminates every cross-timezone and DST bug in the project.
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #26 to `log.txt`
+
+---
+### Turn #27 — 2026-11-05 19:45:03 (UTC+8) — Confirm How Often and Which Way DST Changes Day Length
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `124,229` (Cached: `0`) | Output: `616+`
+
+**User Prompt:**
+> Okay, now I want to confirm one of my understanding. So, the daylight saving adds one hour on a single day in a week, right? And then when it falls back, it minus one hour on a day of a week. Am I correct?
+
+**Output Summary:**
+- Confirmed the "single day" concept (only the transition Sunday itself changes length, while all other days remain 24 hours) and clarified two points:
+  1. It happens **twice a year** (one Sunday in Spring, one Sunday in Autumn), not every week.
+  2. The day-length math is the reverse of the clock movement: **Spring Forward** skips an hour so that Sunday has **23 hours (-1 hour)**, while **Fall Back** repeats an hour so that Sunday has **25 hours (+1 hour)**.
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #27 to `log.txt`
+
+---
+### Turn #28 — 2026-11-05 19:49:22 (UTC+8) — Start `/interview-me` to Lock In Scope & Open Business Rules
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,680` (Cached: `123,405`) | Output: `435+`
+
+**User Prompt:**
+> use /interview-me so far for this project
+
+**Output Summary:**
+- Read the `interview-me` skill (`SKILL.md`) and initiated the one-question-at-a-time interview with an explicit `HYPOTHESIS`, `CONFIDENCE` score (`~65%`), and first `Q` + `GUESS` targeting what success looks like for the reviewer experience and which optional extras (if any) are in scope.
+
+**Actions:**
+- Read `/Users/rakib/.gemini/config/plugins/agent-skills/skills/interview-me/SKILL.md`
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #28 to `log.txt`
+
+---
+### Turn #29 — 2026-11-05 19:52:43 (UTC+8) — `/interview-me` Q2: How Reviewer Experiences 24h/1h Reminders & Notifications
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,461` (Cached: `130,031`) | Output: `376+`
+
+**User Prompt:**
+> Yes, correct. I want Docker Compose up with pre seeded demo values in DB and minimum booking notice of 2 hours.
+
+**Output Summary:**
+- Locked in `docker compose up` with seeded demo data and the **2-hour minimum booking notice** optional extra ( raising confidence to `~78%`).
+- Asked Question 2 of `/interview-me` about how the reviewer will observe the 24h and 1h reminders in the in-app notification list without waiting hours in real time (e.g., pre-seeded sessions whose reminders fire on startup + notifications for cancellations/reschedules).
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #29 to `log.txt`
+
+---
+### Turn #30 — 2026-11-05 19:58:04 (UTC+8) — Clarify PDF Reminder Requirement & `/interview-me` Q3
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,555` (Cached: `131,656`) | Output: `772+`
+
+**User Prompt:**
+> Point number one is okay, we can have some seed data to test the 24-hour and 1-hour reminders are working. And then for the point number two, refer to the reminders section of the task PDF. I think we have to send three types of reminder. The first one is that covers in point one, 24-hour and 1-hour reminder before a new session. And then other two is rescheduling and canceling. So for a new booking, I think it doesn't need, not covered in the requirement. Am I right?
+
+**Output Summary:**
+- Confirmed that a "new booking" notification is not required by the PDF, and quoted the exact PDF wording: *"Cancelling or rescheduling updates the reminders."*
+- Explained that in the PDF, "updates the reminders" primarily means cancelling the pending 24h/1h `pg-boss` jobs when a session is cancelled, and replacing them with new 24h/1h jobs at the new `start_at` when rescheduled — and noted we can also drop a notification when a session is cancelled or rescheduled so neither party is surprised.
+- Asked Question 3 of `/interview-me` on what happens to existing booked sessions when a professional edits their weekly working hours.
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #30 to `log.txt`
+
+---
+### Turn #31 — 2026-11-05 20:13:45 (UTC+8) — Explain On-the-Fly Slot Generation & Present `/interview-me` Intent Restate
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `137,078` (Cached: `0`) | Output: `442+`
+
+**User Prompt:**
+> Existing booked session is valid and untouched, that is correct. Based on the new working hours and buffer time, it will affect future unbooked slot generation. If the professional wants to cancel a session, they can cancel it anytime as per the task description, isn't it? One thing comes to my mind, when a professional updates the buffer time or working hours, will it impact on the member's slot generation immediately?
+
+**Output Summary:**
+- Confirmed that a professional can cancel any session at any time per the brief.
+- Explained why updating working hours or buffer time impacts member slot generation **immediately**: available slots are computed on the fly when `GET /api/professionals/:id/slots` is called (by combining `availability_windows` + current `buffer_minutes` minus existing `booked` sessions), and booking re-validates against the current schedule at `POST /api/sessions` time.
+- Reached `~96%` confidence in `/interview-me` and presented the Step 4 Statement of Intent restate (`Outcome / User / Why now / Success / Constraint / Out of scope`) for confirmation.
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #31 to `log.txt`
+
+---
+### Turn #32 — 2026-11-05 20:22:06 (UTC+8) — Finalize `/interview-me` Intent as BookingBro & Sync DECISIONS.md + AI_USAGE.md
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `129,559` (Cached: `153,162`) | Output: `4,876+`
+
+**User Prompt:**
+> Overall things look good. The user has a 1-hour technical interview and a 5-day window. Just keep it generic, like I give it a name, Booking Bro. So it is an app for booking submission. Other things look good. And then the last question-answering session that I do with you using the skill, remember to update the AI_USAGE.md file that on the decisions that I have taken over you.  Also update Decisons.md if necessary. Remember that in the upcoming chat turns or prompt turns as well.
+
+**Output Summary:**
+- Refined the confirmed Statement of Intent under the generic project identity **BookingBro — A Session Booking App with Reminders**.
+- Updated `DECISIONS.md` (§1 state management, §3 cancel/reschedule reminder updates without new-booking notification, §5 on-the-fly slot generation + 2h minimum notice + schedule edits, and §7 Business rules & runtime setup).
+- Updated `AI_USAGE.md` to record using `/interview-me`, `ctx7`, and the 4th override (**Notification triggers: no notification on initial booking**).
+- Added Rule 4 to `.agents/rules/logging.md` so `DECISIONS.md` and `AI_USAGE.md` stay synced on every future turn whenever decisions or skills are used.
+
+**Actions:**
+- Edited `DECISIONS.md`, `AI_USAGE.md`, and `.agents/rules/logging.md`
+- Appended Turn #32 to `log.txt`
+
+---
+### Turn #33 — 2026-11-05 20:27:04 (UTC+8) — Audit Project Context Using `/context-engineering`
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `9,821` (Cached: `297,959`) | Output: `643+`
+
+**User Prompt:**
+> /context-engineering check the overall context
+
+**Output Summary:**
+- Read the `context-engineering` skill (`SKILL.md`) and audited the project across all 5 levels of the Context Hierarchy (`AGENTS.md` rules, `DECISIONS.md` / `AI_USAGE.md` architecture docs, `.gitignore` & working-tree state, and conversation token budget after 33 turns).
+- Identified 4 concrete improvements before scaffolding: (1) enrich `AGENTS.md` with the finalized Tech Stack, Monorepo Commands, and Domain Invariants so any new session loads them automatically, (2) expand `.gitignore` beyond `*.pdf` (`node_modules`, `.next`, `dist`, `.env*`), (3) align the header in `DECISIONS.md` / `log.txt` to **BookingBro**, and (4) commit uncommitted changes to create a clean Restartable Session Boundary (and optionally run `/compact`).
+- Updated `AI_USAGE.md` to record `/context-engineering`.
+
+**Actions:**
+- Read `/Users/rakib/.gemini/config/plugins/agent-skills/skills/context-engineering/SKILL.md`
+- Read `AGENTS.md`, `.agents/rules/logging.md`, and `.gitignore`
+- Edited `AI_USAGE.md` (added `/context-engineering` skill)
+- Appended Turn #33 to `log.txt`
+
+---
+### Turn #34 — 2026-11-05 20:30:37 (UTC+8) — Apply `/context-engineering` Fixes & Commit Session Boundary
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `3,151` (Cached: `157,446`) | Output: `2,636+`
+
+**User Prompt:**
+> yeah correct, fix those 4 things
+
+**Output Summary:**
+- Enriched `AGENTS.md` with the finalized Tech Stack, Monorepo Layout & Standard Commands, and Domain Invariants so every session loads the full project rules automatically.
+- Saved the confirmed Statement of Intent to `docs/intent/booking-bro.md`.
+- Expanded `.gitignore` (`node_modules/`, `dist/`, `.next/`, `.env*`, `coverage/`, `.DS_Store`) and aligned the `log.txt` header to **BookingBro — A Session Booking App with Reminders**.
+- Committed all changes to `main` to establish a clean Restartable Session Boundary.
+
+**Actions:**
+- Updated `AGENTS.md`, `.gitignore`, and `log.txt`
+- Created `docs/intent/booking-bro.md`
+- Committed all changes to `main`

@@ -24,3 +24,4 @@ On every user turn in `/Users/rakib/code/booking-bro`, append a new turn entry t
    **Actions:**
    - <Files modified or commands run>
    ```
+4. **Keep `DECISIONS.md` and `AI_USAGE.md` in sync:** Whenever the user makes, refines, or overrides a technical/product decision, or when a skill/subagent is used, update `DECISIONS.md` and/or `AI_USAGE.md` accordingly.

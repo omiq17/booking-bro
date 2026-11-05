@@ -3,7 +3,7 @@
 A living record of key technical decisions. Each entry: what I chose, why, and what I traded off.
 Sections marked *Provisional* may change during the build.
 
-## 1. Tech stack *(Provisional)*
+## 1. Tech stack
 
 | Area     | Choice                                | Why                                                                                  |
 | -------- | ------------------------------------- | ------------------------------------------------------------------------------------ |
@@ -17,9 +17,10 @@ Sections marked *Provisional* may change during the build.
 | Tests    | Vitest + Testcontainers               | Real Postgres for concurrency tests                                                  |
 | Repo     | pnpm workspaces monorepo              | `apps/api`, `apps/web`, `packages/shared`                                            |
 
-### Why Next.js + standalone Fastify API
+### Why Next.js + standalone Fastify API + TanStack Query
 - **Structured frontend & growth:** Next.js App Router provides file-based routing, role-based layouts, and SSR/SEO capability as the platform grows (for example, public professional profiles and directories).
 - **Separate Fastify backend:** All business logic, database access, session validation, and `pg-boss` workers stay in `apps/api`. Next.js proxies `/api/*` via `rewrites()` so `HttpOnly` session cookies remain same-origin, and client components (`"use client"` + TanStack Query) render timezone-sensitive calendars without SSR hydration mismatches. Keeping the API separate also means future mobile apps can share the exact same backend contract.
+- **State management without Redux/Zustand:** Server state (authenticated user `['me']`, available slots, sessions, and 15s-polled notifications) lives in TanStack Query's cache; selection state lives in the URL; modal/form state uses local `useState`. Adding Redux or Zustand would only duplicate the server cache.
 
 ## 2. Preventing double-booking
 
@@ -62,6 +63,7 @@ It takes two migration statements and only blocks true overlaps.
 
 On booking, up to 4 jobs are queued (24h and 1h before, for the member and the professional).
 Jobs whose time has already passed are skipped. Delivery is an in-app notification.
+- **Cancel / reschedule updates:** cancelling a session cancels its pending 24h/1h jobs and creates a cancellation notification; rescheduling cancels the old jobs, queues new 24h/1h jobs for the new time, and creates a reschedule notification. New bookings do **not** generate an immediate notification.
 
 **Why not Redis + BullMQ:**
 
@@ -107,11 +109,11 @@ monitoring and an easy path to real email or SMS later.
   - Windows on the same day must be strictly ordered with a gap (`prev.end_time < next.start_time`) so duplicate slots cannot be generated
 - **Session length:** always **50 minutes**
 - **Buffer options:** each professional chooses **10, 20, or 30 minutes** (default 10), which blocks time after each session (`blocked_until = end_at + buffer`)
-- **Bookable start times:** members can start at **any 10-minute step** inside a working window (`09:00, 09:10, 09:20 …`) if:
-  - it's in the future
+- **Bookable start times:** generated **on the fly** (no pre-generated slots table). Members can start at **any 10-minute step** inside a working window (`09:00, 09:10, 09:20 …`) if:
+  - it's at least **2 hours in the future** (2-hour minimum booking notice)
   - the 50-minute session fits inside that availability window in real elapsed UTC minutes (`end_utc - start_utc == 50 minutes`; the buffer after the session may extend past the window)
   - `[start, end + buffer)` doesn't overlap any existing booking (including that booking's own buffer)
-- The buffer is saved on each booking, so changing it later doesn't affect existing sessions
+- **Schedule & buffer edits:** because slots are computed on the fly, updating working hours or buffer time updates unbooked member slots immediately. Existing `booked` sessions (and their saved `blocked_until` buffer) remain valid and untouched unless the professional explicitly cancels them.
 
 **Why:** supports realistic split shifts (lunch/evening breaks) without a separate breaks table, gives members flexible start times, and keeps professional rest options simple (10/20/30 mins).
 
@@ -126,9 +128,14 @@ monitoring and an easy path to real email or SMS later.
 - Every request gets the user from the session; client-sent user IDs are never trusted
 - **Why not JWT:** logout and revocation need a denylist; with sessions, logout is deleting a row
 
+## 7. Business rules and runtime setup
+
+- **24-hour rule:** compared in real elapsed UTC hours (`start_at - now() >= 24h`). Within 24 hours, member cancel and reschedule are blocked with a clear error message. Professionals can cancel at any time.
+- **2-hour minimum booking notice:** slots starting less than 2 hours from `now()` are hidden in the calendar and rejected by the API.
+- **One-command Docker setup & seeded data:** `docker compose up` starts Postgres, runs migrations, seeds fictional member/professional accounts (including sessions with due/near-due reminders so `pg-boss` delivery is immediately visible), and runs the API and web app.
+
 ## Still to decide
 
-- Business rules and assumptions (24h rule details, professional cancellation, changing working hours)
 - Known limitations
 - What I would do next with more time
 - Running this safely in production for a healthcare product

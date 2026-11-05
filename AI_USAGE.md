@@ -7,21 +7,27 @@ and I can explain them.
 
 | Tool                      | Model             | Used for                                                                          |
 | ------------------------- | ----------------- | --------------------------------------------------------------------------------- |
-| Antigravity (agentic IDE) | Claude Sonnet 5.5 | Reading the task PDF and summarising the requirements                             |
+| Antigravity (agentic IDE) | Claude Sonnet 5.5 | Reading the task PDF, summarising requirements, Next.js vs Vite lookup            |
 | Antigravity (agentic IDE) | Claude Opus 5.5   | Choosing the stack, business logic discussions, planning docs, security review    |
-| Antigravity (agentic IDE) | Gemini 4 Argon    | Setting up `AGENTS.md` and the append-only `log.txt` audit trail                  |
+| Antigravity (agentic IDE) | Gemini 4 Argon    | Setting up `AGENTS.md` / `log.txt`, state & DST analysis, `/interview-me` session |
 
-**Agent features used:** planning mode (`/plan`) to draft and review plans before any files were written, and a workspace rule (`.agents/rules/logging.md`) enforcing turn-by-turn logging into [log.txt](log.txt) per [AGENTS.md](AGENTS.md).
-No subagents used so far.
+**Agent features used:**
+- Planning mode (`/plan`) to draft and review plans before any files were written
+- Skill `/interview-me` (`interview-me`) to stress-test scope, reminder triggers, minimum booking notice, and schedule-edit edge cases
+- Skill `/context-engineering` (`context-engineering`) to audit project rules, context hierarchy, and session-boundary readiness before scaffolding
+- `ctx7` CLI rule to verify current Next.js v16 and TanStack Query v5 documentation
+- Workspace rule (`.agents/rules/logging.md`) enforcing turn-by-turn logging into [log.txt](log.txt) per [AGENTS.md](AGENTS.md)
+- No subagents used so far.
 
 ## How I used it, by phase
 
 | Phase          | What the AI did                                                                   | What I decided                                         |
 | -------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | Task overview  | Read the PDF and summarised requirements                                          | Checked it against the original brief                  |
-| Tech stack     | Compared options (Vite vs Next.js, date-fns vs Luxon, Redis vs Postgres queues, JWT vs sessions) | Chose TypeScript, Next.js, Fastify + Zod, Postgres, Luxon, pg-boss |
+| Tech stack     | Compared options (Vite vs Next.js, date-fns vs Luxon, Redis vs Postgres queues, JWT vs sessions, TanStack Query vs Redux/Zustand) | Chose TypeScript, Next.js, TanStack Query, Tailwind CSS, Fastify + Zod, Postgres, Luxon, pg-boss |
 | Double-booking | Explained 9 approaches and their trade-offs                                       | Chose Postgres exclusion constraints                   |
-| Slot layout    | Proposed a fixed hourly grid and reviewed my alternative for edge cases           | Chose flexible 10-minute steps with a professional-set buffer |
+| Slot layout    | Proposed a fixed hourly grid and reviewed my multi-window alternative             | Chose up to 3 windows/day (≥ 50m), 10-min steps, and 10/20/30-min buffers |
+| Business rules (`/interview-me`) | Ran one-question-at-a-time interview on extras, reminder testing, and schedule changes | Chose `docker compose up` + seed data, 2h minimum notice, cancel/reschedule notifications only, and keeping existing bookings when hours change |
 | Scaffold       | *(to be filled in)*                                                               |                                                        |
 
 ## Where I overrode the AI
@@ -45,3 +51,9 @@ No subagents used so far.
 - **AI suggested:** a plain React + Vite SPA
 - **I chose:** Next.js (App Router) paired with the standalone Fastify + Zod API
 - **Why:** Next.js gives structured file-based routing, layouts, and a production growth path (such as SSR/SEO for public professional profiles), while `/api` rewrites and client-rendered calendar views keep the clean Fastify boundary and avoid timezone hydration issues
+
+### 4. Notification triggers (`/interview-me`): no notification on initial booking
+
+- **AI suggested:** sending an immediate in-app notification on every new booking in addition to 24h/1h reminders and cancel/reschedule updates
+- **I chose:** only the scheduled 24h and 1h reminders plus cancel and reschedule notifications (no new-booking notification)
+- **Why:** matches the specification (`"When a session is booked, reminders are scheduled for 24 hours and 1 hour before it starts... Cancelling or rescheduling updates the reminders"`) and avoids cluttering the notification list with redundant confirmation noise
