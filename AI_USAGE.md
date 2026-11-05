@@ -18,6 +18,7 @@ and I can explain them.
 - Skill `/context-engineering` (`context-engineering`) to audit project rules, context hierarchy, and session-boundary readiness before scaffolding
 - Skill `/idea-refine` (`idea-refine`) to stress-test all design decisions against the brief's requirements and surface hidden UX/technical assumptions
 - Skill `/spec-driven-development` (`spec-driven-development`) to author the capability map, database/API contracts, and test specification in [SPEC.md](SPEC.md)
+- Skill `/constraint-driven-development` (`constraint-driven-development`) to establish an unbendable quality bar contract in `CONSTRAINTS.md` before implementation
 - `ctx7` CLI rule to verify current Next.js v16 and TanStack Query v5 documentation
 - Workspace rule (`.agents/rules/logging.md`) enforcing turn-by-turn logging into [log.txt](log.txt) per [AGENTS.md](AGENTS.md)
 - No subagents used so far.

@@ -1,7 +1,7 @@
 # Technical Specification: BookingBro — Session Booking with Reminders
 
-> **Status:** Draft — Awaiting Human Review (Phase 1 of `spec-driven-development`)  
-> **Related Docs:** [DECISIONS.md](DECISIONS.md) · [AI_USAGE.md](AI_USAGE.md) · [AGENTS.md](AGENTS.md) · [docs/intent/booking-bro.md](docs/intent/booking-bro.md)
+> **Status:** Approved & Finalized  
+> **Related Docs:** [DECISIONS.md](DECISIONS.md) · [AI_USAGE.md](AI_USAGE.md) · [AGENTS.md](AGENTS.md) · [CONSTRAINTS.md](CONSTRAINTS.md) · [docs/intent/booking-bro.md](docs/intent/booking-bro.md)
 
 ---
 
@@ -423,7 +423,8 @@ All tests run with **one command (`pnpm test`)** via Vitest across two suites:
 
 ---
 
-## 9. Open Questions for Review
+## 9. Review Sign-Off & Resolutions
 
-1. **Test database runner:** For `pnpm test`, should the integration tests spin up an ephemeral PostgreSQL container via `@testcontainers/postgresql` automatically (with a `TEST_DATABASE_URL` env override if a local/Docker Postgres container is already running)?
-2. **Any adjustments to the 6-module Capability Map or database schema** before we move to Phase 2 (`Plan` & `Tasks`)?
+1. **Test database runner:** Use the Docker Compose PostgreSQL instance directly with an isolated `booking_bro_test` database (zero extra Testcontainers overhead, runs in < 1 second).
+2. **Capability map & schema:** Confirmed with atomic reschedule, member schedule conflict filtering in slot generation, and 10/20/30-minute buffer choices across up to 3 daily windows.
+3. **Quality contract:** Governed by [CONSTRAINTS.md](CONSTRAINTS.md). Phase 1 is formally approved.

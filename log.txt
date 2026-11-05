@@ -763,3 +763,42 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 - Updated `DECISIONS.md` (cleaned up trade-off reference)
 - Appended Turn #41 to `log.txt`
 - Committed all changes to `main`
+
+---
+### Turn #42 — 2026-11-06 01:10:52 (UTC+8) — Establish Quality Bar Contract (`CONSTRAINTS.md`) via `/constraint-driven-development`
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `25,540` (Cached: `1,817,102`) | Output: `3,370+`
+
+**User Prompt:**
+> /constraint-driven-development do your final checkings
+
+**Output Summary:**
+- Read the `constraint-driven-development` skill (`SKILL.md`) and audited the project across all quality dimensions.
+- Created `/Users/rakib/code/booking-bro/CONSTRAINTS.md` defining:
+  - **The Floor:** Zero suppression comments (`@ts-ignore`, `eslint-disable`), zero unimplemented stubs, zero skipped tests, zero secrets in source, and zero unhandled errors.
+  - **Numbered Dimensions & Commands:** Zero TypeScript compiler errors (`pnpm typecheck`), zero lint errors (`pnpm lint`), 100% test pass rate across unit + real-Postgres suites (`pnpm test`), core domain coverage ≥ 80% on changed lines in `packages/shared`, database concurrency guarantee (SQLSTATE `23P01` mapped to `409`), and idempotent reminder notifications.
+  - **Speed Budgets:** Fast check (< 5s), verification check (< 30s), full quality gate before merge.
+- Added quality constraint mandate to `AGENTS.md` and recorded `/constraint-driven-development` in `AI_USAGE.md`.
+- Paused and held the turn as instructed, awaiting user command before moving to the next phase.
+
+**Actions:**
+- Created `/Users/rakib/code/booking-bro/CONSTRAINTS.md`
+- Updated `AGENTS.md` and `AI_USAGE.md`
+- Appended Turn #42 to `log.txt`
+
+---
+### Turn #43 — 2026-11-06 01:16:20 (UTC+8) — Finalize SPEC.md & Commit Approved Specification and Constraints
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `248,019` (Cached: `1,172,869`) | Output: `1,231+`
+
+**User Prompt:**
+> Great, looks good. I guess we can finalize the spec and we can remove the draft note from the spec and make a commit.
+
+**Output Summary:**
+- Updated `SPEC.md` to remove the draft banner, mark the specification as **Approved & Finalized**, and record the resolution of open questions in §9.
+- Staged and committed all pending documentation updates (`SPEC.md`, `CONSTRAINTS.md`, `AGENTS.md`, `AI_USAGE.md`, and `log.txt`) to git with a clean working tree.
+
+**Actions:**
+- Edited `SPEC.md` (status approved, open questions resolved)
+- Appended Turn #43 to `log.txt`
+- Committed all changes to `main`

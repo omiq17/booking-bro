@@ -34,6 +34,7 @@ This document is the primary context and rulebook for AI coding agents working o
 
 ## 3. Core Engineering & Security Boundaries
 
+- **Quality Constraints:** Read [CONSTRAINTS.md](CONSTRAINTS.md) before writing code. Do not weaken or bypass it to make a change pass.
 - **Human Ownership & Living Docs:** Keep [DECISIONS.md](DECISIONS.md) and [AI_USAGE.md](AI_USAGE.md) updated whenever an architectural/product decision is made or refined, or when a skill/subagent is used.
 - **Server-Side Identity Only:** Always resolve the authenticated user from the server session cookie (`req.user`), never from a client-supplied user ID.
 - **Synthetic Data Only:** Use fictional names, emails, and schedules in code, tests, seeds, and logs. Never include real personal or health data.
