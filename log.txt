@@ -647,3 +647,98 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 - Updated `AGENTS.md` (Domain Invariants & UI Layout)
 - Updated `AI_USAGE.md` (added Gemini 3.8 Flash to Tools table)
 - Appended Turn #36 to `log.txt`
+
+---
+### Turn #37 — 2026-11-05 22:22:26 (UTC+8) — Create Full Technical Specification (`SPEC.md`) via `/spec-driven-development`
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `213,093` (Cached: `1,484,406`) | Output: `10,176+`
+
+**User Prompt:**
+> with the help of /spec-driven-development 
+> Refer to the task PDF, especially look out point two and three. Do the specification carefully and seriously, and follow the standard coding practices.
+
+**Output Summary:**
+- Read the `spec-driven-development` skill (`SKILL.md`) and re-verified every requirement in **§2 (What you will build)** and **§3 (Testing)** of `ThoughtFull_TakeHome_Booking_Task.pdf`.
+- Created `/Users/rakib/code/booking-bro/SPEC.md` covering:
+  - **Surfaced Assumptions** and a **6-Module Capability Map & Build Order** (`shared-domain` → `db-and-auth` → `availability-and-slots` → `booking-and-sessions` → `reminders-and-notifications` → `web-ui`).
+  - **Detailed Feature Specification (§1)** mapping every must-have feature and chosen extra to API routes, business rules, and status codes.
+  - **Tech Stack & Complete PostgreSQL Schema (§2)** including `btree_gist` exclusion constraints (`no_professional_overlap`, `no_member_overlap`) and `CHECK` invariants.
+  - **Executable Commands (§3), Project Structure (§4), Code Style with Pure Core snippets (§5), Testing Strategy (§6) mapped to Brief §3, Boundaries (§7), Success Criteria (§8), and Open Questions (§9).**
+- Updated `AI_USAGE.md` to record `/spec-driven-development` and stopped the turn per the Phase 1 gate for human review.
+
+**Actions:**
+- Read `/Users/rakib/.gemini/config/plugins/agent-skills/skills/spec-driven-development/SKILL.md` and extracted PDF text
+- Created `/Users/rakib/code/booking-bro/SPEC.md`
+- Updated `/Users/rakib/code/booking-bro/AI_USAGE.md`
+- Appended Turn #37 to `/Users/rakib/code/booking-bro/log.txt`
+
+---
+### Turn #38 — 2026-11-06 00:41:20 (UTC+8) — Refine `SPEC.md` (Server Idempotency, Notification List UI, Reschedule 24h Skip, `updated_at`, Docker Test DB)
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `218,968` (Cached: `752,141`) | Output: `4,368+`
+
+**User Prompt:**
+> Something to refine: regarding reminders and notifications, do we need idempotency feature because the reminder will come from the server, not from the client's end?
+> The requirement says that member reminders will show as in-app notifications. So my concern is, should we implement with NotificationBell and a list on clicking it, or should we just show the notification as a badge? 
+> Regarding point 1.2, you noted password_hash with user_role and timezone, but timezone can change. Should we include variable timezone in the hashing? 
+> In point 1.7: Cancels old pending pg-boss reminder jobs and schedules new 24h and 1h pg-boss reminder jobs for the new session ID. -> don't need to  create 24h reminder if time already passed, right?
+> IN schema: What is the expiry of a auth session and what happens after the auth session expires? 
+> Require the updated_at field in booking_sessions, isn't it? Or a booking row cannot be edited? Reschedule or cancellation will create a new booking session row, is it so? 
+> Regarding test database runner, what is the best practice? Should we add Testcontainers library or can Docker handle? Suggest me.
+
+**Output Summary:**
+- Answered all 7 review questions and updated `SPEC.md`, `DECISIONS.md`, and `AI_USAGE.md`:
+  1. **Why server-side idempotency is needed:** `pg-boss` is at-least-once; if the server restarts after inserting the notification row but before marking the `pg-boss` job complete, `pg-boss` re-runs the job on startup. `UNIQUE (session_id, user_id, kind) ON CONFLICT DO NOTHING` prevents duplicate notifications after a restart.
+  2. **Notification UI:** The brief explicitly says *"a notification list in the app"*, so a badge alone isn't enough — we use a badge on the Notification Bell that opens the Notification List showing the full messages.
+  3. **Password hashing:** Clarified that *only* the plain-text `password` is passed to `argon2id`; `timezone` and `role` are separate columns and never hashed.
+  4. **Reschedule 24h reminder skip:** Confirmed and updated §1.7 — if a member reschedules into a slot `< 24h` away (e.g. `10h` from now), the `24h` reminder is already in the past and is skipped.
+  5. **Auth session expiry:** Defined as 7 days (`expires_at = now() + 7 days`); expired sessions are deleted on check, cookie cleared, and `401 Unauthorized` returned.
+  6. **`updated_at` on `booking_sessions`:** Added `updated_at TIMESTAMPTZ NOT NULL DEFAULT now()` since rows transition from `'booked'` to `'cancelled'` (in place) or `'rescheduled'` (old row updated to `'rescheduled'` + new `'booked'` row inserted).
+  7. **Test DB runner:** Switched from `@testcontainers/postgresql` to using the Docker Compose Postgres instance with an isolated `booking_bro_test` database (faster, zero extra library).
+
+**Actions:**
+- Updated `SPEC.md` (§1.2, §1.7, §1.8, §2.1, §2.2)
+- Updated `DECISIONS.md` (§1 Test runner) and `AI_USAGE.md`
+- Appended Turn #38 to `log.txt`
+
+---
+### Turn #39 — 2026-11-06 00:54:13 (UTC+8) — Explain Cryptographic Salt in Argon2id (What It Is, How It Is Generated, Where It Is Stored)
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `217,843` (Cached: `0`) | Output: `652+`
+
+**User Prompt:**
+> Regarding point 3, the question was, does password_hash should include timezone as it can change? I guess including user and role was okay. But now you suggested using a random cryptographic salt. Regarding salt, what is it, how we decide on the salt, and where will it be kept?
+
+**Output Summary:**
+- Explained what a cryptographic salt is (16 random bytes mixed with the password before hashing) and why it beats using static user fields like `email` or `role` (even if the same user resets their password to the same value or two users share a password, a random salt produces a completely different hash every time).
+- Explained how the salt is decided/generated: the `argon2` library calls OS cryptographic randomness (`16 bytes`) automatically inside `argon2.hash(password)` — you don't invent or configure a salt string yourself.
+- Explained where the salt is kept: no separate `salt` column is needed in Postgres because Argon2 returns a single self-contained PHC string (`$argon2id$v=19$m=19456,t=2,p=1$<salt>$<hash>`) stored directly in `users.password_hash`, and `argon2.verify(password_hash, password)` extracts the salt from that string automatically.
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #39 to `log.txt`
+
+---
+### Turn #40 — 2026-11-06 01:02:24 (UTC+8) — Record Human Overrides from SPEC.md Review in AI_USAGE.md & Commit
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `223,871` (Cached: `1,633,696`) | Output: `2,466+`
+
+**User Prompt:**
+> Nice, I got clear now. The spec looks good. 
+> List down the decisions I have taken over you in updating and confirming SPEC.md inside AI_USAGE.md. 
+> Let's commit, and remember, don't go to the next phase until I declare.
+
+**Output Summary:**
+- Documented user decisions and overrides from the `SPEC.md` review inside `AI_USAGE.md`:
+  - §5: Skipping 24h reminders when rescheduling into near-term slots (< 24h away).
+  - §6: Adding `updated_at` to `booking_sessions` and separating in-place cancellation from atomic new-row rescheduling.
+  - §7: Using Docker Compose PostgreSQL directly with an isolated `booking_bro_test` database instead of Testcontainers overhead.
+- Updated `AGENTS.md` and `DECISIONS.md` testing lines to match the Docker test database strategy.
+- Committed all files (`SPEC.md`, `AI_USAGE.md`, `DECISIONS.md`, `AGENTS.md`, and `log.txt`) to git with a clean working tree.
+- Paused and held the turn as instructed, awaiting the user's explicit command before advancing to Phase 2.
+
+**Actions:**
+- Updated `AI_USAGE.md` (§5, §6, §7 overrides)
+- Updated `AGENTS.md` (testing runner)
+- Appended Turn #40 to `log.txt`
+- Committed all changes to `main`

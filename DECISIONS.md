@@ -14,7 +14,7 @@ Sections marked *Provisional* may change during the build.
 | Web      | Next.js (App Router) + TanStack Query + Tailwind CSS | File-based routing, server-state caching, utility-first styling, and `/api` rewrites to Fastify |
 | Jobs     | pg-boss                               | See [§3](#3-reminders)                                                               |
 | Time     | Luxon                                 | See [§4](#4-time-and-timezones)                                                      |
-| Tests    | Vitest + Testcontainers               | Real Postgres for concurrency tests                                                  |
+| Tests    | Vitest + Docker Postgres (`booking_bro_test`) | Real Postgres for concurrency & exclusion-constraint tests without Testcontainers overhead |
 | Repo     | pnpm workspaces monorepo              | `apps/api`, `apps/web`, `packages/shared`                                            |
 
 ### Why Next.js + standalone Fastify API + TanStack Query

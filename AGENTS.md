@@ -8,7 +8,7 @@ This document is the primary context and rulebook for AI coding agents working o
 - **Backend (`apps/api`):** Node.js, TypeScript, Fastify, Zod, Drizzle ORM, PostgreSQL (`btree_gist` exclusion constraints), `pg-boss` (in-app reminder jobs), `argon2` (`argon2id`).
 - **Frontend (`apps/web`):** Next.js (App Router), TypeScript, TanStack Query (server-state cache & 15s notification polling), Tailwind CSS (`rewrites()` proxying `/api/*` to Fastify).
 - **Time & Timezones:** Luxon (`timestamptz` UTC in DB and API payloads; IANA timezone names stored per user and used for slot generation and UI display).
-- **Testing:** Vitest + Testcontainers (real PostgreSQL for concurrency and exclusion-constraint tests).
+- **Testing:** Vitest + Docker Postgres (`booking_bro_test`) (real PostgreSQL for concurrency and exclusion-constraint tests).
 
 ### Standard Commands
 - **Install:** `pnpm install`
