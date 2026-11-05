@@ -1,6 +1,6 @@
 # Agent Guidelines & Prompt Audit Log (`AGENTS.md`)
 
-This document defines the working rules and prompt-logging format for AI coding agents assisting on the **ThoughtFull Session Booking with Reminders** project.
+This document defines the working rules and prompt-logging format for AI coding agents assisting on the **BookingBro- A Session Booking App with Reminders** project.
 
 ## 1. Core Engineering Rules
 
