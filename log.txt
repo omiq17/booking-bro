@@ -742,3 +742,24 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 - Updated `AGENTS.md` (testing runner)
 - Appended Turn #40 to `log.txt`
 - Committed all changes to `main`
+
+---
+### Turn #41 — 2026-11-06 01:08:06 (UTC+8) — Remove Reminders from AI_USAGE Overrides & Record Password Hashing Input
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `225,372` (Cached: `1,277,438`) | Output: `4,363+`
+
+**User Prompt:**
+> Remove point number one, which is Reminders (pg-boss), from the AI_USAGE where I overbought the AI section. 
+> And do you check that I suggested to use user role and timestamp to hash the password? I have given my input to hash differently because timestamp can be chang.
+
+**Output Summary:**
+- Removed point #1 (`pg-boss` reminders) from the "Where I overrode the AI" section in `AI_USAGE.md` as requested and renumbered the remaining points.
+- Acknowledged and documented the user's scrutiny on password hashing: caught that mutable fields like timezone or timestamps must not be mixed into password hashing since they change over time, confirming that mutable attributes remain separate columns while Argon2id handles salt generation independently via 16-byte random bytes in the PHC string. Added this as §7 under `AI_USAGE.md`.
+- Removed cross-reference in `DECISIONS.md` to `AI_USAGE.md` regarding pg-boss.
+- Committed all changes cleanly and paused, awaiting the user's explicit signal before moving to Phase 2 (Planning & Tasks).
+
+**Actions:**
+- Updated `AI_USAGE.md` (removed pg-boss override, added §7 password hashing scrutiny)
+- Updated `DECISIONS.md` (cleaned up trade-off reference)
+- Appended Turn #41 to `log.txt`
+- Committed all changes to `main`

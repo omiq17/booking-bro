@@ -36,46 +36,44 @@ and I can explain them.
 
 ## Where I overrode the AI
 
-### 1. Reminders: pg-boss instead of a hand-written table
-
-- **AI suggested:** a plain `reminders` table polled with `FOR UPDATE SKIP LOCKED`
-- **I chose:** pg-boss, for built-in retries, scheduling and monitoring, and an easy upgrade to email or SMS
-- **What I added:** idempotent delivery (unique key + `ON CONFLICT DO NOTHING`), queuing in the same transaction,
-  and a re-check at send time, so the brief's "delivered exactly once" requirement still holds
-
-### 2. Slot layout: split availability windows + flexible start times instead of a fixed hourly grid
+### 1. Slot layout: split availability windows + flexible start times instead of a fixed hourly grid
 
 - **AI suggested:** an hourly grid (one working range per day, sessions start on the hour, with a fixed 10-minute break)
 - **I chose:** up to 3 availability windows per weekday (each ≥ 50 minutes), a buffer each professional picks from **10, 20, or 30 minutes**, and start times every 10 minutes
 - **Why:** supports real-world split shifts (such as lunch breaks), gives members more start-time flexibility, and gives professionals simple buffer choices
 - **Effect:** validation enforces non-overlapping windows ≥ 50 mins per day, and the double-booking constraint covers session + buffer (`blocked_until`)
 
-### 3. Web framework: Next.js instead of React + Vite
+### 2. Web framework: Next.js instead of React + Vite
 
 - **AI suggested:** a plain React + Vite SPA
 - **I chose:** Next.js (App Router) paired with the standalone Fastify + Zod API
 - **Why:** Next.js gives structured file-based routing, layouts, and a production growth path (such as SSR/SEO for public professional profiles), while `/api` rewrites and client-rendered calendar views keep the clean Fastify boundary and avoid timezone hydration issues
 
-### 4. Notification triggers (`/interview-me`): no notification on initial booking
+### 3. Notification triggers (`/interview-me`): no notification on initial booking
 
 - **AI suggested:** sending an immediate in-app notification on every new booking in addition to 24h/1h reminders and cancel/reschedule updates
 - **I chose:** only the scheduled 24h and 1h reminders plus cancel and reschedule notifications (no new-booking notification)
 - **Why:** matches the specification (`"When a session is booked, reminders are scheduled for 24 hours and 1 hour before it starts... Cancelling or rescheduling updates the reminders"`) and avoids cluttering the notification list with redundant confirmation noise
 
-### 5. Reschedule reminder logic: skip 24h reminder for near-term slots
+### 4. Reschedule reminder logic: skip 24h reminder for near-term slots
 
 - **AI draft specified:** rescheduling cancels old jobs and schedules new 24h and 1h reminder jobs for the new slot
 - **I identified & overrode:** caught that when rescheduling into an available slot that is less than 24 hours away (e.g. 10 hours from now), the 24-hour reminder is already in the past and must be skipped rather than scheduled
 - **Why:** avoids queuing past-due reminders that would immediately fire upon rescheduling
 
-### 6. Session mutation schema: require updated_at and separate in-place cancel from new-row reschedule
+### 5. Session mutation schema: require updated_at and separate in-place cancel from new-row reschedule
 
 - **AI draft missed:** `updated_at` column on `booking_sessions`
 - **I insisted:** adding `updated_at TIMESTAMPTZ NOT NULL DEFAULT now()` to `booking_sessions` and explicitly specifying that cancellation updates the existing row in place (`status = 'cancelled'`, `updated_at = now()`), whereas rescheduling updates the old row (`status = 'rescheduled'`) and inserts a new row (`status = 'booked'`) in the same transaction
 - **Why:** ensures accurate audit timestamps for status changes and avoids unique constraint conflicts on reminders
 
-### 7. Test environment: Docker Compose Postgres instead of Testcontainers
+### 6. Test environment: Docker Compose Postgres instead of Testcontainers
 
 - **AI suggested:** `@testcontainers/postgresql` to spin up disposable containers during `pnpm test`
 - **I chose:** running integration tests directly against the Docker Compose PostgreSQL instance using an isolated `booking_bro_test` database
 - **Why:** eliminates heavy container-orchestration dependencies (`dockerode`), avoids macOS Docker socket mounting quirks, and cuts test startup time by 6–8 seconds while still running against real PostgreSQL 16 with `btree_gist`
+
+### 7. Password hashing inputs: scrutinizing mutable attributes (timezone/timestamp) vs. cryptographic salt
+
+- **I identified & probed:** caught that mixing mutable user attributes like timezone or timestamps into password hashing is problematic because timezone and timestamps change over time
+- **Resolution:** clarified that mutable attributes (`timezone`, `updated_at`, `role`) remain strictly as separate database columns, while `argon2id` generates its own independent 16-byte random salt embedded into the PHC string format, guaranteeing credential verification remains decoupled from user profile updates

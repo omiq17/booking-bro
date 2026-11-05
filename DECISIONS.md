@@ -82,7 +82,7 @@ Jobs whose time has already passed are skipped. Delivery is an in-app notificati
 3. At send time the worker re-checks that the session is still booked at the same time, and skips it otherwise
 4. Jobs survive restarts because they are stored in Postgres
 
-**Trade-off:** more moving parts than a plain reminders table (see [AI_USAGE.md](AI_USAGE.md)), but it adds retries,
+**Trade-off:** more moving parts than a plain reminders table, but it adds retries,
 monitoring and an easy path to real email or SMS later.
 
 ## 4. Time and timezones
