@@ -55,7 +55,9 @@ It takes two migration statements and only blocks true overlaps.
 
 **Layers:** the UI hides taken times → the API validates business rules → the database guarantees no overlap.
 
-**Reschedule** runs in one transaction (cancel old, insert new, swap reminders), so the member never ends up with 0 or 2 sessions.
+**Reschedule in a single transaction:**
+- To prevent ghost reminders and avoid collision on `UNIQUE (session_id, user_id, kind)`, rescheduling marks the existing session `status = 'rescheduled'`, cancels its pending reminder jobs, and inserts a new session row with `status = 'booked'` for the new time, enqueuing new 24h/1h reminders.
+- Because this occurs in a single database transaction, if the new slot has a conflict, the entire operation rolls back—guaranteeing the member is never left with 0 or 2 sessions and preserving clean audit history.
 
 ## 3. Reminders
 
@@ -112,8 +114,12 @@ monitoring and an easy path to real email or SMS later.
 - **Bookable start times:** generated **on the fly** (no pre-generated slots table). Members can start at **any 10-minute step** inside a working window (`09:00, 09:10, 09:20 …`) if:
   - it's at least **2 hours in the future** (2-hour minimum booking notice)
   - the 50-minute session fits inside that availability window in real elapsed UTC minutes (`end_utc - start_utc == 50 minutes`; the buffer after the session may extend past the window)
-  - `[start, end + buffer)` doesn't overlap any existing booking (including that booking's own buffer)
+  - `[start, end + buffer)` doesn't overlap any existing booking of that professional (including that booking's own buffer)
+  - `[start, end)` does not overlap any existing `booked` session of the **requesting member** across all professionals (the generator factors in the member's full booking history so they are not shown slots they cannot book)
 - **Schedule & buffer edits:** because slots are computed on the fly, updating working hours or buffer time updates unbooked member slots immediately. Existing `booked` sessions (and their saved `blocked_until` buffer) remain valid and untouched unless the professional explicitly cancels them.
+- **UI layout for slot density:** To cleanly present up to ~44 candidate slots per day without overwhelming the member with an 880-button 4-week grid, the calendar uses a **two-column layout**:
+  - Left column: 4-week interactive date picker highlighting dates with available openings
+  - Right column: Available slots for the selected date grouped by Morning, Afternoon, and Evening pills
 
 **Why:** supports realistic split shifts (lunch/evening breaks) without a separate breaks table, gives members flexible start times, and keeps professional rest options simple (10/20/30 mins).
 

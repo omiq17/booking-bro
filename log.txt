@@ -605,3 +605,45 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 - Updated `AGENTS.md`, `.gitignore`, and `log.txt`
 - Created `docs/intent/booking-bro.md`
 - Committed all changes to `main`
+
+---
+### Turn #35 — 2026-11-05 20:38:08 (UTC+8) — Run `/idea-refine` to Stress-Test Ideas Against Brief Requirements
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `166,066` (Cached: `0`) | Output: `406+`
+
+**User Prompt:**
+> /idea-refine my ideas and solutions are okay compared to the given requirements?
+
+**Output Summary:**
+- Read the `idea-refine` skill (`SKILL.md` and `refinement-criteria.md`) and audited every design choice in `DECISIONS.md` against the 10 must-have requirements and testing criteria in the assignment brief.
+- Confirmed 100% requirement coverage while surfacing **3 hidden assumptions / edge cases** to refine before coding:
+  1. **10-minute step UI density & bidirectional buffer math:** 10-min steps create ~44 start times per day; must use a Date Picker → Morning/Afternoon/Evening grouped slot view (not a 28-day wall of 880 buttons), and slot generation must check `[candidate_start, candidate_end + current_buffer)` against existing `[booked.start_at, booked.blocked_until)`.
+  2. **Reschedule + notification uniqueness:** Rescheduling near the 24h boundary or multiple times needs `notifications` uniqueness to support the new time (or reschedule creates a new session row in the same transaction) so new reminders aren't suppressed by `ON CONFLICT DO NOTHING`.
+  3. **Member's own overlapping sessions on the calendar:** Hide or badge slots on a professional's calendar where the logged-in member already has an overlapping session with *another* professional, rather than waiting for a `409` on click.
+- Updated `AI_USAGE.md` to record `/idea-refine`.
+
+**Actions:**
+- Read `/Users/rakib/.gemini/config/plugins/agent-skills/skills/idea-refine/SKILL.md` and `refinement-criteria.md`
+- Edited `AI_USAGE.md` (added `/idea-refine`)
+- Appended Turn #35 to `log.txt`
+
+---
+### Turn #36 — 2026-11-05 21:46:35 (UTC+8) — Validate Refinements (2-Column UI, Member Conflict Filtering, Reschedule Flags)
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `187,365` (Cached: `1,338,826`) | Output: `3,911+`
+
+**User Prompt:**
+> Regarding Trap 1, it's valid, use two-column layout. Then Trap 2, use a rescheduled flag for old reminders and create new reminders. Regarding Trap 3, when we show a free slot, we should take count of all the bookings of a member. Validate my thinking. Finish this first, then I will say you for the next phase, spec-driven development.
+
+**Output Summary:**
+- Validated user's thinking on all 3 points:
+  1. **Trap 1:** Confirmed 2-column layout (left: 4-week date picker; right: Morning/Afternoon/Evening grouped slot pills for selected date) to cleanly manage 10-minute step density (~44 slots/day).
+  2. **Trap 2:** Confirmed atomic reschedule flow: marking existing session `status = 'rescheduled'` and cancelling its pending reminder jobs, while inserting a new `booked` session with new reminders in a single transaction to prevent notification unique-key conflicts.
+  3. **Trap 3:** Validated member booking accounting: when an authenticated member views a calendar (`GET /api/professionals/:id/slots`), the generator factors in all active bookings of that member across all professionals, filtering out conflicting slots so the UI never displays bookable times that would violate `no_member_overlap`.
+- Updated `DECISIONS.md`, `AGENTS.md`, and `AI_USAGE.md` with these refined invariants.
+
+**Actions:**
+- Updated `DECISIONS.md` (§2 reschedule atomicity, §5 2-column UI and member-aware slot filtering)
+- Updated `AGENTS.md` (Domain Invariants & UI Layout)
+- Updated `AI_USAGE.md` (added Gemini 3.8 Flash to Tools table)
+- Appended Turn #36 to `log.txt`

@@ -10,11 +10,13 @@ and I can explain them.
 | Antigravity (agentic IDE) | Claude Sonnet 5.5 | Reading the task PDF, summarising requirements, Next.js vs Vite lookup            |
 | Antigravity (agentic IDE) | Claude Opus 5.5   | Choosing the stack, business logic discussions, planning docs, security review    |
 | Antigravity (agentic IDE) | Gemini 4 Argon    | Setting up `AGENTS.md` / `log.txt`, state & DST analysis, `/interview-me` session |
+| Antigravity (agentic IDE) | Gemini 3.8 Flash  | Refinement validation (two-column UI, member conflict filtering, atomic reschedule) |
 
 **Agent features used:**
 - Planning mode (`/plan`) to draft and review plans before any files were written
 - Skill `/interview-me` (`interview-me`) to stress-test scope, reminder triggers, minimum booking notice, and schedule-edit edge cases
 - Skill `/context-engineering` (`context-engineering`) to audit project rules, context hierarchy, and session-boundary readiness before scaffolding
+- Skill `/idea-refine` (`idea-refine`) to stress-test all design decisions against the brief's requirements and surface hidden UX/technical assumptions
 - `ctx7` CLI rule to verify current Next.js v16 and TanStack Query v5 documentation
 - Workspace rule (`.agents/rules/logging.md`) enforcing turn-by-turn logging into [log.txt](log.txt) per [AGENTS.md](AGENTS.md)
 - No subagents used so far.
