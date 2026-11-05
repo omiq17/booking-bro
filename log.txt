@@ -415,3 +415,37 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 **Actions:**
 - Edited `DECISIONS.md` (§1 Web row)
 - Appended Turn #23 to `log.txt`
+
+---
+### Turn #24 — 2026-11-05 18:38:37 (UTC+8) — Scrutinize Multiple Working Windows (Up to 3 per Day, Min 50 Mins)
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `113,554` (Cached: `0`) | Output: `474+`
+
+**User Prompt:**
+> Regarding the slot logic, I want to have an update where a professional can put multiple slots for a working day, max 3, and no slot can be less than 50 minutes, as it is the minimum time for a session. How about this idea? Verify and scrutinize.
+
+**Output Summary:**
+- Verified and scrutinized allowing professionals to set up to 3 availability windows ("working blocks") per weekday with a minimum duration of 50 minutes each.
+- Highlighted why it improves real-world usability (morning/afternoon/evening split shifts with lunch or school-run breaks without needing a separate break system).
+- Identified 5 edge cases and database/validation rules to enforce: no overlapping or touching windows on the same day, 10-minute grid alignment, buffer overflow into the break between windows, DST spring-forward shrinking a 50-minute window below 50 real minutes, and clean naming ("availability windows" vs "bookable slots").
+
+**Actions:**
+- Extracted token telemetry from `transcript.jsonl`
+- Appended Turn #24 to `log.txt`
+
+---
+### Turn #25 — 2026-11-05 18:44:10 (UTC+8) — Update Slot Rules (Max 3 Windows, 10/20/30 Min Buffer) & Explain DST Impact
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `116,124` (Cached: `0`) | Output: `1,586+`
+
+**User Prompt:**
+> Okay, the rules and conditions look good, let's go with it. And also, I want to note that for the buffer time, let's keep it 10, 20, and 30 minutes as options. And then I want to know about the daylight saving things. I already know the timezone variation that varies country to country and city to city, just help me to understand the daylight saving and the impact of this in this project.
+
+**Output Summary:**
+- Updated `DECISIONS.md` §5 and `AI_USAGE.md` §2 to lock in up to 3 non-overlapping availability windows per weekday (each ≥ 50 mins) and buffer choices of **10, 20, or 30 minutes**.
+- Explained Daylight Saving Time (DST) and the 3 specific impacts it has on a cross-timezone 4-week booking app: (1) shifting UTC offsets across weeks in the 4-week calendar, (2) "Spring Forward" missing hour, and (3) "Fall Back" repeated hour, plus how our Luxon + UTC design handles all three.
+
+**Actions:**
+- Edited `DECISIONS.md` (§5 Slot layout)
+- Edited `AI_USAGE.md` (§2 Slot layout override)
+- Appended Turn #25 to `log.txt` and committed changes

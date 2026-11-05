@@ -100,19 +100,20 @@ monitoring and an easy path to real email or SMS later.
 
 ## 5. Slot layout
 
-**Decision:** flexible start times with a buffer each professional sets.
+**Decision:** up to 3 availability windows per weekday, 10-minute start steps, and a buffer (10, 20, or 30 minutes) chosen by each professional.
 
-- Sessions are always **50 minutes**
-- Each professional chooses a **buffer of 10–60 minutes** (default 10), which blocks time after each session
-- Members can start at **any 10-minute step** inside working hours (09:00, 09:10, 09:20 …), if it's free
-- A start time is offered if:
+- **Availability windows:** a professional can set **up to 3 working windows per weekday** (for example, `09:00–12:00`, `13:00–17:00`, `19:00–21:00`), aligned to 10-minute boundaries:
+  - Each window must be **at least 50 minutes** long (the minimum duration of one session)
+  - Windows on the same day must be strictly ordered with a gap (`prev.end_time < next.start_time`) so duplicate slots cannot be generated
+- **Session length:** always **50 minutes**
+- **Buffer options:** each professional chooses **10, 20, or 30 minutes** (default 10), which blocks time after each session (`blocked_until = end_at + buffer`)
+- **Bookable start times:** members can start at **any 10-minute step** inside a working window (`09:00, 09:10, 09:20 …`) if:
   - it's in the future
-  - the 50-minute session ends within working hours (the buffer may run past them)
+  - the 50-minute session fits inside that availability window in real elapsed UTC minutes (`end_utc - start_utc == 50 minutes`; the buffer after the session may extend past the window)
   - `[start, end + buffer)` doesn't overlap any existing booking (including that booking's own buffer)
 - The buffer is saved on each booking, so changing it later doesn't affect existing sessions
-- Working hours: one time range per weekday (for example 09:00–17:00)
 
-**Why:** members get more choice, professionals control their rest time, and it's a familiar pattern from scheduling tools.
+**Why:** supports realistic split shifts (lunch/evening breaks) without a separate breaks table, gives members flexible start times, and keeps professional rest options simple (10/20/30 mins).
 
 **Trade-off:** short unusable gaps can appear (for example, a 09:20 booking leaves 09:00–09:20 empty). This is accepted for flexibility.
 

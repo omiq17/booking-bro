@@ -33,12 +33,12 @@ No subagents used so far.
 - **What I added:** idempotent delivery (unique key + `ON CONFLICT DO NOTHING`), queuing in the same transaction,
   and a re-check at send time, so the brief's "delivered exactly once" requirement still holds
 
-### 2. Slot layout: flexible start times instead of a fixed hourly grid
+### 2. Slot layout: split availability windows + flexible start times instead of a fixed hourly grid
 
-- **AI suggested:** an hourly grid (sessions start on the hour, with a fixed 10-minute break)
-- **I chose:** a buffer each professional sets (10–60 minutes) and start times every 10 minutes
-- **Why:** more choice for members and more control for professionals
-- **Effect:** the double-booking constraint now covers session + buffer (`blocked_until`)
+- **AI suggested:** an hourly grid (one working range per day, sessions start on the hour, with a fixed 10-minute break)
+- **I chose:** up to 3 availability windows per weekday (each ≥ 50 minutes), a buffer each professional picks from **10, 20, or 30 minutes**, and start times every 10 minutes
+- **Why:** supports real-world split shifts (such as lunch breaks), gives members more start-time flexibility, and gives professionals simple buffer choices
+- **Effect:** validation enforces non-overlapping windows ≥ 50 mins per day, and the double-booking constraint covers session + buffer (`blocked_until`)
 
 ### 3. Web framework: Next.js instead of React + Vite
 
