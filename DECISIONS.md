@@ -3,6 +3,35 @@
 A living record of key technical decisions. Each entry: what I chose, why, and what I traded off.
 Sections marked *Provisional* may change during the build.
 
+---
+
+## Table of Contents
+
+- [1. Tech Stack](#1-tech-stack)
+  - [Why Next.js + Standalone Fastify API + TanStack Query](#why-nextjs--standalone-fastify-api--tanstack-query)
+- [2. Preventing Double-Booking](#2-preventing-double-booking)
+  - [Exclusion Constraints & Concurrency Handling](#exclusion-constraints--concurrency-handling)
+  - [Reschedule in a Single Transaction](#reschedule-in-a-single-transaction)
+- [3. Reminders](#3-reminders)
+  - [pg-boss Architecture & Exactly-Once Delivery](#pg-boss-architecture--exactly-once-delivery)
+- [4. Time and Timezones](#4-time-and-timezones)
+  - [Luxon vs. date-fns & UTC Rules](#luxon-vs-date-fns--utc-rules)
+- [5. Slot Layout](#5-slot-layout)
+  - [On-the-Fly Generation & Buffer Options](#on-the-fly-generation--buffer-options)
+  - [UI Layout for Slot Density](#ui-layout-for-slot-density)
+- [6. Authentication](#6-authentication)
+  - [Server-Side Sessions & argon2id Hashing](#server-side-sessions--argon2id-hashing)
+- [7. Business Rules and Runtime Setup](#7-business-rules-and-runtime-setup)
+- [8. Frontend Design System & Responsive Mobile Strategy](#8-frontend-design-system--responsive-mobile-strategy)
+  - [Healthcare Color Palette & WCAG 2.1 AA/AAA Contrast](#healthcare-color-palette--wcag-21-aaaaa-contrast)
+  - [Dark and Light Mode / Semantic Theming Strategy](#dark-and-light-mode--semantic-theming-strategy)
+  - [Component Architecture & Why Pure Tailwind CSS + Lucide Icons](#component-architecture--why-pure-tailwind-css--lucide-icons)
+  - [Mobile Responsiveness: 10-Minute Slot Density](#mobile-responsiveness-10-minute-slot-density)
+  - [Frontend Data Flow & Cache Invalidation Lifecycle](#frontend-data-flow--cache-invalidation-lifecycle)
+- [Still to Decide](#still-to-decide)
+
+---
+
 ## 1. Tech stack
 
 | Area     | Choice                                | Why                                                                                  |
@@ -22,6 +51,8 @@ Sections marked *Provisional* may change during the build.
 - **Separate Fastify backend:** All business logic, database access, session validation, and `pg-boss` workers stay in `apps/api`. Next.js proxies `/api/*` via `rewrites()` so `HttpOnly` session cookies remain same-origin, and client components (`"use client"` + TanStack Query) render timezone-sensitive calendars without SSR hydration mismatches. Keeping the API separate also means future mobile apps can share the exact same backend contract.
 - **State management without Redux/Zustand:** Server state (authenticated user `['me']`, available slots, sessions, and 15s-polled notifications) lives in TanStack Query's cache; selection state lives in the URL; modal/form state uses local `useState`. Adding Redux or Zustand would only duplicate the server cache.
 
+---
+
 ## 2. Preventing double-booking
 
 **Decision:** Postgres exclusion constraints (with the `btree_gist` extension) are the final guarantee.
@@ -31,7 +62,7 @@ Sections marked *Provisional* may change during the build.
 - Both apply only `WHERE status = 'booked'`, so cancelled sessions free the time again
 
 ```sql
-ALTER TABLE sessions ADD CONSTRAINT no_professional_overlap
+ALTER TABLE booking_sessions ADD CONSTRAINT no_professional_overlap
   EXCLUDE USING gist (
     professional_id WITH =,
     tstzrange(start_at, blocked_until, '[)') WITH &&
@@ -59,6 +90,8 @@ It takes two migration statements and only blocks true overlaps.
 - To prevent ghost reminders and avoid collision on `UNIQUE (session_id, user_id, kind)`, rescheduling marks the existing session `status = 'rescheduled'`, cancels its pending reminder jobs, and inserts a new session row with `status = 'booked'` for the new time, enqueuing new 24h/1h reminders.
 - Because this occurs in a single database transaction, if the new slot has a conflict, the entire operation rolls back—guaranteeing the member is never left with 0 or 2 sessions and preserving clean audit history.
 
+---
+
 ## 3. Reminders
 
 **Decision:** pg-boss, a Postgres-backed job queue.
@@ -68,7 +101,6 @@ Jobs whose time has already passed are skipped. Delivery is an in-app notificati
 - **Cancel / reschedule updates:** cancelling a session cancels its pending 24h/1h jobs and creates a cancellation notification; rescheduling cancels the old jobs, queues new 24h/1h jobs for the new time, and creates a reschedule notification. New bookings do **not** generate an immediate notification.
 
 **Why not Redis + BullMQ:**
-
 - One more service to run, secure and make durable
 - Built for high-throughput queues; this app sends a few reminders an hour
 - Booking would be saved in Postgres but its jobs in Redis, so a crash between the two loses reminders
@@ -76,14 +108,15 @@ Jobs whose time has already passed are skipped. Delivery is an in-app notificati
 **Why pg-boss:** runs on the existing Postgres, supports delayed jobs, retries and archiving, and is safe with multiple workers.
 
 **Delivered exactly once:** pg-boss runs each job *at least* once, so delivery is made idempotent:
-
-1. Jobs are queued **in the same transaction** as the booking, cancel or reschedule
+1. Jobs are queued **in the same transaction** as the booking, cancel or reschedule via a Drizzle `{ executeSql }` adapter
 2. `notifications` has `UNIQUE (session_id, user_id, kind)` and inserts use `ON CONFLICT DO NOTHING`
 3. At send time the worker re-checks that the session is still booked at the same time, and skips it otherwise
 4. Jobs survive restarts because they are stored in Postgres
 
 **Trade-off:** more moving parts than a plain reminders table, but it adds retries,
 monitoring and an easy path to real email or SMS later.
+
+---
 
 ## 4. Time and timezones
 
@@ -96,11 +129,12 @@ monitoring and an easy path to real email or SMS later.
 | Fit for this app | Timezone-heavy domain → clear, safe code  | Better for simple formatting             |
 
 **Rules:**
-
 - All instants are stored as UTC `timestamptz`
 - Working hours are stored as local time plus the professional's IANA timezone
 - Start times are generated per local date, then converted to UTC. Times that don't exist (spring-forward gap) are dropped.
 - The API returns UTC; the web app shows times in the member's timezone
+
+---
 
 ## 5. Slot layout
 
@@ -117,13 +151,16 @@ monitoring and an easy path to real email or SMS later.
   - `[start, end + buffer)` doesn't overlap any existing booking of that professional (including that booking's own buffer)
   - `[start, end)` does not overlap any existing `booked` session of the **requesting member** across all professionals (the generator factors in the member's full booking history so they are not shown slots they cannot book)
 - **Schedule & buffer edits:** because slots are computed on the fly, updating working hours or buffer time updates unbooked member slots immediately. Existing `booked` sessions (and their saved `blocked_until` buffer) remain valid and untouched unless the professional explicitly cancels them.
-- **UI layout for slot density:** To cleanly present up to ~44 candidate slots per day without overwhelming the member with an 880-button 4-week grid, the calendar uses a **two-column layout**:
-  - Left column: 4-week interactive date picker highlighting dates with available openings
-  - Right column: Available slots for the selected date grouped by Morning, Afternoon, and Evening pills
+
+**UI layout for slot density:** To cleanly present up to ~44 candidate slots per day without overwhelming the member with an 880-button 4-week grid, the calendar uses a **two-column layout**:
+- Left column: 4-week interactive date picker highlighting dates with available openings
+- Right column: Available slots for the selected date grouped by Morning, Afternoon, and Evening pills
 
 **Why:** supports realistic split shifts (lunch/evening breaks) without a separate breaks table, gives members flexible start times, and keeps professional rest options simple (10/20/30 mins).
 
 **Trade-off:** short unusable gaps can appear (for example, a 09:20 booking leaves 09:00–09:20 empty). This is accepted for flexibility.
+
+---
 
 ## 6. Authentication
 
@@ -134,11 +171,57 @@ monitoring and an easy path to real email or SMS later.
 - Every request gets the user from the session; client-sent user IDs are never trusted
 - **Why not JWT:** logout and revocation need a denylist; with sessions, logout is deleting a row
 
+---
+
 ## 7. Business rules and runtime setup
 
 - **24-hour rule:** compared in real elapsed UTC hours (`start_at - now() >= 24h`). Within 24 hours, member cancel and reschedule are blocked with a clear error message. Professionals can cancel at any time.
 - **2-hour minimum booking notice:** slots starting less than 2 hours from `now()` are hidden in the calendar and rejected by the API.
 - **One-command Docker setup & seeded data:** `docker compose up` starts Postgres, runs migrations, seeds fictional member/professional accounts (including sessions with due/near-due reminders so `pg-boss` delivery is immediately visible), and runs the API and web app.
+
+---
+
+## 8. Frontend Design System & Responsive Mobile Strategy
+
+### Healthcare Color Palette & WCAG 2.1 AA/AAA Contrast
+Mental health and wellbeing session booking demands an anxiety-reducing, calming aesthetic:
+- **Primary Brand:** Deep Forest Teal/Emerald (`emerald-800` `#065F46`, hover `emerald-900` `#064E3B`). Contrast ratio with white is **7.8:1** (exceeds WCAG AAA requirement of 7:1).
+- **Background Surface:** Warm Linen Off-White (`stone-50` `#FAFAF9`) paired with white card surfaces and subtle `stone-200` borders. Avoids harsh, eye-straining pure white with pure black.
+- **Text:** Deep Charcoal Slate (`stone-900` `#1C1917` on `stone-50` = **14.2:1 contrast ratio**, far exceeding AAA).
+- **States:** Multi-channel indicators (color + icon + explicit copy):
+  - Confirmed: `emerald-600` with `CheckCircle` icon.
+  - Locked (< 24h): `amber-800` on `amber-100` with `Lock` icon and helper tooltip.
+  - Cancelled: `rose-700` on `rose-50` with `XCircle` icon.
+
+### Dark and Light Mode / Semantic Theming Strategy
+- **Why Warm Linen over Blinding White:** Pure `#FFFFFF` backgrounds with pure `#000000` text create glare and visual fatigue for users seeking care. The warm linen palette (`stone-50` / `stone-100` / `stone-900`) delivers low-glare, eye-friendly readability with full AAA compliance.
+- **Dark-Mode Readiness via Semantic Tokens (Option A):** Rather than hardcoding static utility color strings into components, UI styles leverage semantic tokens (`bg-canvas`, `bg-surface`, `text-main`, `text-muted`, `border-subtle`, `primary-accent`). This guarantees the primary warm-linen experience is rock-solid and accessible, while leaving the architecture prepared for instantaneous dark-mode expansion (`stone-950` canvas, `stone-900` surface, `emerald-400` accents) without refactoring component markup.
+
+### Component Architecture & Why Pure Tailwind CSS + Lucide Icons
+- **Rejected HeroUI (formerly NextUI):** Adds ~220KB bundle overhead, requires client-side providers, and fights Next.js 15 App Router streaming.
+- **Rejected full Shadcn CLI generation:** Running CLI code generators in a pnpm monorepo introduces configuration drift and unnecessary package dependencies.
+- **Chosen: The Shadcn Pattern (Pure Tailwind CSS + Lucide React + Accessible Primitives):**
+  - Modular, accessible components (`Button`, `Card`, `Badge`, `Modal`, `CalendarPicker`).
+  - Strict keyboard accessibility with visible focus rings (`focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2`).
+  - Zero heavy external runtime styling dependencies.
+
+### Mobile Responsiveness: 10-Minute Slot Density
+Presenting dozens of 10-minute start times across 28 days is unusable if rendered in a desktop 2-column format on mobile screens.
+- **Desktop (>= 1024px):** 2-column master-detail (Left: 28-day calendar picker showing available openings; Right: Morning, Afternoon, and Evening grouped pills).
+- **Mobile (< 1024px):** Stepper/sheet layout:
+  1. Date picker grid with high-contrast dots and large touch targets (`min-h-[44px]`).
+  2. Selecting a date scrolls or slides up the Morning/Afternoon/Evening time pills.
+  3. Modals render as slide-up bottom sheets (`rounded-t-2xl`) for natural thumb reach.
+
+### Frontend Data Flow & Cache Invalidation Lifecycle
+- **Same-Origin Proxy:** Next.js `rewrites()` proxies `/api/:path*` to Fastify (`http://localhost:3001/api/:path*`), keeping `HttpOnly; SameSite=Lax` cookies same-origin with zero CORS complexity.
+- **TanStack Query Cache Structure:**
+  - `['auth', 'me']`: Refreshed on login, logout, and timezone switch.
+  - `['slots', proId, activeDate]`: Invalidated immediately on booking, cancel, reschedule, or timezone change.
+  - `['sessions']`: Invalidated on booking, cancel, or reschedule.
+  - `['notifications']`: Polled every 15 seconds to update the notification bell counter badge in real time.
+
+---
 
 ## Still to decide
 

@@ -6,6 +6,18 @@
 
 ---
 
+## Table of Contents
+
+- [1. Overview](#1-overview)
+- [2. Architecture Decisions](#2-architecture-decisions)
+- [3. Dependency Graph](#3-dependency-graph)
+- [4. Ordered Task Index](#4-ordered-task-index)
+- [5. Risks and Mitigations](#5-risks-and-mitigations)
+- [6. Standing Definition of Done](#6-standing-definition-of-done)
+- [7. Open Questions](#7-open-questions)
+
+---
+
 ## 1. Overview
 
 Build **BookingBro**, a full-stack TypeScript session-booking web application with automated in-app reminders in a `pnpm` workspaces monorepo (`packages/shared`, `apps/api`, `apps/web`). Members can browse professionals, view available 50-minute slots across a 4-week calendar in their own IANA timezone (with a 2-hour minimum booking notice and automatic filtering of slots that conflict with the member's existing bookings), book sessions, and cancel or atomically reschedule up to 24 hours before start time. Professionals configure up to 3 non-overlapping availability windows per weekday (`>= 50m` each, 10-minute grid) and a 10, 20, or 30-minute post-session buffer, view upcoming sessions with member names, and cancel at any time. Double-booking is prevented under concurrent load by PostgreSQL `btree_gist` exclusion constraints, and 24h/1h reminders are scheduled and delivered idempotently via `pg-boss` into an in-app notification drawer.
@@ -20,6 +32,7 @@ Build **BookingBro**, a full-stack TypeScript session-booking web application wi
 - **Atomic Reschedule & Self-Exclusion:** Rescheduling runs in a single database transaction that marks the old session `'rescheduled'`, inserts a new `'booked'` row (`rescheduled_from_id`), updates `pg-boss` jobs via a Drizzle transaction adapter (`tx`), and attaches `'session_rescheduled'` notifications to `session_id = newSession.id`. Both `GET /api/professionals/:id/slots?excludeSessionId=...` and server-side reschedule validation exclude the session being rescheduled so shifting by ±10 minutes on the same day works seamlessly.
 - **Exactly-Once Reminders (`pg-boss` + Unique Constraint):** Reminder jobs (`reminder_24h`, `reminder_1h`) are persisted in Postgres, re-verify `booking_sessions.status === 'booked'` at send time, and insert into `notifications` with `UNIQUE (session_id, user_id, kind)` + `ON CONFLICT DO NOTHING`.
 - **Same-Origin Next.js Proxy (`apps/web`):** Next.js `rewrites()` proxies `/api/:path*` to Fastify (`http://localhost:3001/api/:path*`), keeping `HttpOnly; SameSite=Lax` session cookies same-origin with zero CORS complexity.
+- **Calming Healthcare Design System & Mobile Stepper Layout:** Pure Tailwind CSS + Lucide Icons using Deep Forest Teal (`emerald-800`), Warm Linen (`stone-50`), and Slate Charcoal (`stone-900`) exceeding WCAG 2.1 AAA contrast ratios. Manages 10-minute slot density via a 2-column desktop layout and a mobile-first stepper/sheet layout with $\ge 44\text{px}$ touch targets.
 
 ---
 

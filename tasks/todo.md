@@ -270,12 +270,13 @@
 
 ## Task 10: Next.js App Router Scaffold, `/api` Proxy, Typed Fetch Client & Layout Shell
 
-**Description:** Scaffold `apps/web` (Next.js App Router, TypeScript, Tailwind CSS, TanStack Query v5, Lucide icons), configure `next.config.ts` with `rewrites()` proxying `/api/:path*` to Fastify (`API_INTERNAL_URL || 'http://localhost:3001'`), implement the typed API client (`lib/api.ts`), Luxon display helpers (`lib/time.ts`), TanStack Query provider (`lib/query-client.tsx`), and top `Navbar.tsx` (displaying user role badge, active IANA timezone switcher, navigation links, and logout).
+**Description:** Scaffold `apps/web` (Next.js App Router, TypeScript, Tailwind CSS, TanStack Query v5, Lucide icons), configure `next.config.ts` with `rewrites()` proxying `/api/:path*` to Fastify (`API_INTERNAL_URL || 'http://localhost:3001'`), implement the typed API client (`lib/api.ts`), Luxon display helpers (`lib/time.ts`), TanStack Query provider (`lib/query-client.tsx`), and top `Navbar.tsx` (displaying user role badge, active IANA timezone switcher, navigation links, and logout). Establish the calming healthcare design system (Deep Forest Teal `emerald-800`, Warm Linen `stone-50`, Charcoal `stone-900` text) with strict WCAG 2.1 AA contrast.
 
 **Acceptance criteria:**
 - [ ] `next.config.ts` proxies `/api/:path*` so browser requests and `HttpOnly` cookies stay same-origin on `http://localhost:3000`.
 - [ ] `lib/api.ts` provides typed helper methods for auth, professionals, slots, sessions, availability, and notifications, surfacing structured API error messages (`code`, `message`).
 - [ ] `Navbar.tsx` allows switching the user's IANA timezone via `PATCH /api/users/me/timezone` and immediately invalidates slot/session queries.
+- [ ] Establishes the healthcare design system tokens in Tailwind (Emerald 800/900, Stone 50/100/900, Rose 700, Amber 800) with visible focus rings (`focus-visible:ring-2 focus-visible:ring-emerald-700`).
 
 **Verification:**
 - [ ] Tests pass: `pnpm --filter @booking-bro/web typecheck`
@@ -323,10 +324,11 @@
 
 ## Task 12: Professional Directory, Two-Column 4-Week Calendar & Booking Confirmation Flow
 
-**Description:** Build `/professionals` (directory cards showing name, specialty, bio, timezone, and buffer) and `/professionals/[id]` featuring the **two-column 4-week calendar layout** (`CalendarPicker.tsx`: left column 28-day grid with available slot counts per day in the member's timezone; right column Morning/Afternoon/Evening 10-minute start-time pills for the selected date) and `ConfirmModal.tsx` (displaying professional name, local date/time in member's timezone + professional's local time, 50-minute duration, and 24-hour cancellation policy before calling `POST /api/sessions`).
+**Description:** Build `/professionals` (directory cards showing name, specialty, bio, timezone, and buffer) and `/professionals/[id]` featuring the **two-column 4-week calendar layout on desktop and collapsible mobile-first stepper on mobile** (`CalendarPicker.tsx`: left column 28-day grid with available slot counts per day in the member's timezone; right column Morning/Afternoon/Evening 10-minute start-time pills for the selected date, with `min-h-[44px]` touch targets) and `ConfirmModal.tsx` (displaying professional name, local date/time in member's timezone + professional's local time, 50-minute duration, and 24-hour cancellation policy before calling `POST /api/sessions`).
 
 **Acceptance criteria:**
 - [ ] Selecting a professional renders a 28-day calendar in the member's timezone where dates with 0 free slots are disabled and dates with slots show Morning/Afternoon/Evening time pills on click.
+- [ ] On mobile (< 1024px), layout collapses gracefully into a touch-friendly date picker and scrollable time pill sheet with >= 44px touch targets.
 - [ ] Clicking a time pill opens the confirmation modal showing all required session details; confirming creates the booking (`POST /api/sessions`) and redirects/updates `My Sessions`.
 - [ ] If a slot was just taken (`409 SLOT_CONFLICT`), the modal displays a clear conflict alert and refreshes available slots automatically.
 

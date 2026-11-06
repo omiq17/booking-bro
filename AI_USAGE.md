@@ -3,14 +3,33 @@
 I used AI as a pair-programmer and sounding board. Final decisions and every line of code are mine,
 and I can explain them.
 
-## Tools
+---
 
-| Tool                      | Model             | Used for                                                                          |
-| ------------------------- | ----------------- | --------------------------------------------------------------------------------- |
-| Antigravity (agentic IDE) | Claude Sonnet 5.5 | Reading the task PDF, summarising requirements, Next.js vs Vite lookup            |
-| Antigravity (agentic IDE) | Claude Opus 5.5   | Choosing the stack, business logic discussions, planning docs, security review    |
-| Antigravity (agentic IDE) | Gemini 4 Argon    | Setting up `AGENTS.md` / `log.txt`, state & DST analysis, `/interview-me`, `/spec-driven-development` |
-| Antigravity (agentic IDE) | Gemini 3.8 Flash  | Refinement validation, spec review & decision recording                           |
+## Table of Contents
+
+- [1. Models Used](#1-models-used)
+- [2. How I Used It, by Phase](#2-how-i-used-it-by-phase)
+- [3. Where I Overwrote/Improved the AI](#3-where-i-overwroteimproved-the-ai)
+  - [1. Slot layout: split availability windows + flexible start times](#1-slot-layout-split-availability-windows--flexible-start-times-instead-of-a-fixed-hourly-grid)
+  - [2. Web framework: Next.js instead of React + Vite](#2-web-framework-nextjs-instead-of-react--vite)
+  - [3. Notification triggers: no notification on initial booking](#3-notification-triggers-interview-me-no-notification-on-initial-booking)
+  - [4. Reschedule reminder logic: skip 24h reminder for near-term slots](#4-reschedule-reminder-logic-skip-24h-reminder-for-near-term-slots)
+  - [5. Session mutation schema: require updated_at and separate in-place cancel from new-row reschedule](#5-session-mutation-schema-require-updated_at-and-separate-in-place-cancel-from-new-row-reschedule)
+  - [6. Test environment: Docker Compose Postgres instead of Testcontainers](#6-test-environment-docker-compose-postgres-instead-of-testcontainers)
+  - [7. Password hashing inputs: scrutinizing mutable attributes vs. cryptographic salt](#7-password-hashing-inputs-scrutinizing-mutable-attributes-timezonetimestamp-vs-cryptographic-salt)
+  - [8. Frontend UI/UX: Design system, healthcare color palette, and mobile-first responsiveness research](#8-frontend-uiux-design-system-healthcare-color-palette-and-mobile-first-responsiveness-research)
+  - [9. Dark and light mode strategy: semantic tokens and dark-mode readiness](#9-dark-and-light-mode-strategy-semantic-tokens-and-dark-mode-readiness)
+
+---
+
+## 1. Models Used
+
+| Model             | Used for                                                                          |
+| ----------------- | --------------------------------------------------------------------------------- |
+| Claude Sonnet 5.5 | Reading the task PDF, summarising requirements, Next.js vs Vite lookup            |
+| Claude Opus 5.5   | Choosing the stack, business logic discussions, planning docs, security review    |
+| Gemini 4 Argon    | Setting up `AGENTS.md` / `log.txt`, state & DST analysis, `/interview-me`, `/spec-driven-development`, Phase 2 & 3 implementation |
+| Gemini 3.8 Flash  | Refinement validation, spec review, TDD test suite auditing & decision recording  |
 
 **Agent features used:**
 - Planning mode (`/plan`) to draft and review plans before any files were written
@@ -20,12 +39,15 @@ and I can explain them.
 - Skill `/spec-driven-development` (`spec-driven-development`) to author the capability map, database/API contracts, and test specification in [SPEC.md](SPEC.md)
 - Skill `/constraint-driven-development` (`constraint-driven-development`) to establish an unbendable quality bar contract in `CONSTRAINTS.md` before implementation
 - Skill `/planning-and-task-breakdown` (`planning-and-task-breakdown`) to decompose the specification into 14 verifiable tasks and 4 checkpoints in `tasks/plan.md` and `tasks/todo.md`
-- Skills `/incremental-implementation` (`incremental-implementation`) and `/test-driven-development` (`test-driven-development`) to build Phase 1 (`packages/shared`) with RED-GREEN-REFACTOR unit tests
-- `ctx7` CLI rule to verify current Next.js v16 and TanStack Query v5 documentation
+- Skills `/incremental-implementation` (`incremental-implementation`) and `/test-driven-development` (`test-driven-development`) to build Phase 1 (`packages/shared`), Phase 2 (`apps/api`), and Phase 3 (`pg-boss` reminders, booking engine, real-Postgres concurrency suite)
+- Skill `/frontend-ui-engineering` (`frontend-ui-engineering`) to validate WCAG 2.1 AA/AAA contrast ratios, establish an intentional healthcare aesthetic, solve 10-minute slot density on mobile screens, and map the TanStack Query data flow
+- `ctx7` CLI rule to verify current documentation for Next.js, Tailwind CSS, and TanStack Query
 - Workspace rule (`.agents/rules/logging.md`) enforcing turn-by-turn logging into [log.txt](log.txt) per [AGENTS.md](AGENTS.md)
 - Subagent `test-engineer` (`QA Test Strategy Reviewer`) invoked to audit `SPEC.md` and Section 6 (Testing Strategy) for missing edge cases, schema/contract traps, and test-isolation hazards.
 
-## How I used it, by phase
+---
+
+## 2. How I Used It, by Phase
 
 | Phase          | What the AI did                                                                   | What I decided                                         |
 | -------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------ |
@@ -40,9 +62,11 @@ and I can explain them.
 | Phase 1: Shared Domain (`/test-driven-development`) | Scaffolded `pnpm` monorepo, Docker Postgres init script (`booking_bro` + `booking_bro_test`), and `@booking-bro/shared` pure Luxon slot generator, Zod schemas, and 31 unit tests (`93.31%` line coverage) | Verified all 31 unit tests across `rules.test.ts`, `slots.test.ts`, and `timezones.test.ts` pass with `>= 80%` coverage |
 | Phase 2: DB, Auth & Availability API (`/incremental-implementation`) | Built `@booking-bro/api` Drizzle ORM schema (`schema.ts`), idempotent SQL migration (`0000_init.sql` with `btree_gist` exclusion constraints), Fastify app factory with injectable clock (`app.getNow()`), `argon2id` + `HttpOnly` cookie session auth, and professional directory/slots/availability routes | Provisioned PostgreSQL 16 (`booking_bro` + `booking_bro_test`), verified `\d booking_sessions` and `\d notifications` constraints, and confirmed `pnpm typecheck`, `pnpm build`, and `pnpm test` pass cleanly |
 | Phase 3: Booking Engine, `pg-boss` Reminders & Concurrency Suite (`/test-driven-development`) | Implemented transactional `pg-boss` worker (`boss.ts`, `reminder.service.ts`), booking/cancel/atomic-reschedule engine (`booking.service.ts`, `sessions.ts`), notifications API (`notifications.ts`), and 27 real-PostgreSQL integration & concurrency tests (`concurrency.test.ts`, `sessions.test.ts`, `reminders-and-auth.test.ts`, `auth-and-availability.test.ts`) | Verified all 58 unit + real-PostgreSQL concurrency/integration tests pass in ~5.2s (`pnpm test`) with zero skipped tests |
-| Phase 4: Next.js Web UI, Seed & Docs | *(to be filled in)*                                                               |                                                        |
+| Phase 4: Next.js Web UI, Seed & Docs (`/frontend-ui-engineering`) | Evaluated UI libraries, color palettes, mobile 10-minute slot density, and mapped frontend data flow before scaffolding Next.js App Router | Selected calm healthcare palette (Emerald 800 / Warm Stone linen), avoided AI styling traps, and chose clean Tailwind CSS + Lucide Icons over heavy component libraries |
 
-## Where I overrode the AI
+---
+
+## 3. Where I Overwrote/Improved the AI
 
 ### 1. Slot layout: split availability windows + flexible start times instead of a fixed hourly grid
 
@@ -85,3 +109,19 @@ and I can explain them.
 
 - **I identified & probed:** caught that mixing mutable user attributes like timezone or timestamps into password hashing is problematic because timezone and timestamps change over time
 - **Resolution:** clarified that mutable attributes (`timezone`, `updated_at`, `role`) remain strictly as separate database columns, while `argon2id` generates its own independent 16-byte random salt embedded into the PHC string format, guaranteeing credential verification remains decoupled from user profile updates
+
+### 8. Frontend UI/UX: Design system, healthcare color palette, and mobile-first responsiveness research
+
+- **AI initial inclination:** Jumping directly into scaffolding components with default AI utility styles and generic layout patterns
+- **I directed & structured:** Required a dedicated design-system evaluation step before writing any UI code:
+  - Researched and established a calming healthcare-specific color palette (deep forest teal/emerald `#065F46`, warm linen background `#FAFAF9`, charcoal text `#1C1917`) with strict WCAG 2.1 AA/AAA contrast ratios (> 7.5:1 on actions, > 14:1 on body text).
+  - Solved the high-density 10-minute slot layout for mobile by specifying a mobile-first stepper/sheet layout with large touch targets (`min-h-[44px]`), preventing dense slot pill overflow on smaller screens.
+  - Chose lightweight, dependency-free Tailwind CSS + Lucide Icons over heavy component frameworks (HeroUI / Shadcn CLI) to avoid bundle bloat and Next.js 15 App Router hydration lag.
+  - Defined a clear frontend data flow architecture (TanStack Query cache keys, 15s notification polling, Next.js `/api` proxy rewrites).
+- **Why:** Prevents generic "AI aesthetic" traps, ensures flawless mobile responsiveness for mental-health users, and locks the visual contract before scaffolding code.
+
+### 9. Dark and light mode strategy: semantic tokens and dark-mode readiness
+
+- **I probed & directed:** Inquired whether dark and white themes/modes were accounted for prior to starting Phase 4 web implementation.
+- **Evaluation & Choice:** Evaluated pure white vs. warm linen, accessibility in mental health booking contexts, and dark mode complexity. Decided on **Option A**: Architecting the UI using semantic design tokens and CSS custom properties (`bg-canvas`, `bg-surface`, `text-primary`, `text-muted`, `border-subtle`, `primary-accent`) that support both dark and light modes cleanly.
+- **Why:** Prevents hardcoding static color utilities across components, ensures the warm linen theme provides immediate, eye-friendly, WCAG AAA-compliant booking on launch, and leaves the codebase 100% dark-mode ready for instant theme expansion without rewriting component markup.

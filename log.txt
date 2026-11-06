@@ -1107,5 +1107,94 @@ Committed Phase 3 implementation and provided comprehensive, production-grade re
 - Committed Phase 3 with message `feat(api): booking engine, pg-boss reminders, notifications and real-postgres concurrency suite (phase 3)`
 - Researched Tailwind & component strategy for Next.js App Router
 - Appended Turn #54 entry to `log.txt`
+---
+### Turn #55 — 2026-11-06 22:21:00 (UTC+8) — Frontend UI Engineering Design System Validation & Data Flow Blueprint
+- **Model:** `Gemini 3.8 Flash (High)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `4,255` (Cached: `214,451`) | Output: `~2,200`
+
+**User Prompt:**
+> /frontend-ui-engineering validate the last proposed design system? color plates okay? need any improvement? mockup okay? do we need to create mockup for every page? lastly provide me a frontend ui data flow
+
+**Output Summary:**
+Evaluated the proposed frontend design system against the `/frontend-ui-engineering` skill standards:
+1. **Design System & Contrast Audit:** Verified WCAG 2.1 AA/AAA compliance (> 7.5:1 contrast for Emerald 800 on Stone 50; > 14:1 for Charcoal on Stone 50). Improved interactive states with explicit focus rings (`focus-visible:ring-2 focus-visible:ring-emerald-700`) and multi-channel state cues (icons + text + color) to eliminate generic AI aesthetic traps.
+2. **Mockup & Blueprint Strategy:** Confirmed that full-page static mockups for every page are unnecessary and counterproductive. Instead, defined strict page design contracts and responsive layout blueprints for the 5 core views.
+3. **Frontend Data Flow Architecture:** Formulated an end-to-end Mermaid sequence and cache invalidation diagram detailing the TanStack Query cache hierarchy, Next.js `/api` proxy rewrites, and 15s notification polling loop.
+
+**Actions:**
+- Read `SKILL.md` for `frontend-ui-engineering`
+- Conducted WCAG 2.1 AA/AAA contrast and accessibility audit
+- Designed responsive layout blueprints for mobile/desktop breakpoints
+- Created comprehensive Mermaid data flow diagram
+- Appended Turn #55 entry to `log.txt`
+
+---
+### Turn #56 — 2026-11-06 22:33:00 (UTC+8) — Documentation Synchronization: Design System Decisions, Tables of Contents & AI Usage Refinements
+- **Model:** `Gemini 3.8 Flash (High)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `3,270` (Cached: `228,330`) | Output: `12,437`
+
+**User Prompt:**
+> Okay, looks good so far. Should we update our markdown files like SPEC.md, DECISIONS.md, plan.md, and todo.md?
+> And also note to add this improvement to AI_USAGE.md and if necessary DECISIONS.md as well. 
+> In the AI_USAGE.md tool section table, remove the Tool column. Below, rename the heading of the section called Where I Overwrote/Improve the AI Prompt to Where I Overwrote/Improved the AI. Add a point line just now how we research and find out a color plate and a mockup for UI and responsiveness decision making before implementing the web UI. 
+> And lastly, I think create a table of content in long markdown files like AI_USAGE.md and DECISIONS.md. So it will be easy to scroll and view along the way.
+
+**Output Summary:**
+Synchronized design system decisions and navigation aids across all architectural and operational markdown documents:
+1. **`AI_USAGE.md` Refinements:** Added Table of Contents; removed the `Tool` column from the Models table; renamed the human override heading to `## Where I Overwrote/Improved the AI`; and added Section 3.8 documenting human direction in establishing the calming healthcare color palette, WCAG AAA contrast, mobile stepper layout for 10-minute slot density, and pure Tailwind CSS + Lucide strategy.
+2. **`DECISIONS.md` Expansion:** Added Table of Contents and created Section 8 detailing the frontend design system, contrast ratios, component stack rationale, mobile slot density strategy, and TanStack Query data flow.
+3. **`SPEC.md`, `tasks/plan.md`, and `tasks/todo.md`:** Added interactive Tables of Contents to `SPEC.md` and `tasks/plan.md`, updated `plan.md` architectural decisions, and aligned Task 10 and Task 12 acceptance criteria in `tasks/todo.md` with the new design system tokens and mobile layout contracts.
+
+**Actions:**
+- Updated `AI_USAGE.md` (Table of Contents, Models table column removal, heading rename, point 8)
+- Updated `DECISIONS.md` (Table of Contents, Section 8 on frontend design system & mobile responsiveness)
+- Updated `SPEC.md` (Table of Contents)
+- Updated `tasks/plan.md` (Table of Contents, architecture decision)
+- Updated `tasks/todo.md` (Task 10 & 12 acceptance criteria)
+- Appended Turn #56 entry to `log.txt`
+
+---
+### Turn #57 — 2026-11-06 22:37:25 (UTC+8) — Dark Mode vs. Light Mode Architectural Evaluation
+- **Model:** `Gemini 3.8 Flash (High)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `3,181` (Cached: `53,581`) | Output: `3,697`
+
+**User Prompt:**
+> Looks good. Last thing, have we considered dark and white themes/mode?
+
+**Output Summary:**
+Evaluated theming strategies for BookingBro:
+1. **White vs. Warm Linen:** Clarified why the application avoids glare-heavy pure white (`#FFFFFF`) in favor of an eye-friendly, calming warm linen (`stone-50` `#FAFAF9`) paired with charcoal typography (`stone-900`) achieving a 14.2:1 WCAG AAA contrast ratio.
+2. **Healthcare Considerations:** Discussed user psychology in mental health booking and high-density 10-minute slot pill legibility across color modes.
+3. **Strategic Options:** Presented Option A ("Dark-Mode Ready" architecture via semantic design tokens), Option B (Full dark mode with `next-themes` and navbar toggle), and Option C (Opinionated warm linen only), recommending Option A for launch polish.
+
+**Actions:**
+- Analyzed theme tokens and contrast requirements
+- Formulated 3 strategic architectural options
+- Appended Turn #57 entry to `log.txt`
+
+---
+### Turn #58 — 2026-11-06 22:39:48 (UTC+8) — Dark/Light Mode Semantic Architecture Ratification & Pre-Phase 4 Git Commit
+- **Model:** `Gemini 3.8 Flash (High)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,502` (Cached: `59,752`) | Output: `~4,500`
+
+**User Prompt:**
+> Okay, go with option A. Then update the AI_USAGE that we are using dark and light mode. Do a final overview and make a commit.
+
+**Output Summary:**
+Ratified Option A (Dark-Mode Ready via Semantic Tokens):
+1. **Documented in `AI_USAGE.md`:** Added Section 3.9 detailing human direction on dark/light mode evaluation, selecting semantic tokens and CSS custom variables (`bg-canvas`, `bg-surface`, `text-primary`, `border-subtle`, `primary-accent`) to prepare the app for seamless theme switching.
+2. **Updated `DECISIONS.md`:** Added the Dark and Light Mode / Semantic Theming Strategy subsection under Section 8.
+3. **Pre-Commit Verification:** Ran full typecheck and test suite across monorepo workspaces (58/58 unit and real-PostgreSQL concurrency tests passing).
+4. **Committed Changes:** Staged and committed documentation, design system tokens, and task tracking files to git.
+
+**Actions:**
+- Updated `AI_USAGE.md` (Section 3.9 & Table of Contents)
+- Updated `DECISIONS.md` (Section 8 subsection & Table of Contents)
+- Ran `pnpm typecheck` and `pnpm test`
+- Committed changes to git
+- Appended Turn #58 entry to `log.txt`
+
+
+
 
 

@@ -5,6 +5,34 @@
 
 ---
 
+## Table of Contents
+
+- [Assumptions Surfaced](#assumptions-surfaced)
+- [Capability Map & Build Order](#capability-map--build-order)
+- [1. Objective & Detailed Feature Specification](#1-objective--detailed-feature-specification-brief-2)
+  - [1.1 Users & Roles](#11-users--roles)
+  - [1.2 Sign Up, Login, Logout, Session Expiry & Server-Side Identity](#12-sign-up-login-logout-session-expiry--server-side-identity)
+  - [1.3 Professional Availability & Slot Layout](#13-professional-availability--slot-layout)
+  - [1.4 Find a Professional, 4-Week Calendar & Booking Flow](#14-find-a-professional-4-week-calendar--booking-flow)
+  - [1.5 No Double-Booking & Concurrency Guarantees](#15-no-double-booking--concurrency-guarantees)
+  - [1.6 My Sessions (Member & Professional Views)](#16-my-sessions-member--professional-views)
+  - [1.7 Cancel & Reschedule (24-Hour Rule & Atomic Transaction)](#17-cancel--reschedule-24-hour-rule--atomic-transaction)
+  - [1.8 Reminders & In-App Notifications](#18-reminders--in-app-notifications)
+- [2. Tech Stack & Database Schema](#2-tech-stack--database-schema)
+  - [2.1 Stack & Versions](#21-stack--versions)
+  - [2.2 PostgreSQL Schema](#22-postgresql-schema-appsapisrcdbschemats--sql-migration)
+- [3. Commands](#3-commands)
+- [4. Project Structure](#4-project-structure)
+- [5. Code Style & Standard Practices](#5-code-style--standard-practices)
+- [6. Testing Strategy](#6-testing-strategy-brief-3)
+  - [6.1 Pure Unit Tests (`packages/shared/tests/`)](#61-pure-unit-tests-packagessharedtests--fast-deterministic)
+  - [6.2 Database & API Integration Tests (`apps/api/tests/`)](#62-database--api-integration-tests-appsapitests--real-postgresql)
+- [7. Boundaries](#7-boundaries)
+- [8. Success Criteria](#8-success-criteria)
+- [9. Review Sign-Off & Resolutions](#9-review-sign-off--resolutions)
+
+---
+
 ## Assumptions Surfaced
 
 1. **Web-only responsive UI:** Desktop and mobile-web browsers are targeted via Next.js (App Router) and Tailwind CSS; no native mobile app is required.
