@@ -70,10 +70,10 @@ Full task definitions with acceptance criteria, verification commands, dependenc
 - [x] **Checkpoint 1:** Shared Domain & Pure Unit Tests (`pnpm --filter @booking-bro/shared test` & `pnpm typecheck`)
 
 ### Phase 2: Database Schema, Authentication & Availability API (`apps/api`)
-- [ ] **Task 4:** Drizzle ORM Schema, PostgreSQL `btree_gist` Migration & DB Client
-- [ ] **Task 5:** Fastify App Factory, Injectable Clock, Cookie Session Auth & Auth Routes
-- [ ] **Task 6:** Professional Directory, Availability Editor & On-the-Fly Slots Routes
-- [ ] **Checkpoint 2:** Database, Auth & Availability API (`pnpm --filter @booking-bro/api typecheck` & migrations check)
+- [x] **Task 4:** Drizzle ORM Schema, PostgreSQL `btree_gist` Migration & DB Client
+- [x] **Task 5:** Fastify App Factory, Injectable Clock, Cookie Session Auth & Auth Routes
+- [x] **Task 6:** Professional Directory, Availability Editor & On-the-Fly Slots Routes
+- [x] **Checkpoint 2:** Database, Auth & Availability API (`pnpm --filter @booking-bro/api typecheck` & migrations check)
 
 ### Phase 3: Booking Engine, Reminders & Real-Postgres Integration Suite (`apps/api`)
 - [ ] **Task 7:** Transactional `pg-boss` Reminder Worker & Notifications Routes

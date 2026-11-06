@@ -101,14 +101,14 @@
 **Description:** Set up `apps/api` with Drizzle ORM (`schema.ts`), database connection pool (`client.ts`), and programmatic SQL migration runner (`migrate.ts`) executing `drizzle/0000_init.sql` (including `CREATE EXTENSION IF NOT EXISTS btree_gist`, all 6 tables: `users`, `auth_sessions`, `professional_profiles`, `availability_windows`, `booking_sessions` with `updated_at` and partial GiST exclusion constraints `no_professional_overlap` and `no_member_overlap`, and `notifications` with `UNIQUE (session_id, user_id, kind)`).
 
 **Acceptance criteria:**
-- [ ] `drizzle/0000_init.sql` and `src/db/schema.ts` match `SPEC.md` §2.2 exactly, including case-insensitive email handling and both partial GiST exclusion constraints (`WHERE status = 'booked'`).
-- [ ] `pnpm --filter @booking-bro/api db:migrate` applies cleanly and idempotently against `booking_bro` and `booking_bro_test`.
-- [ ] Database client exports typed Drizzle instance and raw `pg.Pool` for `pg-boss` and transactional queries.
+- [x] `drizzle/0000_init.sql` and `src/db/schema.ts` match `SPEC.md` §2.2 exactly, including case-insensitive email handling and both partial GiST exclusion constraints (`WHERE status = 'booked'`).
+- [x] `pnpm --filter @booking-bro/api db:migrate` applies cleanly and idempotently against `booking_bro` and `booking_bro_test`.
+- [x] Database client exports typed Drizzle instance and raw `pg.Pool` for `pg-boss` and transactional queries.
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/api db:migrate`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/api typecheck`
-- [ ] Manual check: Inspect `\d booking_sessions` and `\d notifications` in Postgres to confirm `no_professional_overlap`, `no_member_overlap`, and `notifications_session_id_user_id_kind_key` constraints exist.
+- [x] Tests pass: `pnpm --filter @booking-bro/api db:migrate`
+- [x] Build succeeds: `pnpm --filter @booking-bro/api typecheck`
+- [x] Manual check: Inspect `\d booking_sessions` and `\d notifications` in Postgres to confirm `no_professional_overlap`, `no_member_overlap`, and `notifications_session_id_user_id_kind_key` constraints exist.
 
 **Dependencies:** Task 1, Task 3
 
@@ -129,14 +129,14 @@
 **Description:** Build the Fastify application factory (`app.ts`) with an injectable clock (`app.getNow()`, defaulting to `() => DateTime.utc()`), centralized `AppError` / Postgres `23P01` error handler (`plugins/error.ts`), `HttpOnly` cookie session `preHandler` (`plugins/auth.ts`), and auth routes (`routes/auth.ts`: `POST /api/auth/signup`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `PATCH /api/users/me/timezone`) using `argon2id` and parameterized UTC SQL timestamps.
 
 **Acceptance criteria:**
-- [ ] `POST /api/auth/signup` hashes passwords with `argon2id`, normalizes email to lowercase (returning `409` on case-insensitive duplicate), seeds default profile + Mon–Fri windows for `professional` signups, and sets a 7-day `HttpOnly; SameSite=Lax` `sid` cookie.
-- [ ] `plugins/auth.ts` resolves `req.user` strictly from `auth_sessions` using parameterized `app.getNow()`; if `expires_at <= now`, it deletes the expired row, clears the `sid` cookie, and returns `401 Unauthorized`.
-- [ ] `PATCH /api/users/me/timezone` validates the new IANA timezone and updates `users.timezone` and `users.updated_at`.
+- [x] `POST /api/auth/signup` hashes passwords with `argon2id`, normalizes email to lowercase (returning `409` on case-insensitive duplicate), seeds default profile + Mon–Fri windows for `professional` signups, and sets a 7-day `HttpOnly; SameSite=Lax` `sid` cookie.
+- [x] `plugins/auth.ts` resolves `req.user` strictly from `auth_sessions` using parameterized `app.getNow()`; if `expires_at <= now`, it deletes the expired row, clears the `sid` cookie, and returns `401 Unauthorized`.
+- [x] `PATCH /api/users/me/timezone` validates the new IANA timezone and updates `users.timezone` and `users.updated_at`.
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/api typecheck`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/api build`
-- [ ] Manual check: Verify `plugins/error.ts` maps Postgres `23P01` to `409 SLOT_CONFLICT` and Zod errors to `400 VALIDATION_ERROR`.
+- [x] Tests pass: `pnpm --filter @booking-bro/api typecheck`
+- [x] Build succeeds: `pnpm --filter @booking-bro/api build`
+- [x] Manual check: Verify `plugins/error.ts` maps Postgres `23P01` to `409 SLOT_CONFLICT` and Zod errors to `400 VALIDATION_ERROR`.
 
 **Dependencies:** Task 4
 
@@ -155,14 +155,14 @@
 **Description:** Implement `routes/professionals.ts` (`GET /api/professionals`, `GET /api/professionals/:id`, `GET /api/professionals/:id/slots` with optional `?excludeSessionId=<uuid>`) and `routes/availability.ts` (`GET /api/availability/me`, `PUT /api/availability` restricted to `role === 'professional'`). Create the integration test setup helper (`apps/api/tests/setup.ts`) that runs migrations and truncates tables between tests.
 
 **Acceptance criteria:**
-- [ ] `PUT /api/availability` rejects `member` callers with `403`, validates `bufferMinutes` (`10|20|30`) and up to 3 windows/weekday (`>= 50m` real UTC duration, 10m grid, non-overlapping with gap), and atomically replaces the professional's windows.
-- [ ] `GET /api/professionals/:id/slots` computes 28 days of free slots on the fly using `generateAvailableSlots`, filtering out the requesting member's own booked sessions across all professionals and honoring `?excludeSessionId=<uuid>`.
-- [ ] `GET /api/professionals/:id/slots` returns strictly `{ professional, slots: [{ startAt, endAt }] }` with zero booked-session or other-member metadata.
+- [x] `PUT /api/availability` rejects `member` callers with `403`, validates `bufferMinutes` (`10|20|30`) and up to 3 windows/weekday (`>= 50m` real UTC duration, 10m grid, non-overlapping with gap), and atomically replaces the professional's windows.
+- [x] `GET /api/professionals/:id/slots` computes 28 days of free slots on the fly using `generateAvailableSlots`, filtering out the requesting member's own booked sessions across all professionals and honoring `?excludeSessionId=<uuid>`.
+- [x] `GET /api/professionals/:id/slots` returns strictly `{ professional, slots: [{ startAt, endAt }] }` with zero booked-session or other-member metadata.
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/api typecheck`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/api build`
-- [ ] Manual check: Confirm schedule edits never mutate existing rows in `booking_sessions`.
+- [x] Tests pass: `pnpm --filter @booking-bro/api typecheck`
+- [x] Build succeeds: `pnpm --filter @booking-bro/api build`
+- [x] Manual check: Confirm schedule edits never mutate existing rows in `booking_sessions`.
 
 **Dependencies:** Task 5
 
@@ -176,8 +176,8 @@
 ---
 
 ## Checkpoint 2: After Tasks 4–6 (Database, Auth & Availability API)
-- [ ] Migrations run cleanly on `booking_bro` and `booking_bro_test`
-- [ ] `pnpm --filter @booking-bro/api typecheck` and `pnpm --filter @booking-bro/api build` succeed with zero errors
+- [x] Migrations run cleanly on `booking_bro` and `booking_bro_test`
+- [x] `pnpm --filter @booking-bro/api typecheck` and `pnpm --filter @booking-bro/api build` succeed with zero errors
 
 ---
 

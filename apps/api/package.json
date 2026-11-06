@@ -1,0 +1,35 @@
+{
+  "name": "@booking-bro/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "dependencies": {
+    "@booking-bro/shared": "workspace:*",
+    "@fastify/cookie": "^11.0.2",
+    "argon2": "^0.41.1",
+    "drizzle-orm": "^0.39.3",
+    "fastify": "^5.2.1",
+    "luxon": "^3.5.0",
+    "pg": "^8.13.3",
+    "pg-boss": "^10.1.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^22.13.9",
+    "@types/pg": "^8.11.11",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  }
+}
