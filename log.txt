@@ -869,3 +869,30 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 - Updated `SPEC.md` (§1.3, §1.4, §1.7, §5, §6.1, §6.2)
 - Updated `AI_USAGE.md` (added `Test strategy audit (test-engineer)` phase row)
 - Appended Turn #45 to `log.txt`
+
+---
+### Turn #46 — 2026-11-06 16:13:42 (UTC+8) — Commit SPEC.md Updates & Create Implementation Plan (`tasks/plan.md` & `tasks/todo.md`) via `/planning-and-task-breakdown`
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `279,655` (Cached: `1,053,267`) | Output: `13,652+`
+
+**User Prompt:**
+> nice, create a commit to this point.
+> then use /planning-and-task-breakdown for the implementation
+
+**Output Summary:**
+- Committed `SPEC.md`, `AI_USAGE.md`, and `log.txt` (`4cf7e92`: `docs: incorporate test-engineer edge cases and isolation rules into SPEC.md`).
+- Read `/planning-and-task-breakdown` (`SKILL.md`) and `references/definition-of-done.md`.
+- Created `/Users/rakib/code/booking-bro/tasks/plan.md` (Architecture overview, bottom-up dependency graph, ordered 4-phase task index, risk/mitigation table, and standing Definition of Done).
+- Created `/Users/rakib/code/booking-bro/tasks/todo.md` with **14 Medium-sized (`3–5` files) tasks** and **4 explicit verification checkpoints**:
+  - **Phase 1 (Shared Domain & Pure Unit Tests):** Task 1 (Monorepo & Docker Postgres), Task 2 (Constants, Zod Schemas & Pure 24h/Reminder Rules), Task 3 (Pure On-the-Fly Slot Generator, Window Validator & Timezone/DST Tests) → **Checkpoint 1**.
+  - **Phase 2 (Database, Auth & Availability API):** Task 4 (Drizzle Schema & `btree_gist` Migration), Task 5 (Fastify App, Injectable Clock & Cookie Auth), Task 6 (Professionals, Availability & Slots Routes) → **Checkpoint 2**.
+  - **Phase 3 (Booking Engine, Reminders & Real-Postgres Test Suite):** Task 7 (Transactional `pg-boss` Worker & Notifications API), Task 8 (Booking, 24h Cancel & Atomic Reschedule API), Task 9 (Real-Postgres Concurrency, Session Lifecycle & Reminder/RBAC Integration Tests) → **Checkpoint 3**.
+  - **Phase 4 (Next.js Web UI, Docker Seed & Docs):** Task 10 (Next.js Scaffold, `/api` Proxy, Fetch Client & Navbar), Task 11 (Auth Pages & `NotificationBell`), Task 12 (Professional Directory, 2-Column 4-Week Calendar & Booking Modal), Task 13 (My Sessions Cancel/Reschedule & Availability Editor), Task 14 (Demo Seed, Full-Stack `docker compose up` & Final `DECISIONS.md` / `README.md`) → **Checkpoint 4**.
+- Updated `AI_USAGE.md` to record using `/planning-and-task-breakdown`.
+
+**Actions:**
+- Committed `4cf7e92` to `main`
+- Created `/Users/rakib/code/booking-bro/tasks/plan.md`
+- Created `/Users/rakib/code/booking-bro/tasks/todo.md`
+- Updated `AI_USAGE.md`
+- Appended Turn #46 to `log.txt`

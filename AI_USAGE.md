@@ -19,6 +19,7 @@ and I can explain them.
 - Skill `/idea-refine` (`idea-refine`) to stress-test all design decisions against the brief's requirements and surface hidden UX/technical assumptions
 - Skill `/spec-driven-development` (`spec-driven-development`) to author the capability map, database/API contracts, and test specification in [SPEC.md](SPEC.md)
 - Skill `/constraint-driven-development` (`constraint-driven-development`) to establish an unbendable quality bar contract in `CONSTRAINTS.md` before implementation
+- Skill `/planning-and-task-breakdown` (`planning-and-task-breakdown`) to decompose the specification into 14 verifiable tasks and 4 checkpoints in `tasks/plan.md` and `tasks/todo.md`
 - `ctx7` CLI rule to verify current Next.js v16 and TanStack Query v5 documentation
 - Workspace rule (`.agents/rules/logging.md`) enforcing turn-by-turn logging into [log.txt](log.txt) per [AGENTS.md](AGENTS.md)
 - Subagent `test-engineer` (`QA Test Strategy Reviewer`) invoked to audit `SPEC.md` and Section 6 (Testing Strategy) for missing edge cases, schema/contract traps, and test-isolation hazards.
@@ -34,6 +35,7 @@ and I can explain them.
 | Business rules (`/interview-me`) | Ran one-question-at-a-time interview on extras, reminder testing, and schedule changes | Chose `docker compose up` + seed data, 2h minimum notice, cancel/reschedule notifications only, and keeping existing bookings when hours change |
 | Specification (`/spec-driven-development`) | Drafted 6-module capability map, SQL schema, API contracts, and unit/concurrency test matrix in `SPEC.md` | Scrutinized and refined: skipping past 24h reminders on reschedule, adding `updated_at` to `booking_sessions`, 7-day session expiry behavior, and using Docker Postgres directly instead of Testcontainers |
 | Test strategy audit (`test-engineer`) | Audited `SPEC.md` §6 and surfaced edge cases, schema constraint traps, and Vitest/Postgres isolation hazards | Confirmed attaching `'session_rescheduled'` notifications to `newSession.id`, `excludeSessionId` for same-day +10m reschedule, buffer-change snapshot tests, member/pro buffer asymmetry, and sequential test isolation |
+| Task breakdown (`/planning-and-task-breakdown`) | Decomposed `SPEC.md` into 14 dependency-ordered tasks across 4 phases with explicit acceptance criteria and checkpoints in `tasks/plan.md` & `tasks/todo.md` | Reviewed and approved task granularity and verification checkpoints before implementation |
 | Scaffold       | *(to be filled in)*                                                               |                                                        |
 
 ## Where I overrode the AI
