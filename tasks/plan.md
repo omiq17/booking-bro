@@ -99,8 +99,8 @@ Full task definitions with acceptance criteria, verification commands, dependenc
 - [x] **Task 11:** Login, Signup (with IANA Timezone Picker) & `NotificationBell` Drawer
 - [x] **Task 12:** Professional Directory, Two-Column 4-Week Calendar & Booking Confirmation Flow
 - [x] **Task 13:** My Sessions View (Cancel & Reschedule Modal) & Professional Availability Editor
-- [ ] **Task 14:** Demo Seed Script, Full-Stack `docker compose up` & Final `DECISIONS.md` / `README.md`
-- [ ] **Checkpoint 4:** Full-Stack Verification & Submission Gate
+- [x] **Task 14:** Demo Seed Script, Full-Stack `docker compose up` & Final `DECISIONS.md` / `README.md`
+- [x] **Checkpoint 4:** Full-Stack Verification & Submission Gate
 
 ---
 

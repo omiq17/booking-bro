@@ -1397,3 +1397,41 @@ Implemented automatic OS/browser system theme detection via `window.matchMedia('
 - Added live `matchMedia` change listener in `apps/web/src/components/Navbar.tsx`
 - Verified `pnpm --filter @booking-bro/web typecheck` passes with 0 errors
 - Appended Turn #66 entry to `log.txt`
+---
+### Turn #67 — 2026-11-07 00:37:32 (UTC+8) — Complete Task 14 (Demo Seed, Docker Compose, Favicon & Final Docs) & Checkpoint 4 Gate
+- **Model:** `Claude Opus 4.6` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,687` (Cached: `242,906`) | Output: `~9,200`
+
+**User Prompt:**
+> Now lets complete task 14 and finish up phase 4. Also add a favicon, to look good the browser tab.
+> Spin up required skills.
+> Go ahead.
+
+**Output Summary:**
+Completed **Task 14** and **Checkpoint 4** (finishing Phase 4 and the entire 14-task implementation plan) using `/incremental-implementation` and `/documentation-and-adrs`:
+1. **Browser Tab Favicon (`apps/web/src/app/icon.svg`)**:
+   - Added a scalable SVG favicon matching the BookingBro Forest Teal (`#065f46`) rounded badge and heart-check mark, automatically served by Next.js App Router at `/icon.svg`.
+2. **Idempotent Demo Seed Script (`apps/api/src/db/seed.ts`)**:
+   - Seeds 4 synthetic accounts (`Mei Lin Tan`, `Alex Rivera`, `Dr. Aisha Lim`, `Dr. Oliver Grant`) with `argon2id` password `Password123!`, Mon–Fri availability windows, 4 sessions (`> 24h` upcoming, `< 24h` member-locked upcoming, past completed, and cross-timezone London/New York), initial unread notifications, and a live `pg-boss` `reminder_1h` job scheduled ~8 seconds in the future.
+   - Verified execution against PostgreSQL (`pnpm db:seed`).
+3. **Full-Stack Docker Setup (`Dockerfile`, `.dockerignore`, `docker-compose.yml`)**:
+   - Created a multi-stage `Dockerfile` (`api` and `web` targets with shared `pnpm` workspace layer caching) and updated `docker-compose.yml` so `docker compose up --build` starts PostgreSQL 16, runs migrations + demo seed, starts the Fastify API + `pg-boss` worker on `:3001`, and serves Next.js on `:3000`.
+4. **Final Documentation (`README.md`, `DECISIONS.md`, `AI_USAGE.md`, `tasks/todo.md`, `tasks/plan.md`)**:
+   - Completed `DECISIONS.md` Sections 9 (Known Limitations), 10 (What I Would Do Next with More Time), and 11 (Running Safely in Production for a Healthcare Product).
+   - Wrote `README.md` with ASCII architecture diagram, 1–2 command setup instructions, seeded demo credentials table, and test suite guide.
+   - Marked Task 14 and Checkpoint 4 complete in `tasks/todo.md`, `tasks/plan.md`, and `AI_USAGE.md`.
+5. **Checkpoint 4 Verification**:
+   - `pnpm typecheck`: 0 errors.
+   - `pnpm lint`: 0 errors.
+   - `pnpm build`: Clean production build across all 3 workspaces (`packages/shared`, `apps/api`, `apps/web`).
+   - `pnpm test`: **64/64 tests passing** (31 shared + 27 API real-PostgreSQL concurrency/integration + 6 web).
+   - `CONSTRAINTS.md` audit: 0 `@ts-ignore`, 0 `eslint-disable`, 0 `.skip`/`.only`, 0 `TODO` stubs.
+
+**Actions:**
+- Loaded `incremental-implementation` and `documentation-and-adrs` skills
+- Created `apps/web/src/app/icon.svg`
+- Created `apps/api/src/db/seed.ts` and verified `pnpm db:seed`
+- Created `.dockerignore`, `Dockerfile`, and updated `docker-compose.yml`
+- Updated `DECISIONS.md`, `README.md`, `AI_USAGE.md`, `tasks/todo.md`, and `tasks/plan.md`
+- Verified `pnpm typecheck`, `pnpm lint`, `pnpm build`, and `pnpm test` (64/64 passing)
+- Appended Turn #67 entry to `log.txt`

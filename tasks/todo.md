@@ -380,14 +380,14 @@
 **Description:** Implement `apps/api/src/db/seed.ts` (seeding synthetic demo professionals in `Asia/Singapore` and `Europe/London`, demo members in `Asia/Singapore` and `America/New_York`, upcoming sessions `> 24h` and `< 24h` away, and a near-due `pg-boss` reminder job that fires within ~10 seconds of startup so reviewers immediately see live in-app reminder delivery), add `api` and `web` Dockerfiles/`docker-compose.yml` services, complete the remaining sections of `DECISIONS.md` (limitations, next steps, healthcare production readiness), and write `README.md` with architecture diagram and 1–2 command setup/test instructions.
 
 **Acceptance criteria:**
-- [ ] `pnpm --filter @booking-bro/api db:seed` populates synthetic demo accounts, availability windows, sessions (`> 24h` and `< 24h`), and a near-due reminder job idempotently.
-- [ ] `docker compose up --build` starts Postgres, runs migrations + seed, starts the Fastify API + `pg-boss` worker, and serves the Next.js web app at `http://localhost:3000`.
-- [ ] `DECISIONS.md` (all 5 required questions from Brief §3), `AI_USAGE.md`, `README.md`, and `log.txt` are complete and accurate.
+- [x] `pnpm --filter @booking-bro/api db:seed` populates synthetic demo accounts, availability windows, sessions (`> 24h` and `< 24h`), and a near-due reminder job idempotently.
+- [x] `docker compose up --build` starts Postgres, runs migrations + seed, starts the Fastify API + `pg-boss` worker, and serves the Next.js web app at `http://localhost:3000`.
+- [x] `DECISIONS.md` (all 5 required questions from Brief §3), `AI_USAGE.md`, `README.md`, and `log.txt` are complete and accurate.
 
 **Verification:**
-- [ ] Tests pass: `pnpm test`
-- [ ] Build succeeds: `pnpm typecheck && pnpm lint && pnpm build`
-- [ ] Manual check: Run `docker compose up --build` and verify login, booking, reschedule, cancel, and live reminder notification delivery in the browser.
+- [x] Tests pass: `pnpm test`
+- [x] Build succeeds: `pnpm typecheck && pnpm lint && pnpm build`
+- [x] Manual check: Run `docker compose up --build` and verify login, booking, reschedule, cancel, and live reminder notification delivery in the browser.
 
 **Dependencies:** Task 9, Task 13
 
@@ -403,9 +403,9 @@
 ---
 
 ## Checkpoint 4: After Tasks 10–14 (Full-Stack Verification & Submission Gate)
-- [ ] `pnpm typecheck` passes (0 errors)
-- [ ] `pnpm lint` passes (0 errors)
-- [ ] `pnpm test` passes 100% of unit + real-Postgres integration & concurrency suites
-- [ ] `pnpm build` succeeds across all workspaces
-- [ ] `CONSTRAINTS.md` floor check passes (0 `@ts-ignore`, 0 `eslint-disable`, 0 `.skip`/`.only`, 0 `TODO` stubs, 0 secrets)
-- [ ] Review with human before final submission
+- [x] `pnpm typecheck` passes (0 errors)
+- [x] `pnpm lint` passes (0 errors)
+- [x] `pnpm test` passes 100% of unit + real-Postgres integration & concurrency suites
+- [x] `pnpm build` succeeds across all workspaces
+- [x] `CONSTRAINTS.md` floor check passes (0 `@ts-ignore`, 0 `eslint-disable`, 0 `.skip`/`.only`, 0 `TODO` stubs, 0 secrets)
+- [x] Review with human before final submission

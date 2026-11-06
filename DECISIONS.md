@@ -28,7 +28,9 @@ Sections marked *Provisional* may change during the build.
   - [Component Architecture & Why Pure Tailwind CSS + Lucide Icons](#component-architecture--why-pure-tailwind-css--lucide-icons)
   - [Mobile Responsiveness: 10-Minute Slot Density](#mobile-responsiveness-10-minute-slot-density)
   - [Frontend Data Flow & Cache Invalidation Lifecycle](#frontend-data-flow--cache-invalidation-lifecycle)
-- [Still to Decide](#still-to-decide)
+- [9. Known Limitations](#9-known-limitations)
+- [10. What I Would Do Next with More Time](#10-what-i-would-do-next-with-more-time)
+- [11. Running Safely in Production for a Healthcare Product](#11-running-safely-in-production-for-a-healthcare-product)
 
 ---
 
@@ -195,7 +197,7 @@ Mental health and wellbeing session booking demands an anxiety-reducing, calming
 
 ### Dark and Light Mode / Semantic Theming Strategy
 - **Why Warm Linen over Blinding White:** Pure `#FFFFFF` backgrounds with pure `#000000` text create glare and visual fatigue for users seeking care. The warm linen palette (`stone-50` / `stone-100` / `stone-900`) delivers low-glare, eye-friendly readability with full AAA compliance.
-- **Dark-Mode Readiness via Semantic Tokens (Option A):** Rather than hardcoding static utility color strings into components, UI styles leverage semantic tokens (`bg-canvas`, `bg-surface`, `text-main`, `text-muted`, `border-subtle`, `primary-accent`). This guarantees the primary warm-linen experience is rock-solid and accessible, while leaving the architecture prepared for instantaneous dark-mode expansion (`stone-950` canvas, `stone-900` surface, `emerald-400` accents) without refactoring component markup.
+- **OS-Aware Default + 1-Click Theme Toggle:** On first visit, an inline `<head>` script inspects `window.matchMedia('(prefers-color-scheme: dark)')` and `localStorage` before first paint so there is zero flash of unstyled content (FOUC). Users can override the theme at any time via the `Sun` / `Moon` toggle in the top navbar, which switches `html.dark` between Warm Linen / Forest Teal (Light Mode) and Midnight Slate / Mint Emerald (Dark Mode).
 
 ### Component Architecture & Why Pure Tailwind CSS + Lucide Icons
 - **Rejected HeroUI (formerly NextUI):** Adds ~220KB bundle overhead, requires client-side providers, and fights Next.js 15 App Router streaming.
@@ -223,8 +225,49 @@ Presenting dozens of 10-minute start times across 28 days is unusable if rendere
 
 ---
 
-## Still to decide
+## 9. Known Limitations
 
-- Known limitations
-- What I would do next with more time
-- Running this safely in production for a healthcare product
+1. **In-App Notifications Only (No External Email/SMS Provider Wired):**
+   - Reminders (`24h` and `1h`), cancellations, and reschedules are delivered reliably into the `notifications` table and polled every 15 seconds in the web UI. If a user does not have the web app open and has not configured email/push, they will not see an external alert until they open the app.
+2. **Weekly Recurring Availability Without Date-Specific Overrides:**
+   - Professionals configure recurring weekday windows (`Mon–Sun`, up to 3 windows/day). Date-specific holiday exceptions or one-off out-of-office blocks (for example, blocking a specific Tuesday afternoon next month without editing every Tuesday) are not yet modeled in a separate overrides table.
+3. **10-Minute Step Fragmentation Trade-Off:**
+   - Allowing members to book on any 10-minute boundary (`09:00, 09:10, 09:20…`) maximizes member convenience but can leave 10–40 minute unbookable pockets between sessions (for example, booking `09:20–10:10` leaves `09:00–09:20` too short for a 50-minute session).
+4. **Co-Located API & Worker Process:**
+   - In the current single-container API target, the Fastify HTTP server and `pg-boss` worker run in the same Node.js process for operational simplicity. While `pg-boss` is safe across multiple worker instances via PostgreSQL `SKIP LOCKED`, heavy worker spikes would share CPU with the HTTP server until split into separate deployments.
+
+---
+
+## 10. What I Would Do Next with More Time
+
+1. **Date-Specific Availability Overrides & External Calendar Sync (Google / Outlook):**
+   - Add an `availability_exceptions` table (`professional_id`, `date`, `is_unavailable`, optional custom windows) and two-way `.ics` / Google Calendar OAuth sync so external busy blocks automatically subtract from on-the-fly slot generation.
+2. **Multi-Channel Notification Fan-Out (Email, SMS & Web Push):**
+   - Extend `processReminderJob` in `reminder.service.ts` to dispatch transactional emails (via Postmark/SES with `.ics` calendar attachments) and Web Push / WhatsApp notifications alongside the in-app notification row, using per-channel idempotency keys.
+3. **Server-Sent Events (SSE) / WebSockets for Instant Calendar & Notification Push:**
+   - Replace the 15-second notification polling and manual slot refresh with a lightweight Fastify SSE stream (`GET /api/events`) backed by PostgreSQL `LISTEN/NOTIFY`, pushing real-time slot locks and reminder deliveries to connected browsers within milliseconds.
+4. **Smart Slot Packing ("Minimize Gaps" Mode for Professionals):**
+   - Give professionals an optional toggle to restrict member start times to slots that pack contiguously against window edges or existing `blocked_until` boundaries, eliminating 10–30 minute calendar fragments while keeping the 10-minute grid math.
+
+---
+
+## 11. Running Safely in Production for a Healthcare Product
+
+Operating a mental health and counselling scheduling platform in production (under regulations such as HIPAA, GDPR, or Singapore PDPA) requires hardening across six pillars:
+
+1. **PHI / PII Data Minimization & Encryption:**
+   - **Encryption in Transit & at Rest:** Enforce TLS 1.3 across all public and internal service links; enable AES-256 disk and database encryption (RDS / Cloud SQL KMS) plus column-level envelope encryption for sensitive clinical intake notes if added later.
+   - **Strict Calendar Privacy:** The public slots endpoint (`GET /api/professionals/:id/slots`) already strips all member identities and session IDs, returning only `{ startAt, endAt }[]` intervals so one patient can never infer another patient's identity or schedule.
+2. **Authentication, MFA & Session Hardening:**
+   - Require Multi-Factor Authentication (TOTP / WebAuthn passkeys) for all professional accounts and offer it to members.
+   - Add rate limiting (`@fastify/rate-limit` backed by Redis or Postgres) on `/api/auth/login` and `/api/auth/signup` with exponential backoff and account lockout alerts to prevent credential stuffing.
+   - Enforce `Secure; HttpOnly; SameSite=Lax` cookies behind a strict Content Security Policy (CSP) and CSRF Origin verification header check.
+3. **Immutable Audit Logging:**
+   - Introduce an append-only `audit_logs` table (shipped to immutable object storage such as AWS S3 Object Lock) recording every authentication event, schedule change, booking, cancellation, reschedule, and clinical record access (`actor_id`, `action`, `resource_id`, `ip_hash`, `user_agent`, `created_at`) without ever logging passwords, session tokens, or raw health notes.
+4. **Separate Worker Fleet & Dead-Letter Alerting:**
+   - Run the `pg-boss` worker fleet as an independent deployment from the Fastify HTTP API so reminder processing scales independently.
+   - Configure `pg-boss` dead-letter queues (`deadLetter`) and Prometheus/OpenTelemetry metrics on queue depth, job latency, and failed reminder deliveries with PagerDuty alerts if any `24h` or `1h` reminder lags by more than 2 minutes.
+5. **High Availability, Backups & Disaster Recovery:**
+   - Run PostgreSQL in Multi-AZ configuration with Point-in-Time Recovery (PITR) and automated daily encrypted snapshots tested weekly against a staging restore pipeline.
+   - Use connection pooling (`PgBouncer`) in transaction mode ahead of PostgreSQL to handle traffic bursts cleanly.
+
