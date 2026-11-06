@@ -76,10 +76,10 @@ Full task definitions with acceptance criteria, verification commands, dependenc
 - [x] **Checkpoint 2:** Database, Auth & Availability API (`pnpm --filter @booking-bro/api typecheck` & migrations check)
 
 ### Phase 3: Booking Engine, Reminders & Real-Postgres Integration Suite (`apps/api`)
-- [ ] **Task 7:** Transactional `pg-boss` Reminder Worker & Notifications Routes
-- [ ] **Task 8:** Booking Creation, 24h Cancel & Atomic Reschedule Service and Routes
-- [ ] **Task 9:** Real-PostgreSQL Concurrency, Session Lifecycle & Reminder/RBAC Integration Tests
-- [ ] **Checkpoint 3:** Complete Backend & Real-Postgres Test Suite (`pnpm test` passes 100% of unit + integration tests)
+- [x] **Task 7:** Transactional `pg-boss` Reminder Worker & Notifications Routes
+- [x] **Task 8:** Booking Creation, 24h Cancel & Atomic Reschedule Service and Routes
+- [x] **Task 9:** Real-PostgreSQL Concurrency, Session Lifecycle & Reminder/RBAC Integration Tests
+- [x] **Checkpoint 3:** Complete Backend & Real-Postgres Test Suite (`pnpm test` passes 100% of unit + integration tests)
 
 ### Phase 4: Next.js Web Application, Docker Seed & Documentation (`apps/web` + Root)
 - [ ] **Task 10:** Next.js App Router Scaffold, `/api` Proxy, Typed Fetch Client & Layout Shell

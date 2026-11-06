@@ -188,14 +188,14 @@
 **Description:** Implement `worker/boss.ts` (`pg-boss` lifecycle + `processReminderJob` handler), `services/reminder.service.ts` (scheduling/cancelling `reminder_24h` and `reminder_1h` jobs via a Drizzle transaction `db` adapter `{ executeSql }` so job inserts/cancellations participate in the caller's DB transaction `tx`), and `routes/notifications.ts` (`GET /api/notifications`, `POST /api/notifications/:id/read`, `POST /api/notifications/read-all`).
 
 **Acceptance criteria:**
-- [ ] `scheduleSessionReminders(tx, boss, session, now)` skips any reminder with `sendAt <= now` and enqueues non-past `24h`/`1h` jobs for both member and professional using `singletonKey: "${sessionId}:${userId}:${kind}"` on the `tx` connection.
-- [ ] `processReminderJob(job)` re-queries `booking_sessions` at send time (exiting cleanly if `status !== 'booked'`) and executes `INSERT INTO notifications ... ON CONFLICT (session_id, user_id, kind) DO NOTHING`.
-- [ ] `POST /api/notifications/:id/read` enforces ownership (`user_id = req.user.id`, returning `404` if another user attempts to mark it read).
+- [x] `scheduleSessionReminders(tx, boss, session, now)` skips any reminder with `sendAt <= now` and enqueues non-past `24h`/`1h` jobs for both member and professional using `singletonKey: "${sessionId}:${userId}:${kind}"` on the `tx` connection.
+- [x] `processReminderJob(job)` re-queries `booking_sessions` at send time (exiting cleanly if `status !== 'booked'`) and executes `INSERT INTO notifications ... ON CONFLICT (session_id, user_id, kind) DO NOTHING`.
+- [x] `POST /api/notifications/:id/read` enforces ownership (`user_id = req.user.id`, returning `404` if another user attempts to mark it read).
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/api typecheck`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/api build`
-- [ ] Manual check: Confirm `processReminderJob` is exported as a standalone function so integration tests can invoke it directly without polling sleeps.
+- [x] Tests pass: `pnpm --filter @booking-bro/api typecheck`
+- [x] Build succeeds: `pnpm --filter @booking-bro/api build`
+- [x] Manual check: Confirm `processReminderJob` is exported as a standalone function so integration tests can invoke it directly without polling sleeps.
 
 **Dependencies:** Task 6
 
@@ -213,14 +213,14 @@
 **Description:** Implement `services/booking.service.ts` and `routes/sessions.ts` (`POST /api/sessions`, `GET /api/sessions`, `POST /api/sessions/:id/cancel`, `POST /api/sessions/:id/reschedule`), plus `src/server.ts` entrypoint. Enforce RBAC (`member`-only booking/rescheduling, participant-only cancel), 2h minimum notice, 24h member lock vs anytime professional cancel (for future sessions `start_at > now`), in-place row update on cancel, and single-transaction atomic reschedule (`status = 'rescheduled'` on old row + new `'booked'` row + transactional `pg-boss` update + `'session_rescheduled'` notifications referencing `session_id = newSession.id`).
 
 **Acceptance criteria:**
-- [ ] `POST /api/sessions` rejects `professional` callers (`403`), validates `startAt` against generated slots (`422` if off-grid/`< 2h`/outside window), inserts the `booking_sessions` row with snapshotted `blocked_until` + `pg-boss` reminders in one transaction, and maps `23P01` to `409 SLOT_CONFLICT`.
-- [ ] `POST /api/sessions/:id/cancel` blocks members within 24 hours (`422 WITHIN_24_HOURS`), allows professionals anytime before `start_at` (`422` if `start_at <= now`), rejects already `'cancelled'`/`'rescheduled'` rows (`409`), updates the existing row in place (`updated_at = now`), cancels pending reminders, and creates `'session_cancelled'` notifications.
-- [ ] `POST /api/sessions/:id/reschedule` excludes `oldSession.id` during slot validation (allowing same-day `+10m` shifts), atomically marks old row `'rescheduled'`, inserts new `'booked'` row, schedules non-past reminders on `tx`, attaches `'session_rescheduled'` notifications to `newSession.id`, and rolls back completely if the target slot conflicts (`23P01`).
+- [x] `POST /api/sessions` rejects `professional` callers (`403`), validates `startAt` against generated slots (`422` if off-grid/`< 2h`/outside window), inserts the `booking_sessions` row with snapshotted `blocked_until` + `pg-boss` reminders in one transaction, and maps `23P01` to `409 SLOT_CONFLICT`.
+- [x] `POST /api/sessions/:id/cancel` blocks members within 24 hours (`422 WITHIN_24_HOURS`), allows professionals anytime before `start_at` (`422` if `start_at <= now`), rejects already `'cancelled'`/`'rescheduled'` rows (`409`), updates the existing row in place (`updated_at = now`), cancels pending reminders, and creates `'session_cancelled'` notifications.
+- [x] `POST /api/sessions/:id/reschedule` excludes `oldSession.id` during slot validation (allowing same-day `+10m` shifts), atomically marks old row `'rescheduled'`, inserts new `'booked'` row, schedules non-past reminders on `tx`, attaches `'session_rescheduled'` notifications to `newSession.id`, and rolls back completely if the target slot conflicts (`23P01`).
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/api typecheck`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/api build`
-- [ ] Manual check: Verify `GET /api/sessions` returns upcoming and past/inactive sessions with `professionalName` for members and `memberName` for professionals.
+- [x] Tests pass: `pnpm --filter @booking-bro/api typecheck`
+- [x] Build succeeds: `pnpm --filter @booking-bro/api build`
+- [x] Manual check: Verify `GET /api/sessions` returns upcoming and past/inactive sessions with `professionalName` for members and `memberName` for professionals.
 
 **Dependencies:** Task 7
 
@@ -238,14 +238,14 @@
 **Description:** Configure `apps/api/vitest.config.ts` with `fileParallelism: false` for deterministic isolation on `booking_bro_test` and implement the 3 real-PostgreSQL integration test suites specified in `SPEC.md` §6.2: `concurrency.test.ts`, `sessions.test.ts`, and `reminders-and-auth.test.ts`.
 
 **Acceptance criteria:**
-- [ ] `concurrency.test.ts` proves: (1) simultaneous same-slot booking returns one `201` + one `409`, (2) buffer-overlap booking returns `409`, (3) same-member cross-professional overlap returns `409`, and (4) member vs. professional buffer asymmetry allows a member booked `10:00–10:50` with Pro A (`buffer = 30m`) to book `10:50–11:40` back-to-back with Pro B while Pro A remains blocked until `11:20`.
-- [ ] `sessions.test.ts` proves: 24h member lock (`422`) vs pro cancel (`200` future / `422` past), atomic reschedule rollback on conflict, adjacent same-day `+10m` reschedule (`200`), chained reschedules `A → B → C` + cancel `C` without notification unique constraint collision, schedule/buffer edits preserving existing bookings, and invalid state transition rejection (`409`/`422`).
-- [ ] `reminders-and-auth.test.ts` proves: idempotent reminder delivery (`ON CONFLICT DO NOTHING`), cancelled/rescheduled reminder suppression, expired `auth_sessions` cleanup (`401`), case-insensitive duplicate email (`409`), invalid timezone (`400`), cross-role `403` RBAC checks, actor spoofing protection, and calendar privacy (`{ startAt, endAt }[]` only).
+- [x] `concurrency.test.ts` proves: (1) simultaneous same-slot booking returns one `201` + one `409`, (2) buffer-overlap booking returns `409`, (3) same-member cross-professional overlap returns `409`, and (4) member vs. professional buffer asymmetry allows a member booked `10:00–10:50` with Pro A (`buffer = 30m`) to book `10:50–11:40` back-to-back with Pro B while Pro A remains blocked until `11:20`.
+- [x] `sessions.test.ts` proves: 24h member lock (`422`) vs pro cancel (`200` future / `422` past), atomic reschedule rollback on conflict, adjacent same-day `+10m` reschedule (`200`), chained reschedules `A → B → C` + cancel `C` without notification unique constraint collision, schedule/buffer edits preserving existing bookings, and invalid state transition rejection (`409`/`422`).
+- [x] `reminders-and-auth.test.ts` proves: idempotent reminder delivery (`ON CONFLICT DO NOTHING`), cancelled/rescheduled reminder suppression, expired `auth_sessions` cleanup (`401`), case-insensitive duplicate email (`409`), invalid timezone (`400`), cross-role `403` RBAC checks, actor spoofing protection, and calendar privacy (`{ startAt, endAt }[]` only).
 
 **Verification:**
-- [ ] Tests pass: `pnpm test` (runs both `@booking-bro/shared` unit tests and `@booking-bro/api` Postgres integration tests in one command)
-- [ ] Build succeeds: `pnpm typecheck`
-- [ ] Manual check: Verify `pnpm test` completes in `< 30s` with 0 skipped tests.
+- [x] Tests pass: `pnpm test` (runs both `@booking-bro/shared` unit tests and `@booking-bro/api` Postgres integration tests in one command)
+- [x] Build succeeds: `pnpm typecheck`
+- [x] Manual check: Verify `pnpm test` completes in `< 30s` with 0 skipped tests.
 
 **Dependencies:** Task 8
 
@@ -260,9 +260,9 @@
 ---
 
 ## Checkpoint 3: After Tasks 7–9 (Complete Backend & Real-Postgres Test Suite)
-- [ ] `pnpm test` passes 100% of unit and real-Postgres integration/concurrency tests in a single command
-- [ ] `pnpm typecheck` passes across `packages/shared` and `apps/api`
-- [ ] Review test output against `CONSTRAINTS.md` before building UI
+- [x] `pnpm test` passes 100% of unit and real-Postgres integration/concurrency tests in a single command
+- [x] `pnpm typecheck` passes across `packages/shared` and `apps/api`
+- [x] Review test output against `CONSTRAINTS.md` before building UI
 
 ---
 

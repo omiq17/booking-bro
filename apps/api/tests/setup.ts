@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { DateTime } from 'luxon';
 import type pg from 'pg';
+import type PgBoss from 'pg-boss';
 import { buildApp } from '../src/app.js';
 import {
   type AppDatabase,
@@ -8,6 +9,7 @@ import {
   DEFAULT_TEST_DATABASE_URL,
 } from '../src/db/client.js';
 import { runMigrationsOnPool } from '../src/db/migrate.js';
+import { createAndStartBoss } from '../src/worker/boss.js';
 
 export const TEST_DB_URL =
   process.env.TEST_DATABASE_URL ?? DEFAULT_TEST_DATABASE_URL;
@@ -36,6 +38,7 @@ export interface TestHarness {
   app: FastifyInstance;
   db: AppDatabase;
   pool: pg.Pool;
+  boss: PgBoss;
   getNow: () => DateTime;
   setNow: (isoOrDt: string | DateTime) => void;
   advanceTime: (duration: {
@@ -55,10 +58,14 @@ export async function createTestHarness(
   const dbContext = createDatabase(TEST_DB_URL);
 
   await runMigrationsOnPool(dbContext.pool);
+  const boss = await createAndStartBoss(dbContext.pool, dbContext.db, {
+    startWorker: false,
+  });
   await resetTestDatabase(dbContext.pool);
 
   const app = await buildApp({
     dbContext,
+    boss,
     getNow: () => currentNow,
     logger: false,
   });
@@ -69,6 +76,7 @@ export async function createTestHarness(
     app,
     db: dbContext.db,
     pool: dbContext.pool,
+    boss,
     getNow: () => currentNow,
     setNow: (isoOrDt: string | DateTime) => {
       currentNow =
@@ -86,6 +94,7 @@ export async function createTestHarness(
       await resetTestDatabase(dbContext.pool);
     },
     close: async () => {
+      await boss.stop({ graceful: false, close: false });
       await app.close();
       await dbContext.close();
     },

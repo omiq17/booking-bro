@@ -1057,7 +1057,55 @@ Staged and committed all Phase 2 deliverables:
 - Staged all files (`git add apps/ packages/ pnpm-lock.yaml tasks/ AI_USAGE.md log.txt`)
 - Appended Turn #52 entry to `log.txt`
 - Committed with message: `feat(api): database schema, btree_gist migrations, cookie session auth and availability api (phase 2)`
+---
+### Turn #53 — 2026-11-06 20:07:50 (UTC+8) — Implement Phase 3 (Booking Engine, Transactional pg-boss Reminders & Real-Postgres Concurrency Suite)
+- **Model:** `Claude Opus 4.6` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `4,963` (Cached: `214,168`) | Output: `~6,000`
 
+**User Prompt:**
+> Go ahead and implement phase 3.
 
+**Output Summary:**
+Completed **Phase 3 (Tasks 7–9 & Checkpoint 3)**:
+1. **Task 7 (Transactional `pg-boss` Worker & Notifications API):**
+   - Implemented `apps/api/src/services/reminder.service.ts` (`createPgBossTxAdapter`, `scheduleSessionReminders`, `cancelSessionReminders`, `processReminderJob` with send-time `status === 'booked'` verification and `ON CONFLICT (session_id, user_id, kind) DO NOTHING` idempotency).
+   - Implemented `apps/api/src/worker/boss.ts` (`createAndStartBoss` lifecycle and worker polling).
+   - Implemented `apps/api/src/routes/notifications.ts` (`GET /api/notifications`, `POST /api/notifications/:id/read` with ownership enforcement, `POST /api/notifications/read-all`).
+2. **Task 8 (Booking Creation, 24h Cancel, Atomic Reschedule & Server Entrypoint):**
+   - Implemented `apps/api/src/services/booking.service.ts` and `apps/api/src/routes/sessions.ts` (`POST /api/sessions`, `GET /api/sessions`, `POST /api/sessions/:id/cancel`, `POST /api/sessions/:id/reschedule`).
+   - Implemented `apps/api/src/server.ts` entrypoint and wired routes + `boss` into `apps/api/src/app.ts` and `apps/api/tests/setup.ts`.
+3. **Task 9 (Real-PostgreSQL Concurrency, Session Lifecycle & Reminder/RBAC Integration Tests):**
+   - Created `apps/api/tests/concurrency.test.ts` (4 tests), `apps/api/tests/sessions.test.ts` (6 tests), and `apps/api/tests/reminders-and-auth.test.ts` (6 tests) alongside `auth-and-availability.test.ts` (11 tests).
+   - Verified `pnpm test` runs all 58 tests across `@booking-bro/shared` (31 unit tests) and `@booking-bro/api` (27 real-Postgres integration/concurrency tests) in ~5.2s with 0 failures and 0 skipped tests.
+
+**Actions:**
+- Created `apps/api/src/services/reminder.service.ts`, `apps/api/src/worker/boss.ts`, `apps/api/src/routes/notifications.ts`
+- Created `apps/api/src/services/booking.service.ts`, `apps/api/src/routes/sessions.ts`, `apps/api/src/server.ts`
+- Updated `apps/api/src/app.ts` and `apps/api/tests/setup.ts`
+- Created `apps/api/tests/concurrency.test.ts`, `apps/api/tests/sessions.test.ts`, `apps/api/tests/reminders-and-auth.test.ts`
+- Executed `pnpm test`, `pnpm typecheck`, `pnpm build`, and `pnpm lint` (58/58 tests passing, 0 errors)
+- Updated `tasks/plan.md`, `tasks/todo.md`, `AI_USAGE.md`, and `log.txt`
+---
+### Turn #54 — 2026-11-06 22:05:00 (UTC+8) — Commit Phase 3 & Architectural Guidance for Phase 4 Frontend UI/UX
+- **Model:** `Gemini 3.8 Flash (High)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,370` (Cached: `203,227`) | Output: `~2,000`
+
+**User Prompt:**
+> Okay, you can commit. Looks good for phase 3.
+> And before going to the phase 4 regarding the website and web UI, I need to confirm a couple of things. First, keep this in mind that we have to make a responsive website. Mobile responsive is important. And then I am in confusion deciding a couple of things: what will be the color plates? And then do we need to follow any design system? How the UI will be like? Do we need to create any sample template first? And then is Tailwind CSS is enough? Or what do you think? Do you require Shadcn or HeroUI? Think and find out the good suggestions for me. You can use context-seven to get knowledge from documentation as well.
+
+**Output Summary:**
+Committed Phase 3 implementation and provided comprehensive, production-grade recommendations for Phase 4 web UI design and engineering:
+1. Committed Phase 3 backend deliverables (`25bb219` -> `b1cb28a`).
+2. Assessed design system and UI library choices: Recommended clean **Tailwind CSS v4 + Lucide React + accessible headless primitives (Radix UI / custom accessible components adhering to WCAG 2.1 AA)** rather than bloated component libraries.
+3. Formulated a cohesive, calm healthcare/wellbeing aesthetic and color palette (Deep Slate, Calming Teal/Emerald, Warm Sand/Neutral borders).
+4. Provided responsive layout strategy (two-column desktop collapses gracefully into stacked tab/stepper navigation on mobile for 10-minute slot pills).
+5. Outlined the exact UI workflow and layout template before building.
+
+**Actions:**
+- Staged all files (`git add apps/ tasks/ AI_USAGE.md log.txt`)
+- Committed Phase 3 with message `feat(api): booking engine, pg-boss reminders, notifications and real-postgres concurrency suite (phase 3)`
+- Researched Tailwind & component strategy for Next.js App Router
+- Appended Turn #54 entry to `log.txt`
 
 
