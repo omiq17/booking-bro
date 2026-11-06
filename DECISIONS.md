@@ -100,7 +100,7 @@ It takes two migration statements and only blocks true overlaps.
 
 On booking, up to 4 jobs are queued (24h and 1h before, for the member and the professional).
 Jobs whose time has already passed are skipped. Delivery is an in-app notification.
-- **Cancel / reschedule updates:** cancelling a session cancels its pending 24h/1h jobs and creates a cancellation notification; rescheduling cancels the old jobs, queues new 24h/1h jobs for the new time, and creates a reschedule notification. New bookings do **not** generate an immediate notification.
+- **Cancel / reschedule updates:** cancelling a session cancels its pending 24h/1h jobs and creates a cancellation notification for the counterparty (the actor sees an immediate top-right toast); rescheduling cancels the old jobs, queues new 24h/1h jobs for the new time, and creates a reschedule notification for the professional. New bookings do **not** generate an immediate notification.
 
 **Why not Redis + BullMQ:**
 - One more service to run, secure and make durable

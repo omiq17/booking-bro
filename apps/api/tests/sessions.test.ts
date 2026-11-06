@@ -114,6 +114,20 @@ describe('Session Lifecycle: Cancel, Atomic Reschedule, Schedule Edits & State T
     expect(proCancelRes.json().session.status).toBe('cancelled');
     expect(proCancelRes.json().session.cancelledBy).toBe(pro.user.id);
 
+    // Counterparty (member) receives the cancellation notification; actor (professional) does not get a self-notification
+    const memberCancelNotifs = await harness.db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, member.user.id));
+    expect(memberCancelNotifs.length).toBe(1);
+    expect(memberCancelNotifs[0]?.kind).toBe('session_cancelled');
+
+    const proSelfNotifs = await harness.db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, pro.user.id));
+    expect(proSelfNotifs.length).toBe(0);
+
     // Book a second session on 2026-06-03T10:00:00.000Z and advance past its start time
     harness.setNow('2026-06-02T09:00:00.000Z');
     const book2Res = await harness.app.inject({
@@ -257,12 +271,18 @@ describe('Session Lifecycle: Cancel, Atomic Reschedule, Schedule Edits & State T
     expect(cancelC.statusCode).toBe(200);
     expect(cancelC.json().session.status).toBe('cancelled');
 
-    // Verify member notifications contain 2 'session_rescheduled' (attached to B and C) and 1 'session_cancelled' (attached to C)
+    // Actor (member) gets 0 self-notifications in the bell; counterparty (professional) gets 2 'session_rescheduled' (attached to B and C) and 1 'session_cancelled' (attached to C)
     const memberNotifs = await harness.db
       .select()
       .from(notifications)
       .where(eq(notifications.userId, member.user.id));
-    expect(memberNotifs.length).toBe(3);
+    expect(memberNotifs.length).toBe(0);
+
+    const proNotifs = await harness.db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, pro.user.id));
+    expect(proNotifs.length).toBe(3);
   });
 
   it('rolls back atomic reschedule completely (including pg-boss jobs) when the target slot is already taken (409)', async () => {

@@ -1459,3 +1459,61 @@ Updated all `<select>` elements (`apps/web/src/app/availability/page.tsx`, `apps
 - Edited `apps/web/src/components/Navbar.tsx`
 - Verified `pnpm --filter @booking-bro/web typecheck && pnpm lint`
 - Appended Turn #68 entry to `log.txt`
+
+
+---
+### Turn #69 — 2026-11-07 01:41:00 (UTC+8) — Move Toast to Top-Right & Verify Reminder vs. Notification Requirement
+- **Model:** `Claude Opus 4.6 (Thinking)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `3,417` (Cached: `76,778`) | Output: `145`
+
+**User Prompt:**
+> the toast - put in top right.
+> refer to the doc- i actually missed the requirement.
+> notification list should have only 24h and 1h reminders in there.
+> for cancellation and reschedule, just show toast.
+> Am i right, verify first
+
+**Output Summary:**
+Updated `Toast.tsx` so the floating toast renders at the top-right (`top-4 right-4 sm:top-5 sm:right-6`). Verified against `ThoughtFull_TakeHome_Booking_Task.pdf` (Page 2 — "Reminders") and `DECISIONS.md` (§3): the official take-home specification states that only 24-hour and 1-hour reminders are delivered as in-app notifications in the notification list, and cancelling or rescheduling updates those reminder jobs (`"When a session is booked, reminders are scheduled for 24 hours and 1 hour before it starts, for both the member and the professional. Reminders are delivered as in-app notifications (a notification list in the app)... Cancelling or rescheduling updates the reminders"`). Creating extra `session_cancelled` / `session_rescheduled` items in the notification list was a custom addition from earlier planning in `DECISIONS.md` §3, not a requirement of the PDF spec.
+
+**Actions:**
+- Read `ThoughtFull_TakeHome_Booking_Task.pdf` and `DECISIONS.md`
+- Edited `apps/web/src/components/Toast.tsx` (`top-4 right-4 sm:top-5 sm:right-6`)
+- Appended Turn #69 entry to `log.txt`
+
+
+---
+### Turn #70 — 2026-11-07 01:46:20 (UTC+8) — Counterparty vs. Actor Notification Logic on Cancel & Reschedule
+- **Model:** `Claude Opus 4.6 (Thinking)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `5,558` (Cached: `84,976`) | Output: `517`
+
+**User Prompt:**
+> but there is a catch, the prof needs to get updated about the reschedule/cancellation, isn't it?
+
+**Output Summary:**
+Reviewed `apps/api/src/services/booking.service.ts` (`cancelBookingSession` and `rescheduleBookingSession`) and explained why the current behavior felt redundant: currently, when a user cancels or reschedules, the backend creates an in-app notification for **both** the person who performed the action (who already sees the immediate UI Toast) AND the counterparty. Outlined the clean UX solution: the **actor** (the person who clicked Cancel/Reschedule) gets the **top-right Toast** (and no redundant self-notification in their bell), while the **counterparty** (the professional when a member cancels/reschedules, or the member when a professional cancels) receives the in-app notification in their bell so they know their schedule changed.
+
+**Actions:**
+- Read `apps/api/src/services/booking.service.ts`
+- Appended Turn #70 entry to `log.txt`
+
+
+---
+### Turn #71 — 2026-11-07 01:51:45 (UTC+8) — Notify Only Counterparty on Cancel & Reschedule
+- **Model:** `Claude Opus 4.6 (Thinking)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `6,788` (Cached: `121,888`) | Output: `185`
+
+**User Prompt:**
+> correct, we should care about actors in case of reschedule/cancels.
+> solution looks good now. 
+> Update code and test cases if necessary according to it
+
+**Output Summary:**
+Updated `cancelBookingSession` and `rescheduleBookingSession` in `apps/api/src/services/booking.service.ts` so that when a session is cancelled or rescheduled, only the **counterparty** (the professional when a member cancels/reschedules, or the member when a professional cancels) receives the in-app notification in their notification bell, while the **actor** receives immediate top-right UI toast feedback without a redundant self-notification. Updated `apps/api/tests/sessions.test.ts` to assert counterparty-only notifications for both member-initiated and professional-initiated actions, updated `DECISIONS.md` and `AGENTS.md`, and verified all 64 tests pass.
+
+**Actions:**
+- Edited `apps/api/src/services/booking.service.ts`
+- Edited `apps/api/tests/sessions.test.ts`
+- Edited `DECISIONS.md` and `AGENTS.md`
+- Ran `pnpm typecheck` and `pnpm test` (64/64 tests passing)
+- Appended Turn #71 entry to `log.txt`

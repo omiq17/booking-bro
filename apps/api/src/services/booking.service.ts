@@ -342,8 +342,9 @@ export async function cancelBookingSession(
         ? (memberUser?.name ?? 'the member')
         : (proUser?.name ?? 'the professional');
 
+    // Notify only the counterparty (the actor sees immediate UI toast feedback)
     const notificationRows = [];
-    if (memberUser) {
+    if (actor.id !== session.memberId && memberUser) {
       const memberLocalTime = formatLocalSessionTime(
         session.startAt,
         memberUser.timezone,
@@ -358,7 +359,7 @@ export async function cancelBookingSession(
       });
     }
 
-    if (proUser) {
+    if (actor.id !== session.professionalId && proUser) {
       const proLocalTime = formatLocalSessionTime(
         session.startAt,
         proUser.timezone,
@@ -548,27 +549,8 @@ export async function rescheduleBookingSession(
       nowIso,
     );
 
-    // 4. Attach 'session_rescheduled' notifications to session_id = createdNew.id
+    // 4. Notify the counterparty (professional) of the reschedule; member (actor) sees immediate UI toast
     const notificationRows = [];
-    if (memberUser) {
-      const oldTimeStr = formatLocalSessionTime(
-        oldSession.startAt,
-        memberUser.timezone,
-      );
-      const newTimeStr = formatLocalSessionTime(
-        createdNew.startAt,
-        memberUser.timezone,
-      );
-      notificationRows.push({
-        sessionId: createdNew.id,
-        userId: memberUser.id,
-        kind: 'session_rescheduled' as const,
-        title: 'Session Rescheduled',
-        body: `Your session with ${proUser?.name ?? pro.name} has been rescheduled from ${oldTimeStr} to ${newTimeStr}.`,
-        createdAt: nowDate,
-      });
-    }
-
     if (proUser) {
       const oldTimeStr = formatLocalSessionTime(
         oldSession.startAt,

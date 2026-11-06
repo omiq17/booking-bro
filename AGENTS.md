@@ -30,7 +30,7 @@ This document is the primary context and rulebook for AI coding agents working o
   - **No double-booking:** Enforced in Postgres via `EXCLUDE USING gist` on `professional_id` (`[start_at, blocked_until)`) and `member_id` (`[start_at, end_at)`) where `status = 'booked'`. The slot generator also filters out slots overlapping any of the requesting member's existing bookings.
   - **Atomic Reschedule:** In one transaction, marks existing session `status = 'rescheduled'`, cancels old reminder jobs, and inserts a new session row (`status = 'booked'`) with new reminders.
 - **Calendar UI Layout:** Two-column layout (left: 4-week date picker; right: Morning/Afternoon/Evening time pills for selected date) to manage 10-minute slot density.
-- **Reminders:** 24h and 1h before `start_at` for both member and professional via `pg-boss` (skipping any already in the past), delivered idempotently (`UNIQUE (session_id, user_id, kind)` + `ON CONFLICT DO NOTHING`) and re-checked at send time. Cancelling or rescheduling updates the jobs and creates a cancel/reschedule notification (no notification on initial booking).
+- **Reminders:** 24h and 1h before `start_at` for both member and professional via `pg-boss` (skipping any already in the past), delivered idempotently (`UNIQUE (session_id, user_id, kind)` + `ON CONFLICT DO NOTHING`) and re-checked at send time. Cancelling or rescheduling updates the jobs and creates a cancel/reschedule notification for the counterparty (the actor sees a top-right toast; no notification on initial booking).
 
 ## 3. Core Engineering & Security Boundaries
 
