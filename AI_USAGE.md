@@ -21,7 +21,7 @@ and I can explain them.
 - Skill `/constraint-driven-development` (`constraint-driven-development`) to establish an unbendable quality bar contract in `CONSTRAINTS.md` before implementation
 - `ctx7` CLI rule to verify current Next.js v16 and TanStack Query v5 documentation
 - Workspace rule (`.agents/rules/logging.md`) enforcing turn-by-turn logging into [log.txt](log.txt) per [AGENTS.md](AGENTS.md)
-- No subagents used so far.
+- Subagent `test-engineer` (`QA Test Strategy Reviewer`) invoked to audit `SPEC.md` and Section 6 (Testing Strategy) for missing edge cases, schema/contract traps, and test-isolation hazards.
 
 ## How I used it, by phase
 
@@ -33,6 +33,7 @@ and I can explain them.
 | Slot layout    | Proposed a fixed hourly grid and reviewed my multi-window alternative             | Chose up to 3 windows/day (≥ 50m), 10-min steps, and 10/20/30-min buffers |
 | Business rules (`/interview-me`) | Ran one-question-at-a-time interview on extras, reminder testing, and schedule changes | Chose `docker compose up` + seed data, 2h minimum notice, cancel/reschedule notifications only, and keeping existing bookings when hours change |
 | Specification (`/spec-driven-development`) | Drafted 6-module capability map, SQL schema, API contracts, and unit/concurrency test matrix in `SPEC.md` | Scrutinized and refined: skipping past 24h reminders on reschedule, adding `updated_at` to `booking_sessions`, 7-day session expiry behavior, and using Docker Postgres directly instead of Testcontainers |
+| Test strategy audit (`test-engineer`) | Audited `SPEC.md` §6 and surfaced edge cases, schema constraint traps, and Vitest/Postgres isolation hazards | Confirmed attaching `'session_rescheduled'` notifications to `newSession.id`, `excludeSessionId` for same-day +10m reschedule, buffer-change snapshot tests, member/pro buffer asymmetry, and sequential test isolation |
 | Scaffold       | *(to be filled in)*                                                               |                                                        |
 
 ## Where I overrode the AI

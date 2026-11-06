@@ -64,20 +64,20 @@ Because BookingBro spans several independently testable capabilities, the system
   - Each professional selects a post-session buffer of **`10`, `20`, or `30` minutes** (default `10`).
 - **On-the-Fly Slot Generation (`generateAvailableSlots`):**
   - Given a date range `[fromUTC, toUTC]` (4 weeks = 28 days in the requesting user's timezone):
-    1. Iterate over each local calendar date in the **professional's IANA timezone** that overlaps the 4-week window.
+    1. Iterate over each local calendar date in the **professional's IANA timezone** that overlaps the 4-week window (padded by ±1 day in the professional's local zone so cross-midnight timezone shifts never clip valid slots at `[fromUTC, toUTC]` boundaries).
     2. For each availability window on that weekday, step `candidateStart` in **10-minute increments** (`start_time`, `start_time + 10m`, …) in the professional's local zone.
     3. Discard `candidateStart` if it falls into a **DST spring-forward gap** (where Luxon shifts the non-existent wall-clock hour). For a **DST fall-back repeated hour**, Luxon deterministically resolves the earlier offset.
     4. Convert `candidateStart` to UTC (`startUTC`), compute `endUTC = startUTC + 50m`, and `blockedUntilUTC = endUTC + pro.bufferMinutes`.
-    5. Verify `endUTC <= windowEndUTC` (the 50-minute session must finish within the working window; the buffer may extend past the window).
+    5. Verify `endUTC <= windowEndUTC` and ` startUTC >= fromUTC && startUTC <= toUTC` (the 50-minute session must finish within the working window; the buffer may extend past the window).
     6. Verify **2-hour minimum booking notice**: `startUTC >= nowUTC + 2 hours`.
-    7. Verify **no professional conflict**: `[startUTC, blockedUntilUTC)` does not overlap `[b.start_at, b.blocked_until)` for any existing `booked` session of that professional.
-    8. Verify **no member conflict**: `[startUTC, endUTC)` does not overlap `[m.start_at, m.end_at)` for any existing `booked` session of the requesting member across all professionals.
-- **Schedule Edits:** Updating working windows or `buffer_minutes` immediately affects future `GET /api/professionals/:id/slots` calls; existing `booked` rows and their snapshotted `blocked_until` remain valid and untouched.
+    7. Verify **no professional conflict**: `[startUTC, blockedUntilUTC)` does not overlap `[b.start_at, b.blocked_until)` for any existing `booked` session of that professional (excluding `excludeSessionId` when rescheduling).
+    8. Verify **no member conflict**: `[startUTC, endUTC)` does not overlap `[m.start_at, m.end_at)` for any existing `booked` session of the requesting member across all professionals (excluding `excludeSessionId` when rescheduling).
+- **Schedule Edits:** Updating working windows or `buffer_minutes` immediately affects future `GET /api/professionals/:id/slots` calls and new candidate slots; existing `booked` rows retain their snapshotted `blocked_until` and remain valid and untouched.
 
 ### 1.4 Find a Professional, 4-Week Calendar & Booking Flow
 - **Directory (`GET /api/professionals`):** Lists all professionals with `id`, `name`, `specialty`, `bio`, `timezone`, and `bufferMinutes`.
 - **Profile & Calendar (`GET /api/professionals/:id` & `GET /api/professionals/:id/slots`):**
-  - Returns the professional's public profile and the array of available UTC slots `{ startAt, endAt }` for the next 28 days.
+  - Returns the professional's public profile and the array of available UTC slots `{ startAt, endAt }` for the next 28 days. Accepts an optional `?excludeSessionId=<uuid>` query parameter (verified to belong to `req.user.id`) so a member opening the reschedule picker can see adjacent 10-minute slots overlapping their own current booking on the same day.
   - **Privacy:** Never returns booked rows or other members' names/IDs.
   - **Two-column UI:**
     - **Left column:** 4-week (28-day) calendar grid in the member's timezone showing available slot counts per day.
@@ -106,13 +106,13 @@ Because BookingBro spans several independently testable capabilities, the system
   - **Transaction (updates existing row, no new row created):** Updates the existing `booking_sessions` row (`status = 'cancelled'`, `cancelled_at = now()`, `cancelled_by = req.user.id`, `updated_at = now()`); cancels pending 24h/1h `pg-boss` jobs for that session; inserts `'session_cancelled'` notifications for both member and professional.
 - **Reschedule (`POST /api/sessions/:id/reschedule` — Member only):**
   - Verifies the session belongs to `req.user.id` (`member`), is `status = 'booked'`, and satisfies **`start_at - now() >= 24 hours`** (otherwise rejects with `422 WITHIN_24_HOURS`).
-  - Verifies the new `newStartAt` satisfies all slot rules (`>= now() + 2h`, inside the professional's availability windows).
+  - Verifies the new `newStartAt` satisfies all slot rules (`>= now() + 2h`, inside the professional's availability windows), **excluding `oldSession.id`** from existing bookings so the member can reschedule by ±10–40 minutes into an adjacent slot on the same day.
   - **Single Atomic Transaction:**
     1. Marks the existing session row `status = 'rescheduled'`, `updated_at = now()` (which immediately releases its GiST exclusion range so adjacent slots on the same day can even be chosen).
     2. Inserts a **new** `booking_sessions` row with `status = 'booked'`, `rescheduled_from_id = oldSession.id`, new `start_at`, `end_at`, and `blocked_until`.
-    3. Cancels old pending `pg-boss` reminder jobs and schedules new `pg-boss` reminder jobs (`24h` and `1h`) for the new session ID — **skipping the 24h reminder if `newStartAt - 24h <= now()`** (for example, when rescheduling into a slot 3–23 hours from now).
-    4. Inserts `'session_rescheduled'` notifications for both member and professional.
-  - **Atomicity guarantee:** If step 2 violates `no_professional_overlap` or `no_member_overlap` (`23P01`), the entire transaction rolls back — the old session remains `status = 'booked'` with its original reminders intact. The member is **never** left with 0 or 2 booked sessions.
+    3. Cancels old pending `pg-boss` reminder jobs and schedules new `pg-boss` reminder jobs (`24h` and `1h`) for the new session ID via a Drizzle transaction adapter (`tx`) — **skipping the 24h reminder if `newStartAt - 24h <= now()`** (for example, when rescheduling into a slot 3–23 hours from now).
+    4. Inserts `'session_rescheduled'` notifications for both member and professional referencing **`session_id = newSession.id`** (ensuring chained reschedules `A → B → C` never collide on `UNIQUE (session_id, user_id, kind)`).
+  - **Atomicity guarantee:** If step 2 violates `no_professional_overlap` or `no_member_overlap` (`23P01`), the entire transaction (including job mutations) rolls back — the old session remains `status = 'booked'` with its original reminders intact. The member is **never** left with 0 or 2 booked sessions.
 
 ### 1.8 Reminders & In-App Notifications
 - **Scheduling Rules:**
@@ -315,7 +315,7 @@ booking-bro/
 
 - **Strict TypeScript:** `"strict": true`, `"noUncheckedIndexedAccess": true`, zero `any`.
 - **Named exports** everywhere (except Next.js page/layout defaults required by App Router).
-- **Pure Core, Imperative Shell:** All date/timezone/slot calculations and business rules live as pure, deterministic functions in `packages/shared` accepting an explicit `now: DateTime` parameter so unit tests never depend on wall-clock `Date.now()`.
+- **Pure Core, Imperative Shell & Injectable Clock:** All date/timezone/slot calculations and business rules live as pure, deterministic functions in `packages/shared` accepting an explicit `now: DateTime` parameter so unit tests never depend on wall-clock `Date.now()`. In `apps/api`, routes/services accept an injectable clock (`getNow(): DateTime`, defaulting to `() => DateTime.utc()`) and pass parameterized UTC timestamps (`$now`) to Drizzle SQL queries instead of relying on PostgreSQL wall-clock `now()` in `WHERE` filters.
 - **Structured Error Handling:** Custom `AppError(statusCode, code, message)` mapped cleanly by a single Fastify error handler (`23P01` → `409 SLOT_CONFLICT`).
 
 ### Example: Pure Slot & Rule Evaluation (`packages/shared/src/rules.ts`)
@@ -369,31 +369,43 @@ All tests run with **one command (`pnpm test`)** via Vitest across two suites:
    - Rejects > 3 windows/day, windows `< 50` minutes, off-grid times (`09:05`), and overlapping or touching windows (`09:00–12:00` + `12:00–15:00`).
    - Generates 10-minute step slots (`09:00, 09:10, …`) inside up to 3 windows where `start + 50m <= windowEnd`.
    - Enforces configurable buffer (`10`, `20`, `30` mins) in **both directions**: an existing booking at `10:00–10:50` with a `10m` buffer (`blocked_until = 11:00`) blocks candidate slots from `09:10` through `10:50`, leaving `09:00` and `11:00` available.
-   - Filters out slots overlapping any of the requesting member's own existing bookings.
+   - **Buffer snapshot immutability on config change:** When a professional updates `buffer_minutes` (`30m → 10m` or `10m → 30m`), existing bookings retain their snapshotted `b.blocked_until` while new candidate slots before/after use the updated `pro.bufferMinutes`.
+   - Filters out slots overlapping any of the requesting member's own existing bookings (while allowing `excludeSessionId` self-exclusion when rescheduling).
    - Enforces the **2-hour minimum booking notice** (`start_at >= now + 2h`).
 2. **Timezones & Daylight Saving Time (`timezones.test.ts`):**
    - Cross-timezone conversion: `Europe/London` professional (`09:00–12:00`) viewed by an `Asia/Singapore` member across the October/March DST transition shifts from `16:00 SGT` (`UTC+1`) to `17:00 SGT` (`UTC+0`).
+   - **Cross-midnight date & ISO weekday shift:** Professional in `America/Los_Angeles` (`UTC-8`) working Sunday evening (`weekday = 7`) generates slots that appear on Monday morning (`weekday = 1`) for an `Asia/Singapore` (`UTC+8`) member without clipping at `[fromUTC, toUTC]` boundaries.
    - Half-hour / 45-minute offset zones (`Asia/Kolkata` `UTC+5:30`, `Asia/Kathmandu` `UTC+5:45`).
-   - DST **Spring Forward** gap (`America/New_York` missing `02:00–02:59` hour): non-existent local start times are skipped and sessions spanning the gap require 50 real UTC minutes.
+   - DST **Spring Forward** gap (`America/New_York` missing `02:00–02:59` hour): non-existent local start times are skipped, sessions spanning the gap require 50 real UTC minutes, and a window like `01:30–03:00` on spring-forward Sunday (only 30 real elapsed UTC minutes) is rejected as `< 50m`.
    - DST **Fall Back** repeated hour: resolves deterministically without duplicate UTC instants.
 3. **24-Hour Rule & Reminder Scheduling (`rules.test.ts`):**
    - Member cancel/reschedule allowed at `>= 24h` (`24h 00m 00s`), blocked at `23h 59m 59s`.
    - Reminder calculator creates both `24h` and `1h` reminders when booked `> 24h` ahead, only `1h` when booked `2h–24h` ahead, and none if `< 1h`.
 
 ### 6.2 Database & API Integration Tests (`apps/api/tests/`) — Real PostgreSQL
-1. **Concurrent Double-Booking (`concurrency.test.ts`):**
+- **Test-Isolation & `pg-boss` Infrastructure Rules (`booking_bro_test`):**
+  - **Sequential file execution (`fileParallelism: false`):** Vitest runs API integration files sequentially and truncates application tables + `pgboss.job` (`TRUNCATE TABLE ... RESTART IDENTITY CASCADE`) between tests so parallel workers never wipe each other's rows.
+  - **Injectable clock & parameterized SQL timestamps:** Tests control `getNow()` on the Fastify instance and bind parameterized UTC timestamps in Drizzle queries instead of raw SQL `now()`, eliminating clock skew between Node and the Postgres container.
+  - **Transactional `pg-boss` adapter & direct job invocation:** `pg-boss` jobs are enqueued/cancelled through a Drizzle transaction adapter (`tx`) so failed reschedules roll back job mutations atomically, and `processReminderJob(job)` is invoked directly in tests for deterministic verification without polling sleeps.
+
+1. **Concurrent Double-Booking & Buffer Asymmetry (`concurrency.test.ts`):**
    - Two members fire `POST /api/sessions` for the exact same professional and slot simultaneously via `Promise.allSettled`: **exactly one returns `201 Created` and the other returns `409 Conflict`**.
    - Two members book slots that overlap via the professional's buffer (`10:00` and `10:50` when buffer is `10m`): second fails with `409 Conflict`.
    - Same member attempts to book overlapping slots with **two different professionals**: second fails with `409 Conflict` (`no_member_overlap`).
-2. **Cancel, Atomic Reschedule & Schedule Edits (`sessions.test.ts`):**
-   - Member blocked from cancelling or rescheduling within 24 hours (`422`), while professional can cancel anytime (`200`).
+   - **Member vs. Professional buffer asymmetry:** A member booked `10:00–10:50` with Professional A (`buffer = 30m`, `blocked_until = 11:20`) **can** book `10:50–11:40` back-to-back with Professional B (`[start_at, end_at)` half-open boundary), while Professional A remains blocked until `11:20`.
+2. **Cancel, Atomic Reschedule, Schedule Edits & State Transitions (`sessions.test.ts`):**
+   - Member blocked from cancelling or rescheduling within 24 hours (`422`), while professional can cancel anytime (`200`) for future sessions (`start_at > now()`) and is rejected (`422`) for past sessions (`start_at <= now()`).
    - Rescheduling to a free slot marks old session `'rescheduled'` and creates new `'booked'` session in one transaction.
-   - Rescheduling to a taken slot rolls back completely — original session remains `'booked'` (never 0 or 2 sessions).
-   - Professional changing working hours or buffer updates unbooked slots immediately while keeping existing `'booked'` sessions intact.
-3. **Reminders & Access Control (`reminders-and-auth.test.ts`):**
+   - **Adjacent same-day reschedule (`+10m`):** Rescheduling an existing `10:00` session to `10:10` on the same day succeeds (`200`) via `excludeSessionId` self-exclusion.
+   - **Chained reschedules (`A → B → C`) + cancel (`C`):** Rescheduling twice in sequence and then cancelling succeeds without `notifications` unique constraint collision (`session_id = newSession.id`).
+   - Rescheduling to a taken slot rolls back completely — original session remains `'booked'` and original `pg-boss` reminder jobs remain intact (never 0 or 2 sessions).
+   - Professional changing working hours or `buffer_minutes` updates unbooked slots immediately while keeping existing `'booked'` sessions and their snapshotted `blocked_until` intact.
+   - **Invalid state transitions & off-grid inputs:** Cancelling or rescheduling an already `'cancelled'` or `'rescheduled'` session returns `409`/`422`; booking `< now() + 2h` or off-grid (`09:05`) returns `422`.
+3. **Reminders, Auth Lifecycle & Role-Based Access Control (`reminders-and-auth.test.ts`):**
    - Delivering a reminder job inserts into `notifications` once; running the same job payload a second time is a no-op (`UNIQUE (session_id, user_id, kind)` + `ON CONFLICT DO NOTHING`).
    - Delivering a reminder job for a session that was later cancelled or rescheduled produces no notification.
-   - Unauthenticated requests return `401`; member A cannot cancel or view member B's session (`403`/`404`); client-sent `userId` in request body is ignored in favour of `req.user.id`.
+   - **Auth session expiry & signup validation:** Accessing `/api/auth/me` with an expired `auth_sessions` row (`expires_at <= now()`) deletes the row, clears the `sid` cookie, and returns `401`; case-insensitive duplicate email signup (`409`) and invalid IANA timezone (`400`) are rejected.
+   - **RBAC & Calendar Privacy:** Unauthenticated requests return `401`; a `professional` calling `POST /api/sessions` or `POST /api/sessions/:id/reschedule` returns `403`; a `member` calling `PUT /api/availability` returns `403`; Member A cannot cancel, reschedule, view, or mark-read Member B's session/notification (`403`/`404`); `GET /api/professionals/:id/slots` returns strictly `{ startAt, endAt }[]` with zero booked-session or other-member metadata; client-sent `userId` in request body is ignored in favour of `req.user.id`.
 
 ---
 

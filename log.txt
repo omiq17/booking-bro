@@ -802,3 +802,70 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 - Edited `SPEC.md` (status approved, open questions resolved)
 - Appended Turn #43 to `log.txt`
 - Committed all changes to `main`
+
+
+---
+### Turn #44 — 2026-11-06 11:38:34 (UTC+8) — QA Audit of SPEC.md & Testing Strategy via `test-engineer` Subagent
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `308,770` (Cached: `146,866`) | Output: `1,789+`
+
+**User Prompt:**
+> invoke test-engineer persona. 
+> thoroughly review my spec and and specially testing strategy? 
+> do we cover everything? edge cases covered?
+
+**Output Summary:**
+- Invoked the `test-engineer` subagent (`QA Test Strategy Reviewer`, `b6bc52cb-591a-4612-b9ca-928ebbddd29b`) to audit `SPEC.md` (especially §6 Testing Strategy), `CONSTRAINTS.md`, `DECISIONS.md`, and `AGENTS.md`.
+- Synthesized the QA audit findings:
+  1. **Already Well-Covered:** Pure-core/imperative-shell split, 3-window/day rules (`>= 50m`, 10-min step, 10/20/30m buffer), member self-overlap filtering, 2h notice, 24h boundary, DST spring-forward/fall-back basics, `23P01` concurrency tests, and `pg-boss` + `ON CONFLICT DO NOTHING` idempotency.
+  2. **Critical & High-Risk Edge Cases Surfaced:**
+     - **Chained Reschedule `notifications` Unique Constraint Collision:** Clarify whether `'session_rescheduled'` references `newSession.id` so rescheduling A → B → C never collides on `UNIQUE (session_id, user_id, kind)`.
+     - **Self-Overlap on Adjacent Reschedule (`+10m`):** Ensure slot validation during reschedule excludes the session currently being rescheduled so shifting a `10:00` session to `10:10` on the same day works.
+     - **Member vs. Professional Buffer Asymmetry:** Test that a member booked `10:00–10:50` (with Pro A, 30m buffer) can book `10:50–11:40` back-to-back with Pro B (`[start_at, end_at)`), while Pro A remains blocked until `11:20` (`[start_at, blocked_until)`).
+     - **Buffer Snapshot Immutability on Config Change:** Test changing `buffer_minutes` (`30 -> 10` and `10 -> 30`) so existing bookings keep their snapshotted `blocked_until` while new candidate slots use the new buffer.
+     - **Cross-Midnight Day/Weekday Shift:** Test slots where professional (`America/Los_Angeles` Sunday night) and member (`Asia/Singapore` Monday morning) fall on different calendar dates and ISO weekdays.
+     - **Invalid State Transitions & Cross-Role RBAC (`403`):** Test cancelling/rescheduling already cancelled/rescheduled sessions, pro cancelling past sessions, and cross-role misuse (`professional` booking, `member` editing availability).
+  3. **Test-Isolation & `pg-boss` Infrastructure Traps (`booking_bro_test`):**
+     - Run Vitest API integration files sequentially (`fileParallelism: false`) with `TRUNCATE ... CASCADE` (including `pgboss.job`) so parallel workers don't wipe each other's rows.
+     - Use an injectable clock + parameterized UTC timestamps in SQL queries instead of raw SQL `now()` so time-boundary tests never skew against container wall-clock time.
+     - Enqueue `pg-boss` jobs via a Drizzle transaction adapter (`tx`) so failed reschedules roll back job mutations atomically.
+- Updated `AI_USAGE.md` to record invoking the `test-engineer` subagent.
+
+**Actions:**
+- Invoked `test-engineer` subagent (`b6bc52cb-591a-4612-b9ca-928ebbddd29b`)
+- Updated `AI_USAGE.md` (recorded `test-engineer` subagent usage)
+- Appended Turn #44 to `log.txt`
+
+---
+### Turn #45 — 2026-11-06 12:36:00 (UTC+8) — Update SPEC.md & AI_USAGE.md with Approved Test-Engineer Edge Cases & Isolation Rules
+- **Model:** `Gemini 4 Argon` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `189,725` (Cached: `594,011`) | Output: `9,027+`
+
+**User Prompt:**
+> regarding 2
+> 1. ession_id = oldSession.id or newSession.id?  -> new session id, should be no issue
+> 2. valid point
+> 3. good point
+> 4. yup, needed
+> 5. can add
+> 6. after update buffer time, it should impact new bookings. old bookings reamin same with old buffer. can add this test if not present
+> 7. yes, can add those
+> regarding 3
+> 1. good point
+> 2. okay
+> 3. okay
+> 
+> Update 
+
+**Output Summary:**
+- Updated `SPEC.md` across §§1.3, 1.4, 1.7, 5, and 6 to incorporate all approved `test-engineer` findings:
+  - **Reschedule Notification Reference (§1.7):** Specified that `'session_rescheduled'` notifications reference `session_id = newSession.id` so chained reschedules (`A → B → C`) never collide on `UNIQUE (session_id, user_id, kind)`.
+  - **Adjacent Same-Day Reschedule Self-Exclusion (§1.3, §1.4, §1.7):** Added optional `?excludeSessionId=<uuid>` to `GET /api/professionals/:id/slots` and excluded `oldSession.id` during `POST /api/sessions/:id/reschedule` validation so shifting a `10:00` session to `10:10` on the same day succeeds.
+  - **Unit Test Edge Cases (§6.1):** Added tests for (a) buffer config updates (`30m -> 10m` and `10m -> 30m`) keeping existing bookings' snapshotted `blocked_until` while applying the new buffer to new candidate slots, (b) cross-midnight date/weekday shifts (`America/Los_Angeles` Sunday evening vs `Asia/Singapore` Monday morning) with ±1 day padding, and (c) DST spring-forward short windows (`01:30–03:00` = 30 real UTC mins) rejected as `< 50m`.
+  - **Integration Test Edge Cases & Test-Isolation Rules (§5, §6.2):** Added sequential Vitest execution (`fileParallelism: false`) + `TRUNCATE ... CASCADE` (including `pgboss.job`), injectable server clock (`getNow()`) + parameterized SQL timestamps instead of raw SQL `now()`, transactional `pg-boss` enqueue via Drizzle `tx` adapter + direct `processReminderJob` invocation, member vs. professional buffer asymmetry (`10:50` back-to-back with Pro B while Pro A is blocked until `11:20`), chained reschedules (`A → B → C`), invalid state transitions, auth session expiry cleanup, and cross-role `403` RBAC + calendar privacy checks.
+- Updated `AI_USAGE.md` to record the `test-engineer` audit phase and the user's decisions.
+
+**Actions:**
+- Updated `SPEC.md` (§1.3, §1.4, §1.7, §5, §6.1, §6.2)
+- Updated `AI_USAGE.md` (added `Test strategy audit (test-engineer)` phase row)
+- Appended Turn #45 to `log.txt`
