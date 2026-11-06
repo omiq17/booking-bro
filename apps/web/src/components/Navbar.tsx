@@ -10,7 +10,6 @@ import {
   HeartHandshake,
   LogOut,
   Menu,
-  User as UserIcon,
   Users,
   X,
 } from 'lucide-react';
@@ -195,7 +194,7 @@ export function Navbar() {
           ) : user ? (
             <>
               {/* Compact Timezone Dropdown Pill */}
-              <div ref={tzRef} className="relative hidden sm:block">
+              <div ref={tzRef} className="relative hidden md:block">
                 <button
                   type="button"
                   id="navbar-tz-button"
@@ -278,7 +277,7 @@ export function Navbar() {
               <NotificationBell user={user} />
 
               {/* Unified User Profile Dropdown Pill */}
-              <div ref={accountRef} className="relative hidden sm:block">
+              <div ref={accountRef} className="relative hidden md:block">
                 <button
                   type="button"
                   id="navbar-user-menu-button"
@@ -321,9 +320,9 @@ export function Navbar() {
                   <div
                     role="menu"
                     aria-label="User account menu"
-                    className="absolute right-0 mt-2 w-64 rounded-2xl border border-stone-200 bg-white p-2 shadow-xl ring-1 ring-black/5 z-50 animate-in fade-in zoom-in-95"
+                    className="absolute right-0 mt-2 w-60 rounded-2xl border border-stone-200 bg-white p-2 shadow-xl ring-1 ring-black/5 z-50 animate-in fade-in zoom-in-95"
                   >
-                    <div className="flex items-center gap-2.5 border-stone-100 border-b px-2.5 pb-2.5 pt-1.5">
+                    <div className="flex items-center gap-2.5 px-2.5 pb-2.5 pt-1.5">
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-800 font-bold text-xs text-white shadow-2xs">
                         {getInitials(user.name)}
                       </span>
@@ -335,20 +334,6 @@ export function Navbar() {
                           {user.email}
                         </p>
                       </div>
-                    </div>
-
-                    <div className="py-1">
-                      {navLinks.map(({ href, label, Icon }) => (
-                        <Link
-                          key={href}
-                          href={href}
-                          onClick={() => setAccountDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition"
-                        >
-                          <Icon className="h-3.5 w-3.5 text-stone-500" />
-                          <span>{label}</span>
-                        </Link>
-                      ))}
                     </div>
 
                     <div className="border-stone-100 border-t pt-1">

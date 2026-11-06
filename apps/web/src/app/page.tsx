@@ -8,7 +8,6 @@ import {
   Clock,
   Globe2,
   ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
@@ -25,7 +24,7 @@ export default function HomePage() {
       <section className="rounded-3xl border border-stone-200 bg-white p-6 shadow-xs sm:p-10 lg:p-12">
         <div className="max-w-3xl space-y-5">
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1 font-medium text-emerald-900 text-xs">
-            <Sparkles className="h-3.5 w-3.5 text-emerald-800" />
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-800" />
             <span>50-Minute Structured Sessions · Zero Double-Booking</span>
           </div>
 
