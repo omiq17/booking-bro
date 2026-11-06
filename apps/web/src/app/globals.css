@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
+
   /* Semantic Healthcare Design Tokens — Warm Linen / Forest Teal (Default Light Mode) */
   --bg-canvas: #fafaf9;
   --bg-surface: #ffffff;
@@ -20,11 +22,13 @@
   --status-danger-text: #be123c;
 }
 
-.dark {
-  /* Dark-Mode Ready Counterpart Tokens — Midnight Slate / Mint Emerald */
+html.dark {
+  color-scheme: dark;
+
+  /* Dark-Mode Counterpart Tokens — Midnight Slate / Mint Emerald */
   --bg-canvas: #0c0a09;
-  --bg-surface: #1c1917;
-  --bg-surface-muted: #292524;
+  --bg-surface: #171412;
+  --bg-surface-muted: #211d1a;
   --text-primary: #f5f5f4;
   --text-secondary: #d6d3d1;
   --text-muted: #a8a29e;
@@ -38,6 +42,39 @@
   --status-locked-text: #fcd34d;
   --status-danger-bg: #4c0519;
   --status-danger-text: #fda4af;
+
+  /* Remap Tailwind v4 stone palette for seamless dark mode across all views */
+  --color-stone-50: #0c0a09;
+  --color-stone-100: #1c1917;
+  --color-stone-200: #292524;
+  --color-stone-300: #44403c;
+  --color-stone-400: #78716c;
+  --color-stone-500: #a8a29e;
+  --color-stone-600: #d6d3d1;
+  --color-stone-700: #e7e5e4;
+  --color-stone-800: #f5f5f4;
+  --color-stone-900: #fafaf9;
+
+  /* Status palettes adapted for dark surfaces */
+  --color-amber-50: #291502;
+  --color-amber-100: #451a03;
+  --color-amber-200: #78350f;
+  --color-amber-800: #fbbf24;
+  --color-amber-900: #fde68a;
+
+  --color-rose-50: #2b0610;
+  --color-rose-100: #4c0519;
+  --color-rose-200: #881337;
+  --color-rose-600: #fb7185;
+  --color-rose-700: #fda4af;
+  --color-rose-800: #fecdd3;
+  --color-rose-900: #ffe4e6;
+
+  --color-sky-50: #082f49;
+  --color-sky-200: #0369a1;
+  --color-sky-800: #7dd3fc;
+
+  --tw-ring-offset-color: #0c0a09;
 }
 
 @layer base {
@@ -46,7 +83,65 @@
     color: var(--text-primary);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
+    transition: background-color 150ms ease, color 150ms ease;
   }
+}
+
+/* Elevated card & surface overrides in dark mode (preserving text-white on primary buttons) */
+html.dark .bg-white {
+  background-color: #171412;
+}
+
+html.dark .bg-white\/95 {
+  background-color: rgb(23 20 18 / 0.95);
+}
+
+html.dark .hover\:bg-white:hover {
+  background-color: #211d1a;
+}
+
+/* Emerald soft surfaces & high-contrast mint text in dark mode */
+html.dark .bg-emerald-50 {
+  background-color: rgb(6 78 59 / 0.45);
+}
+
+html.dark .bg-emerald-50\/40,
+html.dark .hover\:bg-emerald-50\/40:hover {
+  background-color: rgb(6 78 59 / 0.3);
+}
+
+html.dark .bg-emerald-50\/60 {
+  background-color: rgb(6 78 59 / 0.4);
+}
+
+html.dark .bg-emerald-50\/70 {
+  background-color: rgb(6 78 59 / 0.45);
+}
+
+html.dark .bg-emerald-50\/80 {
+  background-color: rgb(6 78 59 / 0.5);
+}
+
+html.dark .hover\:bg-emerald-50:hover {
+  background-color: rgb(6 78 59 / 0.55);
+}
+
+html.dark .bg-emerald-100 {
+  background-color: rgb(6 95 70 / 0.65);
+}
+
+html.dark .border-emerald-200 {
+  border-color: #065f46;
+}
+
+html.dark .text-emerald-700,
+html.dark .text-emerald-800 {
+  color: #34d399;
+}
+
+html.dark .text-emerald-900,
+html.dark .text-emerald-950 {
+  color: #a7f3d0;
 }
 
 /* Semantic utility classes backed by CSS custom properties */

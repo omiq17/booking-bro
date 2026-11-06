@@ -1350,3 +1350,30 @@ Audited and purged all internal backend jargon, database terms, and developer ac
 - Verified typecheck, web production build, and all 64 unit/integration tests
 - Committed changes to `main` (`3772c88`)
 - Appended Turn #64 entry to `log.txt`
+---
+### Turn #65 — 2026-11-07 00:26:30 (UTC+8) — Interactive Light & Dark Mode Toggle Implementation
+- **Model:** `Claude Opus 4.6` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `3,289` (Cached: `161,710`) | Output: `~4,800`
+
+**User Prompt:**
+> hey man, where is the light/dard mode?
+
+**Output Summary:**
+Implemented interactive Light & Dark Mode switching across the entire web application:
+1. **Navbar 1-Click Theme Toggle (`apps/web/src/components/Navbar.tsx`)**:
+   - Added an accessible `Sun` / `Moon` theme toggle button directly in the top navigation bar (visible across all viewports and for both authenticated and guest users).
+   - Clicking toggles `.dark` on `document.documentElement` and persists the preference in `localStorage.setItem('booking-bro-theme', ...)`.
+2. **Zero-FOUC Theme Initialization (`apps/web/src/app/layout.tsx`)**:
+   - Added an inline blocking initialization script in `<head>` with `suppressHydrationWarning` on `<html>` so page reloads preserve dark/light mode before first paint without any white flash.
+3. **Full Dark Mode Palette Mapping (`apps/web/src/app/globals.css`)**:
+   - Mapped `html.dark` across Tailwind v4 CSS custom properties (`--color-stone-*`, `--color-amber-*`, `--color-rose-*`, `--color-sky-*`) and elevated card/emerald surface rules (`#0c0a09` Midnight Slate canvas, `#171412` elevated cards, `#f5f5f4` primary typography, `#34d399` Mint Emerald accents) while preserving crisp `#ffffff` text on primary `bg-emerald-800` buttons.
+4. **Verification**:
+   - `pnpm typecheck`: 0 errors across all workspaces.
+   - `pnpm --filter @booking-bro/web build`: Clean production build in 2.0s.
+
+**Actions:**
+- Updated `apps/web/src/app/globals.css` with complete `html.dark` token and Tailwind v4 color variable remapping
+- Updated `apps/web/src/app/layout.tsx` with zero-FOUC theme initialization script
+- Updated `apps/web/src/components/Navbar.tsx` with interactive `Sun` / `Moon` theme toggle button
+- Verified `pnpm typecheck` and `pnpm --filter @booking-bro/web build`
+- Appended Turn #65 entry to `log.txt`

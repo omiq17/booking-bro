@@ -10,6 +10,8 @@ import {
   HeartHandshake,
   LogOut,
   Menu,
+  Moon,
+  Sun,
   Users,
   X,
 } from 'lucide-react';
@@ -53,9 +55,30 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tzDropdownOpen, setTzDropdownOpen] = useState(false);
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const tzRef = useRef<HTMLDivElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'dark' : 'light');
+  }, []);
+
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    if (next === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('booking-bro-theme', next);
+    } catch {
+      // Ignore storage errors
+    }
+  }
 
   const { data: user, isLoading } = useQuery({
     queryKey: queryKeys.me,
@@ -273,6 +296,30 @@ export function Navbar() {
                 )}
               </div>
 
+              {/* Light / Dark Mode Toggle */}
+              <button
+                type="button"
+                id="navbar-theme-toggle"
+                onClick={toggleTheme}
+                aria-label={
+                  theme === 'dark'
+                    ? 'Switch to light mode'
+                    : 'Switch to dark mode'
+                }
+                title={
+                  theme === 'dark'
+                    ? 'Switch to light mode'
+                    : 'Switch to dark mode'
+                }
+                className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-lg border border-stone-200 bg-white px-2.5 py-2 text-stone-700 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-4 w-4 text-amber-500" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+              </button>
+
               {/* Notification Bell */}
               <NotificationBell user={user} />
 
@@ -368,6 +415,28 @@ export function Navbar() {
             </>
           ) : (
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                id="navbar-theme-toggle-guest"
+                onClick={toggleTheme}
+                aria-label={
+                  theme === 'dark'
+                    ? 'Switch to light mode'
+                    : 'Switch to dark mode'
+                }
+                title={
+                  theme === 'dark'
+                    ? 'Switch to light mode'
+                    : 'Switch to dark mode'
+                }
+                className="inline-flex min-h-[38px] min-w-[38px] items-center justify-center rounded-lg border border-stone-200 bg-white p-2 text-stone-700 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-4 w-4 text-amber-500" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+              </button>
               <Link
                 href="/login"
                 className="inline-flex min-h-[38px] items-center justify-center rounded-lg px-3.5 py-1.5 font-medium text-sm text-stone-700 transition hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"

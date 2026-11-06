@@ -10,9 +10,25 @@ export const metadata: Metadata = {
     'Book 50-minute wellbeing and counselling sessions across timezones with automatic 24h and 1h reminders.',
 };
 
+const themeInitScript = `
+(function() {
+  try {
+    var stored = localStorage.getItem('booking-bro-theme');
+    if (stored === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (stored === 'light') {
+      document.documentElement.classList.remove('dark');
+    }
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-screen bg-stone-50 text-stone-900 antialiased selection:bg-emerald-800 selection:text-white">
         <QueryProvider>
           <div className="flex min-h-screen flex-col">
