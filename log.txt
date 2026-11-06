@@ -1194,6 +1194,25 @@ Ratified Option A (Dark-Mode Ready via Semantic Tokens):
 - Committed changes to git
 - Appended Turn #58 entry to `log.txt`
 
+---
+### Turn #59 — 2026-11-06 22:47:04 (UTC+8) — Consolidate Theme Mode Direction into Design System Documentation
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `76,947` (Cached: `0`) | Output: `~3,500`
+
+**User Prompt:**
+> Hey, no need to be too descriptive and create a separate point for dark/white theme mode. Just combine it with previous and update. Like include how I improve to add mode options here in this project.
+
+**Output Summary:**
+Consolidated theme mode documentation in `AI_USAGE.md`:
+1. Merged the separate theme mode entry into Section 3.8 (`Frontend UI/UX: Design system, healthcare palette, theme mode options, and mobile-first responsiveness`).
+2. Clearly captured how human feedback improved the design architecture by introducing dark/light mode options via semantic tokens and CSS variables (`bg-canvas`, `bg-surface`, `text-primary`, `border-subtle`, `primary-accent`) for zero-refactor dark mode readiness while preserving the warm linen default.
+3. Updated the Table of Contents in `AI_USAGE.md` to reflect the consolidated structure.
+
+**Actions:**
+- Updated `AI_USAGE.md` (consolidated point 8, removed separate point 9, updated TOC)
+- Appended Turn #59 entry to `log.txt`
+
+
 
 
 

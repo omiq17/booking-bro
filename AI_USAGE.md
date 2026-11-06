@@ -17,8 +17,7 @@ and I can explain them.
   - [5. Session mutation schema: require updated_at and separate in-place cancel from new-row reschedule](#5-session-mutation-schema-require-updated_at-and-separate-in-place-cancel-from-new-row-reschedule)
   - [6. Test environment: Docker Compose Postgres instead of Testcontainers](#6-test-environment-docker-compose-postgres-instead-of-testcontainers)
   - [7. Password hashing inputs: scrutinizing mutable attributes vs. cryptographic salt](#7-password-hashing-inputs-scrutinizing-mutable-attributes-timezonetimestamp-vs-cryptographic-salt)
-  - [8. Frontend UI/UX: Design system, healthcare color palette, and mobile-first responsiveness research](#8-frontend-uiux-design-system-healthcare-color-palette-and-mobile-first-responsiveness-research)
-  - [9. Dark and light mode strategy: semantic tokens and dark-mode readiness](#9-dark-and-light-mode-strategy-semantic-tokens-and-dark-mode-readiness)
+  - [8. Frontend UI/UX: Design system, healthcare palette, theme mode options, and mobile-first responsiveness](#8-frontend-uiux-design-system-healthcare-palette-theme-mode-options-and-mobile-first-responsiveness)
 
 ---
 
@@ -110,18 +109,13 @@ and I can explain them.
 - **I identified & probed:** caught that mixing mutable user attributes like timezone or timestamps into password hashing is problematic because timezone and timestamps change over time
 - **Resolution:** clarified that mutable attributes (`timezone`, `updated_at`, `role`) remain strictly as separate database columns, while `argon2id` generates its own independent 16-byte random salt embedded into the PHC string format, guaranteeing credential verification remains decoupled from user profile updates
 
-### 8. Frontend UI/UX: Design system, healthcare color palette, and mobile-first responsiveness research
+### 8. Frontend UI/UX: Design system, healthcare palette, theme mode options, and mobile-first responsiveness
 
-- **AI initial inclination:** Jumping directly into scaffolding components with default AI utility styles and generic layout patterns
-- **I directed & structured:** Required a dedicated design-system evaluation step before writing any UI code:
+- **AI initial inclination:** Jumping directly into scaffolding components with default AI utility styles and generic layout patterns without evaluating theming or mobile slot density.
+- **I directed & structured:** Guided the design evaluation before writing UI code:
   - Researched and established a calming healthcare-specific color palette (deep forest teal/emerald `#065F46`, warm linen background `#FAFAF9`, charcoal text `#1C1917`) with strict WCAG 2.1 AA/AAA contrast ratios (> 7.5:1 on actions, > 14:1 on body text).
-  - Solved the high-density 10-minute slot layout for mobile by specifying a mobile-first stepper/sheet layout with large touch targets (`min-h-[44px]`), preventing dense slot pill overflow on smaller screens.
+  - **Dark/Light Mode Options:** Probed dark and light theme options and directed the architecture to use semantic tokens and CSS variables (`bg-canvas`, `bg-surface`, `text-primary`, `border-subtle`, `primary-accent`) so the app delivers an eye-friendly warm linen experience while being 100% dark-mode ready without refactoring component markup.
+  - Solved high-density 10-minute slots on mobile via a mobile-first stepper/sheet layout with large touch targets (`min-h-[44px]`).
   - Chose lightweight, dependency-free Tailwind CSS + Lucide Icons over heavy component frameworks (HeroUI / Shadcn CLI) to avoid bundle bloat and Next.js 15 App Router hydration lag.
-  - Defined a clear frontend data flow architecture (TanStack Query cache keys, 15s notification polling, Next.js `/api` proxy rewrites).
-- **Why:** Prevents generic "AI aesthetic" traps, ensures flawless mobile responsiveness for mental-health users, and locks the visual contract before scaffolding code.
-
-### 9. Dark and light mode strategy: semantic tokens and dark-mode readiness
-
-- **I probed & directed:** Inquired whether dark and white themes/modes were accounted for prior to starting Phase 4 web implementation.
-- **Evaluation & Choice:** Evaluated pure white vs. warm linen, accessibility in mental health booking contexts, and dark mode complexity. Decided on **Option A**: Architecting the UI using semantic design tokens and CSS custom properties (`bg-canvas`, `bg-surface`, `text-primary`, `text-muted`, `border-subtle`, `primary-accent`) that support both dark and light modes cleanly.
-- **Why:** Prevents hardcoding static color utilities across components, ensures the warm linen theme provides immediate, eye-friendly, WCAG AAA-compliant booking on launch, and leaves the codebase 100% dark-mode ready for instant theme expansion without rewriting component markup.
+  - Defined clear frontend data flow architecture (TanStack Query cache keys, 15s notification polling, Next.js `/api` proxy rewrites).
+- **Why:** Prevents generic "AI aesthetic" traps, ensures flawless mobile responsiveness and theming flexibility for mental-health users, and locks the visual contract before scaffolding code.
