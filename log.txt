@@ -896,3 +896,82 @@ I just want to ask one question, which is, as in my last prompt, I told you to t
 - Created `/Users/rakib/code/booking-bro/tasks/todo.md`
 - Updated `AI_USAGE.md`
 - Appended Turn #46 to `log.txt`
+---
+### Turn #47 — 2026-11-06 17:56:11 (UTC+8) — Approve & Commit Task Plan, Accomplish Phase 1 (Tasks 1–3 & Checkpoint 1)
+- **Model:** `Claude Opus 4.6 (Thinking)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `319,686` (Cached: `7,352,219`) | Output: `31,365+`
+
+**User Prompt:**
+> good, i approve the task plan.
+> make a commit.
+> then go ahead to accomplish the phase 1
+
+**Output Summary:**
+Committed the approved Phase 2 implementation plan (`6bf6e5e`) and completed all of **Phase 1: Monorepo Foundation & Pure Domain Package (`@booking-bro/shared`)** (Tasks 1–3 and Checkpoint 1 in `tasks/todo.md`):
+1. **Task 1 — Monorepo Workspace, TypeScript Config & Docker Postgres Setup:** Created root `package.json`, `pnpm-workspace.yaml` (with `allowBuilds` and `verifyDepsBeforeRun: false`), `tsconfig.base.json`, `.env.example`, `docker-compose.yml` (`postgres:16-alpine` on port `5432`), and `docker/postgres/init.sql` (creating `booking_bro_test` and enabling `btree_gist` in both databases).
+2. **Task 2 — `@booking-bro/shared` Domain Constants, Zod Schemas & Pure 24h/Reminder Rules:** Implemented `constants.ts`, `rules.ts` (`isValidIanaTimezone`, `isTenMinuteAlignedTime`, `parseTimeMinutes`, `meetsMinimumNotice`, `canMemberModifySession`, `computeReminderSchedule`), `schemas.ts` (auth, timezone, availability windows, slot query with `excludeSessionId`, session booking & reschedule schemas), and 15 unit tests in `tests/rules.test.ts`.
+3. **Task 3 — `@booking-bro/shared` Pure Slot Generator, Window Validator & Timezone/DST Tests:** Implemented `slots.ts` (`validateAvailabilityWindows` and `generateAvailableSlots` with ±1 day cross-timezone boundary padding, DST spring-forward/fall-back handling, 10-min step increments, bidirectional `10/20/30m` buffer blocking, buffer config change snapshot immutability, member self-overlap filtering, and `excludeSessionId` exclusion), barrel exports in `index.ts`, and 16 unit tests across `tests/slots.test.ts` (11 tests) and `tests/timezones.test.ts` (5 tests).
+4. **Checkpoint 1 Verification:** Ran `pnpm --filter @booking-bro/shared test:coverage` (31/31 tests passing in 541ms, **93.31% statement/line coverage**, **100% function coverage**), `pnpm --filter @booking-bro/shared build`, and `pnpm typecheck` with 0 errors. Updated `tasks/plan.md`, `tasks/todo.md`, and `AI_USAGE.md`.
+
+**Actions:**
+- Committed `6bf6e5e` (`docs: add Phase 2 implementation plan and task breakdown (tasks/plan.md, tasks/todo.md)`)
+- Installed `pnpm` and workspace dependencies (`pnpm-lock.yaml`)
+- Created `package.json`, `pnpm-workspace.yaml`, `tsconfig.base.json`, `.env.example`, `docker-compose.yml`, `docker/postgres/init.sql`
+- Created `packages/shared/package.json`, `packages/shared/tsconfig.json`, `packages/shared/vitest.config.ts`
+- Created `packages/shared/src/constants.ts`, `packages/shared/src/rules.ts`, `packages/shared/src/schemas.ts`, `packages/shared/src/slots.ts`, `packages/shared/src/index.ts`
+- Created `packages/shared/tests/rules.test.ts`, `packages/shared/tests/slots.test.ts`, `packages/shared/tests/timezones.test.ts`
+- Executed `pnpm --filter @booking-bro/shared test:coverage`, `pnpm --filter @booking-bro/shared build`, and `pnpm typecheck`
+- Updated `tasks/plan.md`, `tasks/todo.md`, `AI_USAGE.md`, and `log.txt`
+---
+### Turn #48 — 2026-11-06 18:34:40 (UTC+8) — Explain Monorepo Workspace Filter Behavior & Update Root Scripts
+- **Model:** `Gemini 3.8 Flash (Medium)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `48,181` (Cached: `244,484`) | Output: `2,571+`
+
+**User Prompt:**
+> rakib@Rakib-2 booking-bro % pnpm --filter @booking-bro/shared build & pnpm typecheck
+> [1] 9284
+> $ pnpm --filter @booking-bro/shared typecheck && pnpm --filter @booking-bro/api typecheck && pnpm --filter @booking-bro/web typecheck
+> 
+> 
+> $ tsc -p tsconfig.json
+> $ tsc -p tsconfig.json --noEmit
+> 
+> No projects matched the filters in "/Users/rakib/code/booking-bro"
+> [1]  + done       pnpm --filter @booking-bro/shared build
+> 
+> No projects matched the filters in "/Users/rakib/code/booking-bro"
+> 
+> why getting no projects??
+
+**Output Summary:**
+Explained the cause of `No projects matched the filters`:
+1. In Phase 1, only `packages/shared` (`@booking-bro/shared`) has been scaffolded. `apps/api` (`@booking-bro/api`) is scheduled for Phase 2 and `apps/web` (`@booking-bro/web`) for Phase 4.
+2. The root `package.json` had explicit chained filters (`--filter @booking-bro/shared ... && --filter @booking-bro/api ... && --filter @booking-bro/web ...`). Because `@booking-bro/api` and `@booking-bro/web` do not exist yet on disk, `pnpm` reported `No projects matched the filters`.
+3. Updated root `package.json` scripts (`build`, `test`, `typecheck`, `lint`) to use recursive workspace commands (`pnpm -r build`, `pnpm -r test`, `pnpm -r typecheck`, `pnpm -r lint`). This dynamically and topologically executes across all existing packages, automatically including `api` and `web` once scaffolded in subsequent phases without hardcoded filter failures.
+
+**Actions:**
+- Updated `package.json` scripts to use `pnpm -r`
+- Verified `pnpm typecheck`, `pnpm build`, and `pnpm test` pass cleanly
+- Appended Turn #48 entry to `log.txt`
+---
+### Turn #49 — 2026-11-06 18:38:10 (UTC+8) — Context Engineering Track Check
+- **Model:** `Gemini 3.8 Flash (Medium)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,982` (Cached: `23,726`) | Output: `~1,000`
+
+**User Prompt:**
+> /context-engineering are we on track?
+
+**Output Summary:**
+Evaluated current project context across the 5-level Context Hierarchy and confirmed we are squarely on track:
+1. **Rules & Constraints:** `AGENTS.md`, `CONSTRAINTS.md`, and `.agents/rules/logging.md` active and intact.
+2. **Specs & Decisions:** `SPEC.md`, `DECISIONS.md`, and `AI_USAGE.md` finalized and aligned.
+3. **Task & Implementation State:** Phase 1 (Foundation & Shared Rules/Slots) is 100% complete with 31/31 tests passing (93.3% coverage), build and typecheck green.
+4. **Context Budget:** Post-`/compact`, context dropped from ~292k tokens to ~26k tokens (over 90% reduction), restoring model attention and eliminating stale noise.
+5. **Immediate Next Step:** Commit Phase 1 files, then proceed to Phase 2 (Database Schema, Drizzle ORM, Fastify Auth & Availability API).
+
+**Actions:**
+- Ran `git status -s` to inspect working tree state
+- Ran `pnpm test && pnpm typecheck && pnpm build` to verify baseline health
+- Read `SKILL.md` for `context-engineering`
+- Appended Turn #49 entry to `log.txt`
+

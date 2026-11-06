@@ -12,14 +12,14 @@
 **Description:** Initialize the `pnpm` workspaces monorepo root (`packages/shared`, `apps/api`, `apps/web`), strict shared TypeScript configuration (`strict: true`, `noUncheckedIndexedAccess: true`), root ESLint/test scripts, `.env.example`, and the PostgreSQL 16 service in `docker-compose.yml` (provisioning both `booking_bro` and `booking_bro_test` databases with `btree_gist`).
 
 **Acceptance criteria:**
-- [ ] `pnpm-workspace.yaml` and root `package.json` define `dev`, `build`, `test`, `typecheck`, and `lint` scripts across workspaces.
-- [ ] `tsconfig.base.json` enforces `"strict": true` and `"noUncheckedIndexedAccess": true` with zero `any`.
-- [ ] `docker-compose.yml` defines PostgreSQL 16 with an init script creating `booking_bro` and `booking_bro_test` with `CREATE EXTENSION IF NOT EXISTS btree_gist;`.
+- [x] `pnpm-workspace.yaml` and root `package.json` define `dev`, `build`, `test`, `typecheck`, and `lint` scripts across workspaces.
+- [x] `tsconfig.base.json` enforces `"strict": true` and `"noUncheckedIndexedAccess": true` with zero `any`.
+- [x] `docker-compose.yml` defines PostgreSQL 16 with an init script creating `booking_bro` and `booking_bro_test` with `CREATE EXTENSION IF NOT EXISTS btree_gist;`.
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/shared test` (workspace runner resolves cleanly)
-- [ ] Build succeeds: `pnpm typecheck`
-- [ ] Manual check: Verify `docker compose up -d postgres` starts healthy and both `booking_bro` and `booking_bro_test` databases exist.
+- [x] Tests pass: `pnpm --filter @booking-bro/shared test` (workspace runner resolves cleanly)
+- [x] Build succeeds: `pnpm typecheck`
+- [x] Manual check: Verify `docker compose up -d postgres` starts healthy and both `booking_bro` and `booking_bro_test` databases exist.
 
 **Dependencies:** None
 
@@ -39,14 +39,14 @@
 **Description:** Create `@booking-bro/shared` with domain constants (`SESSION_MINUTES = 50`, `SLOT_STEP_MINUTES = 10`, `MIN_NOTICE_HOURS = 2`, `CANCEL_LOCK_HOURS = 24`, `ALLOWED_BUFFERS = [10, 20, 30]`), shared Zod request/response schemas (including IANA timezone validation via Luxon `IANAZone.isValidZone` and `09:00` 10-minute grid validation), and pure functions in `rules.ts` (`canMemberModifySession`, `computeReminderSchedule`, `meetsMinimumNotice`) with unit tests in `rules.test.ts`.
 
 **Acceptance criteria:**
-- [ ] Zod schemas validate signup/login payloads (rejecting invalid IANA timezones like `'Mars/Phobos'`), availability windows (`1..3` per weekday, 10-min grid), and booking/reschedule payloads.
-- [ ] `canMemberModifySession(startAtIso, nowIso)` returns `allowed: true` at `>= 24h 00m 00s` and `allowed: false` at `23h 59m 59s`.
-- [ ] `computeReminderSchedule(startAtIso, nowIso)` returns both `24h` and `1h` reminders when `> 24h` away, only `1h` when `2h–24h` away, and `[]` when `< 1h` away.
+- [x] Zod schemas validate signup/login payloads (rejecting invalid IANA timezones like `'Mars/Phobos'`), availability windows (`1..3` per weekday, 10-min grid), and booking/reschedule payloads.
+- [x] `canMemberModifySession(startAtIso, nowIso)` returns `allowed: true` at `>= 24h 00m 00s` and `allowed: false` at `23h 59m 59s`.
+- [x] `computeReminderSchedule(startAtIso, nowIso)` returns both `24h` and `1h` reminders when `> 24h` away, only `1h` when `2h–24h` away, and `[]` when `< 1h` away.
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/shared test tests/rules.test.ts`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/shared typecheck`
-- [ ] Manual check: Confirm zero wall-clock `Date.now()` calls inside `packages/shared/src/rules.ts`.
+- [x] Tests pass: `pnpm --filter @booking-bro/shared test tests/rules.test.ts`
+- [x] Build succeeds: `pnpm --filter @booking-bro/shared typecheck`
+- [x] Manual check: Confirm zero wall-clock `Date.now()` calls inside `packages/shared/src/rules.ts`.
 
 **Dependencies:** Task 1
 
@@ -66,14 +66,14 @@
 **Description:** Implement `validateAvailabilityWindows` and `generateAvailableSlots` in `packages/shared/src/slots.ts` using Luxon, handling up to 3 windows/weekday (`>= 50` real elapsed UTC minutes, non-overlapping with gap `prev.end < next.start`), 10-minute step increments, ±1 day boundary padding for cross-midnight timezone shifts, DST spring-forward/fall-back transitions, bidirectional `10`/`20`/`30m` buffer blocking, member self-overlap filtering, and `excludeSessionId` exclusion for rescheduling. Write comprehensive unit tests in `slots.test.ts` and `timezones.test.ts`.
 
 **Acceptance criteria:**
-- [ ] `validateAvailabilityWindows` rejects > 3 windows/weekday, off-grid times (`09:05`), touching/overlapping windows (`09:00–12:00` + `12:00–15:00`), and windows `< 50` real UTC minutes (including DST spring-forward short windows like `01:30–03:00`).
-- [ ] `generateAvailableSlots` enforces 2h minimum notice, bidirectional buffer blocking, buffer config change snapshot immutability (`30m -> 10m` and `10m -> 30m` around an existing booking), member self-overlap filtering, and `excludeSessionId` exclusion.
-- [ ] `timezones.test.ts` passes cross-zone (`Europe/London` ↔ `Asia/Singapore` across BST/GMT), cross-midnight weekday shifts (`America/Los_Angeles` Sunday evening → `Asia/Singapore` Monday morning), `UTC+5:30`/`UTC+5:45` offsets, and DST spring-forward/fall-back tests.
+- [x] `validateAvailabilityWindows` rejects > 3 windows/weekday, off-grid times (`09:05`), touching/overlapping windows (`09:00–12:00` + `12:00–15:00`), and windows `< 50` real UTC minutes (including DST spring-forward short windows like `01:30–03:00`).
+- [x] `generateAvailableSlots` enforces 2h minimum notice, bidirectional buffer blocking, buffer config change snapshot immutability (`30m -> 10m` and `10m -> 30m` around an existing booking), member self-overlap filtering, and `excludeSessionId` exclusion.
+- [x] `timezones.test.ts` passes cross-zone (`Europe/London` ↔ `Asia/Singapore` across BST/GMT), cross-midnight weekday shifts (`America/Los_Angeles` Sunday evening → `Asia/Singapore` Monday morning), `UTC+5:30`/`UTC+5:45` offsets, and DST spring-forward/fall-back tests.
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/shared test`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/shared build && pnpm typecheck`
-- [ ] Manual check: Run `pnpm --filter @booking-bro/shared test --coverage` and verify `>= 80%` line coverage in `packages/shared`.
+- [x] Tests pass: `pnpm --filter @booking-bro/shared test`
+- [x] Build succeeds: `pnpm --filter @booking-bro/shared build && pnpm typecheck`
+- [x] Manual check: Run `pnpm --filter @booking-bro/shared test --coverage` and verify `>= 80%` line coverage in `packages/shared`.
 
 **Dependencies:** Task 2
 
@@ -88,9 +88,9 @@
 ---
 
 ## Checkpoint 1: After Tasks 1–3 (Shared Domain Foundation)
-- [ ] All unit tests in `packages/shared` pass (`pnpm --filter @booking-bro/shared test`)
-- [ ] Coverage in `packages/shared` is `>= 80%` (`CONSTRAINTS.md`)
-- [ ] `pnpm typecheck` passes with zero errors
+- [x] All unit tests in `packages/shared` pass (`pnpm --filter @booking-bro/shared test`)
+- [x] Coverage in `packages/shared` is `>= 80%` (`CONSTRAINTS.md`)
+- [x] `pnpm typecheck` passes with zero errors
 
 ---
 

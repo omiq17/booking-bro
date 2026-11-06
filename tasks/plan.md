@@ -64,10 +64,10 @@ Build **BookingBro**, a full-stack TypeScript session-booking web application wi
 Full task definitions with acceptance criteria, verification commands, dependencies, and file lists are tracked in [tasks/todo.md](todo.md):
 
 ### Phase 1: Workspace Foundation & Shared Pure Domain (`packages/shared`)
-- [ ] **Task 1:** Monorepo Workspace, TypeScript/Lint Config & Docker Postgres Setup
-- [ ] **Task 2:** Shared Constants, Zod Schemas & Pure 24h/Reminder Rules (`packages/shared`)
-- [ ] **Task 3:** Pure On-the-Fly Slot Generator, Window Validator & Timezone/DST Unit Tests (`packages/shared`)
-- [ ] **Checkpoint 1:** Shared Domain & Pure Unit Tests (`pnpm --filter @booking-bro/shared test` & `pnpm typecheck`)
+- [x] **Task 1:** Monorepo Workspace, TypeScript/Lint Config & Docker Postgres Setup
+- [x] **Task 2:** Shared Constants, Zod Schemas & Pure 24h/Reminder Rules (`packages/shared`)
+- [x] **Task 3:** Pure On-the-Fly Slot Generator, Window Validator & Timezone/DST Unit Tests (`packages/shared`)
+- [x] **Checkpoint 1:** Shared Domain & Pure Unit Tests (`pnpm --filter @booking-bro/shared test` & `pnpm typecheck`)
 
 ### Phase 2: Database Schema, Authentication & Availability API (`apps/api`)
 - [ ] **Task 4:** Drizzle ORM Schema, PostgreSQL `btree_gist` Migration & DB Client
