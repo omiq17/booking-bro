@@ -1234,6 +1234,26 @@ Audited and verified the Phase 4 Web UI implementation across Tasks 10–13:
 - Marked Tasks 10–13 complete in `tasks/todo.md`
 - Appended Turn #60 entry to `log.txt`
 
+---
+### Turn #61 — 2026-11-06 23:22:29 (UTC+8) — Project Run & Test Guide, Commit Status & Task List Alignment
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,680` (Cached: `195,564`) | Output: `~3,000`
+
+**User Prompt:**
+> How do I run and test the whole project so far? And then previously did you commit? And then I want you to update the todo and task list.
+
+**Output Summary:**
+Provided full execution instructions, commit status, and synchronized tracking files:
+1. **How to Run & Test:** Provided exact commands to start PostgreSQL (`docker compose up postgres` or Homebrew), run migrations, start the Fastify API (port 3001) & Next.js frontend (port 3000) simultaneously with `pnpm dev`, and execute all 63 unit and real-PostgreSQL concurrency tests via `pnpm test`.
+2. **Commit Status:** Confirmed previous commit `ae3d6ed` (`feat(web): next.js app router, 28-day calendar, notifications drawer, booking & sessions ui (tasks 10-13)`).
+3. **Task & Todo List Synchronization:** Verified all acceptance criteria for Tasks 10–13 are marked complete in both `tasks/todo.md` and `tasks/plan.md`, updated `AI_USAGE.md` Phase 4 summary, and prepared scope for Task 14 (Seed, Docker compose, and README).
+
+**Actions:**
+- Verified git commit log and working tree status
+- Synchronized `tasks/plan.md` and `AI_USAGE.md`
+- Appended Turn #61 entry to `log.txt`
+
+
 
 
 

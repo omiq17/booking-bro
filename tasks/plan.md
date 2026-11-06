@@ -95,10 +95,10 @@ Full task definitions with acceptance criteria, verification commands, dependenc
 - [x] **Checkpoint 3:** Complete Backend & Real-Postgres Test Suite (`pnpm test` passes 100% of unit + integration tests)
 
 ### Phase 4: Next.js Web Application, Docker Seed & Documentation (`apps/web` + Root)
-- [ ] **Task 10:** Next.js App Router Scaffold, `/api` Proxy, Typed Fetch Client & Layout Shell
-- [ ] **Task 11:** Login, Signup (with IANA Timezone Picker) & `NotificationBell` Drawer
-- [ ] **Task 12:** Professional Directory, Two-Column 4-Week Calendar & Booking Confirmation Flow
-- [ ] **Task 13:** My Sessions View (Cancel & Reschedule Modal) & Professional Availability Editor
+- [x] **Task 10:** Next.js App Router Scaffold, `/api` Proxy, Typed Fetch Client & Layout Shell
+- [x] **Task 11:** Login, Signup (with IANA Timezone Picker) & `NotificationBell` Drawer
+- [x] **Task 12:** Professional Directory, Two-Column 4-Week Calendar & Booking Confirmation Flow
+- [x] **Task 13:** My Sessions View (Cancel & Reschedule Modal) & Professional Availability Editor
 - [ ] **Task 14:** Demo Seed Script, Full-Stack `docker compose up` & Final `DECISIONS.md` / `README.md`
 - [ ] **Checkpoint 4:** Full-Stack Verification & Submission Gate
 
