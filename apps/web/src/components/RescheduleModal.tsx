@@ -111,7 +111,7 @@ export function RescheduleModal({
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-800 text-xs">
               <RefreshCw className="h-3.5 w-3.5" />
-              Atomic Session Reschedule
+              Reschedule Session
             </span>
             <h2
               id="reschedule-modal-title"
@@ -120,8 +120,8 @@ export function RescheduleModal({
               Reschedule Session with {session.professionalName}
             </h2>
             <p className="text-stone-600 text-xs">
-              Your existing slot is excluded from conflict checks so you can
-              shift by even 10 minutes on the same day.
+              Select a new date and time from the calendar below. You can choose
+              any open slot, including earlier or later on the same day.
             </p>
           </div>
           <button
@@ -195,8 +195,8 @@ export function RescheduleModal({
 
         <div className="mt-6 flex flex-col-reverse items-center justify-between gap-3 border-stone-200 border-t pt-4 sm:flex-row">
           <p className="text-stone-600 text-xs">
-            Confirming atomically marks your current session as rescheduled,
-            books the new slot, and updates your 24h & 1h reminders.
+            Confirming updates your session to the new time and resets your 24h
+            and 1h reminders automatically.
           </p>
           <div className="flex w-full gap-2.5 sm:w-auto">
             <button

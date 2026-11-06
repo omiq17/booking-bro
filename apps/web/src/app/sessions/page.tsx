@@ -482,7 +482,7 @@ export default function SessionsPage() {
         onSuccess={() => {
           setRescheduleTarget(null);
           setBannerMessage(
-            'Session atomically rescheduled! Your old reminders were replaced and new reminders are scheduled.',
+            'Session rescheduled! Your session time has been updated and new reminders have been scheduled.',
           );
         }}
       />

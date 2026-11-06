@@ -190,8 +190,8 @@ export default function LoginPage() {
           </h2>
         </div>
         <p className="mb-4 text-stone-600 text-xs leading-relaxed">
-          Click any seeded synthetic account below to sign in immediately and
-          test cross-timezone booking, 24h locks, or availability editing.
+          Click any demo account below to sign in immediately and explore
+          cross-timezone booking, schedule locks, or availability management.
         </p>
 
         <div className="space-y-2.5">

@@ -106,8 +106,8 @@ export default function ProfessionalsDirectoryPage() {
             No professionals found
           </p>
           <p className="mt-1 text-sm text-stone-600">
-            Run the database seed script or sign up a professional account to
-            see available calendars.
+            Check back soon or sign up a professional account to start offering
+            sessions.
           </p>
         </div>
       ) : (

@@ -26,8 +26,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   BookingBro · 50-Minute Wellbeing & Counselling Sessions
                 </p>
                 <p>
-                  All times stored in UTC · Displayed in your selected IANA
-                  timezone · 24h & 1h in-app reminders
+                  Automatic timezone conversion · Displayed in your local
+                  time · 24h & 1h in-app reminders
                 </p>
               </div>
             </footer>

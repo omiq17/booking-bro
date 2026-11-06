@@ -209,7 +209,7 @@ export default function SignupPage() {
               className="mb-1.5 flex items-center gap-1.5 font-medium text-sm text-stone-800"
             >
               <Globe className="h-4 w-4 text-emerald-800" />
-              <span>Your IANA Timezone</span>
+              <span>Your Local Timezone</span>
             </label>
             <select
               id="signup-timezone"
@@ -266,8 +266,8 @@ export default function SignupPage() {
                   className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 focus:border-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
                 />
                 <p className="mt-1 text-stone-500 text-xs">
-                  Default working hours (Mon–Fri 09:00–12:00 & 13:00–17:00) are
-                  automatically seeded and can be customized right after signup.
+                  Standard working hours (Mon–Fri 09:00–12:00 & 13:00–17:00) are
+                  set by default and can be customized anytime in your settings.
                 </p>
               </div>
             </div>

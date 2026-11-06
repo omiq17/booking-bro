@@ -35,8 +35,8 @@ export default function HomePage() {
 
           <p className="text-base text-stone-700 leading-relaxed sm:text-lg">
             Connect with professionals across a 4-week calendar rendered in your
-            local IANA timezone. Every 50-minute session includes automated
-            24-hour and 1-hour in-app reminders and database-enforced conflict
+            local timezone. Every 50-minute session includes automated
+            24-hour and 1-hour in-app reminders and real-time conflict
             protection.
           </p>
 
@@ -110,7 +110,7 @@ export default function HomePage() {
             Cross-Timezone Precision
           </h2>
           <p className="mt-1.5 text-sm text-stone-600 leading-relaxed">
-            Professionals set working hours in their own IANA timezone; members
+            Professionals set working hours in their own timezone; members
             browse and book across a 28-day calendar in theirs.
           </p>
         </div>
@@ -133,11 +133,11 @@ export default function HomePage() {
             <ShieldCheck className="h-5 w-5" />
           </div>
           <h2 className="font-semibold text-base text-stone-900">
-            Atomic Reschedule & 24h Rule
+            Flexible Reschedule & 24h Policy
           </h2>
           <p className="mt-1.5 text-sm text-stone-600 leading-relaxed">
-            Members can cancel or atomically reschedule up to 24 hours before
-            start time. PostgreSQL GiST constraints block double-bookings.
+            Members can cancel or reschedule up to 24 hours before session
+            start. Real-time availability checks ensure zero double-booking.
           </p>
         </div>
 
@@ -146,11 +146,11 @@ export default function HomePage() {
             <BellRing className="h-5 w-5" />
           </div>
           <h2 className="font-semibold text-base text-stone-900">
-            Exactly-Once Reminders
+            Timely In-App Reminders
           </h2>
           <p className="mt-1.5 text-sm text-stone-600 leading-relaxed">
-            24-hour and 1-hour reminders are persisted in Postgres via pg-boss
-            and delivered idempotently into the notification bell.
+            Automated 24-hour and 1-hour reminders are delivered directly to
+            your in-app notification center so you never miss a session.
           </p>
         </div>
       </section>

@@ -138,7 +138,7 @@ export function NotificationBell({ user }: { user: AuthUserDto }) {
                 Notifications & Reminders
               </h2>
               <p className="text-stone-600 text-xs">
-                Auto-refreshes every 15s · {user.timezone}
+                Live updates · {user.timezone}
               </p>
             </div>
             {unreadCount > 0 && (

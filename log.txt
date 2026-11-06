@@ -1253,6 +1253,31 @@ Provided full execution instructions, commit status, and synchronized tracking f
 - Synchronized `tasks/plan.md` and `AI_USAGE.md`
 - Appended Turn #61 entry to `log.txt`
 
+---
+### Turn #62 — 2026-11-06 23:35:37 (UTC+8) — Frontend UI Technical Jargon Elimination & User-Facing Copy Polish
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,449` (Cached: `209,113`) | Output: `~10,500`
+
+**User Prompt:**
+> PostgreSQL GiST constraints block double-bookings. 
+> 24-hour and 1-hour reminders are persisted in Postgres via pg-boss.
+> -> Definitely we should not show this kind of technical terms in frontend to user. Fix all of this. Also search if there is any more.
+
+**Output Summary:**
+Audited and purged all internal backend jargon, database terms, and developer acronyms across the entire web UI (`apps/web/src`):
+1. **Landing Page (`page.tsx`)**: Replaced database and queue terms ("PostgreSQL GiST constraints", "pg-boss", "persisted in Postgres", "database-enforced conflict protection", "local IANA timezone") with patient-friendly, reassuring copy ("real-time conflict protection", "instant calendar synchronization", "timely in-app reminders", "local timezone").
+2. **Availability Editor (`availability/page.tsx`)**: Replaced raw code formula (`blocked_until = end_at + buffer`) with clear explanation ("buffer is automatically reserved after each booked session to give you adequate rest time").
+3. **Reschedule Modal (`RescheduleModal.tsx`)**: Replaced "Atomic Session Reschedule" and database conflict wording with clear user guidance ("Reschedule Session", "Select a new date and time from the calendar below... resets your 24h and 1h reminders automatically").
+4. **Auth & Sessions Views (`login/page.tsx`, `signup/page.tsx`, `sessions/page.tsx`, `professionals/page.tsx`, `layout.tsx`, `NotificationBell.tsx`)**: Replaced developer terms ("seeded synthetic account", "automatically seeded", "database seed script", "atomically rescheduled", "stored in UTC", "Auto-refreshes every 15s") with clean consumer-grade copy ("demo account", "created by default", "Live updates").
+5. **Verification**: Ran `pnpm typecheck`, `next build`, and `pnpm test` (all 63 tests passing).
+
+**Actions:**
+- Audited `apps/web/src` with multiple regex searches for technical/DB jargon
+- Replaced technical copy across 9 web components and pages
+- Ran `pnpm typecheck`, `pnpm --filter @booking-bro/web build`, and `pnpm test`
+- Appended Turn #62 entry to `log.txt`
+
+
 
 
 

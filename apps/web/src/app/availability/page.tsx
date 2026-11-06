@@ -271,10 +271,10 @@ export default function AvailabilityEditorPage() {
         </h2>
         <p className="mt-1 text-stone-600 text-xs leading-relaxed">
           Every session is strictly <strong>50 minutes</strong>. Your chosen
-          buffer is added after each booked session (`blocked_until = end_at +
-          buffer`) to prevent back-to-back fatigue. Changing your buffer updates
-          unbooked slots immediately while keeping existing booked sessions
-          unchanged.
+          buffer is automatically reserved after each booked session to give you
+          adequate rest time and prevent back-to-back fatigue. Changing your
+          buffer updates future unbooked slots immediately while keeping existing
+          booked sessions unchanged.
         </p>
 
         <div className="mt-4 grid grid-cols-3 gap-3 sm:max-w-md">
