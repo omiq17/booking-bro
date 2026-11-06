@@ -8,6 +8,7 @@ import {
   formatNotificationTimestamp,
   formatTimeRange,
   formatTimeShort,
+  formatTimezonePillLabel,
   getTimezoneOptions,
 } from '../src/lib/time.js';
 
@@ -22,6 +23,17 @@ describe('Web Time and Timezone Helpers', () => {
     const options = getTimezoneOptions('Atlantic/Reykjavik');
     expect(options[0]?.value).toBe('Atlantic/Reykjavik');
     expect(options[0]?.label).toContain('Atlantic/Reykjavik');
+  });
+
+  it('formats compact timezone pill label cleanly', () => {
+    const sg = formatTimezonePillLabel('Asia/Singapore');
+    expect(sg.city).toBe('Singapore');
+    expect(sg.offset).toBe('UTC+8');
+    expect(sg.shortLabel).toBe('Singapore · UTC+8');
+
+    const utc = formatTimezonePillLabel('UTC');
+    expect(utc.city).toBe('UTC');
+    expect(utc.shortLabel).toBe('UTC');
   });
 
   it('formats dates and time ranges correctly across zones', () => {

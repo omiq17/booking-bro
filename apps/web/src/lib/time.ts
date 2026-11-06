@@ -58,6 +58,33 @@ export function getTimezoneOptions(currentZone?: string): TimezoneOption[] {
   return options;
 }
 
+export function formatTimezonePillLabel(zone: string): {
+  city: string;
+  offset: string;
+  shortLabel: string;
+} {
+  try {
+    const dt = DateTime.now().setZone(zone);
+    if (!dt.isValid) throw new Error('Invalid timezone');
+    const offsetStr =
+      dt.offset % 60 === 0 ? dt.toFormat('Z') : dt.toFormat('ZZ');
+    const offset = dt.offset === 0 ? 'UTC' : `UTC${offsetStr}`;
+    const rawCity = zone.includes('/') ? zone.split('/').pop()! : zone;
+    const city = rawCity.replace(/_/g, ' ');
+    return {
+      city,
+      offset,
+      shortLabel: zone === 'UTC' ? 'UTC' : `${city} · ${offset}`,
+    };
+  } catch {
+    return {
+      city: zone,
+      offset: '',
+      shortLabel: zone,
+    };
+  }
+}
+
 export function formatDateHeader(isoUtc: string, zone: string): string {
   return DateTime.fromISO(isoUtc, { zone: 'utc' })
     .setZone(zone)
