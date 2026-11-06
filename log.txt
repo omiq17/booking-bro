@@ -1435,3 +1435,27 @@ Completed **Task 14** and **Checkpoint 4** (finishing Phase 4 and the entire 14-
 - Updated `DECISIONS.md`, `README.md`, `AI_USAGE.md`, `tasks/todo.md`, and `tasks/plan.md`
 - Verified `pnpm typecheck`, `pnpm lint`, `pnpm build`, and `pnpm test` (64/64 passing)
 - Appended Turn #67 entry to `log.txt`
+
+
+---
+### Turn #68 — 2026-11-07 01:23:30 (UTC+8) — Select Chevron Alignment, Notifications Header & Floating Auto-Dismiss Toast
+- **Model:** `Claude Opus 4.6 (Thinking)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,353` (Cached: `60,122`) | Output: `205`
+
+**User Prompt:**
+> the dropdown icon in the window selection does not look good and aligned.
+> second image - title should be Notifications, right?
+> refer to the 3rd image - after reschedule, we got inline notification/badge. But i guess a toast would be better with 2/3 sec stay, isn't it?
+
+**Output Summary:**
+Updated all `<select>` elements (`apps/web/src/app/availability/page.tsx`, `apps/web/src/app/signup/page.tsx`, and `apps/web/src/components/Navbar.tsx`) with `appearance-none`, balanced padding (`pr-9 pl-3`), and a vertically centered `<ChevronDown />` icon so dropdown arrows are cleanly inset and aligned. Changed the notification drawer heading in `apps/web/src/components/NotificationBell.tsx` from `"Notifications & Reminders"` to `"Notifications"`. Created a reusable `Toast` component (`apps/web/src/components/Toast.tsx`) that renders a floating bottom-right toast notification and auto-dismisses after 3 seconds (`3000ms`), replacing the full-width inline green banners in `apps/web/src/app/sessions/page.tsx` and `apps/web/src/app/availability/page.tsx`.
+
+**Actions:**
+- Created `apps/web/src/components/Toast.tsx`
+- Edited `apps/web/src/components/NotificationBell.tsx`
+- Edited `apps/web/src/app/availability/page.tsx`
+- Edited `apps/web/src/app/sessions/page.tsx`
+- Edited `apps/web/src/app/signup/page.tsx`
+- Edited `apps/web/src/components/Navbar.tsx`
+- Verified `pnpm --filter @booking-bro/web typecheck && pnpm lint`
+- Appended Turn #68 entry to `log.txt`

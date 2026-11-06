@@ -17,6 +17,7 @@ import {
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { RescheduleModal } from '@/components/RescheduleModal';
+import { Toast } from '@/components/Toast';
 import { ApiError, api, type EnrichedSessionDto } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
 import { formatDateHeader, formatTimeRange } from '@/lib/time';
@@ -37,7 +38,7 @@ export default function SessionsPage() {
       const params = new URLSearchParams(window.location.search);
       if (params.get('booked') === '1') {
         setBannerMessage(
-          '50-minute session confirmed! Automated 24-hour and 1-hour reminders have been scheduled.',
+          'Session confirmed! 24-hour and 1-hour reminders scheduled.',
         );
         window.history.replaceState({}, '', '/sessions');
       }
@@ -61,7 +62,7 @@ export default function SessionsPage() {
       setConfirmCancelId(null);
       setErrorMessage(null);
       setBannerMessage(
-        'Session cancelled. Pending reminders have been removed and a cancellation notification was sent.',
+        'Session cancelled. Pending reminders have been removed.',
       );
       void queryClient.invalidateQueries({ queryKey: queryKeys.sessions });
       void queryClient.invalidateQueries({ queryKey: ['slots'] });
@@ -148,24 +149,11 @@ export default function SessionsPage() {
         )}
       </div>
 
-      {bannerMessage && (
-        <div
-          role="status"
-          className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950 text-sm"
-        >
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-800" />
-            <span>{bannerMessage}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setBannerMessage(null)}
-            className="font-semibold text-emerald-800 text-xs hover:underline"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
+      <Toast
+        message={bannerMessage}
+        onClose={() => setBannerMessage(null)}
+        durationMs={3000}
+      />
 
       {errorMessage && (
         <div
@@ -482,7 +470,7 @@ export default function SessionsPage() {
         onSuccess={() => {
           setRescheduleTarget(null);
           setBannerMessage(
-            'Session rescheduled! Your session time has been updated and new reminders have been scheduled.',
+            'Session rescheduled! Time and reminders have been updated.',
           );
         }}
       />

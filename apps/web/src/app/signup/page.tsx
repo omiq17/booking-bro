@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   AlertCircle,
   ArrowRight,
+  ChevronDown,
   Globe,
   Stethoscope,
   User,
@@ -211,18 +212,24 @@ export default function SignupPage() {
               <Globe className="h-4 w-4 text-emerald-800" />
               <span>Your Local Timezone</span>
             </label>
-            <select
-              id="signup-timezone"
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              className="min-h-[44px] w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-stone-900 focus:border-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
-            >
-              {timezoneOptions.map((tz) => (
-                <option key={tz.value} value={tz.value}>
-                  {tz.label}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="signup-timezone"
+                value={timezone}
+                onChange={(e) => setTimezone(e.target.value)}
+                className="min-h-[44px] w-full cursor-pointer appearance-none rounded-xl border border-stone-300 bg-white py-2.5 pr-10 pl-3.5 text-sm text-stone-900 focus:border-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
+              >
+                {timezoneOptions.map((tz) => (
+                  <option key={tz.value} value={tz.value}>
+                    {tz.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className="pointer-events-none absolute top-1/2 right-3.5 h-4 w-4 -translate-y-1/2 text-stone-500"
+                aria-hidden="true"
+              />
+            </div>
             <p className="mt-1 text-stone-500 text-xs">
               Auto-detected from your browser. You can change this anytime in
               the top navigation bar.

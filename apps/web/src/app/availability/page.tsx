@@ -10,7 +10,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AlertCircle,
-  CheckCircle2,
+  ChevronDown,
   Clock,
   Globe,
   Plus,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { Toast } from '@/components/Toast';
 import { ApiError, api } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
 import { TEN_MINUTE_TIME_OPTIONS, WEEKDAY_LABELS } from '@/lib/time';
@@ -80,7 +81,7 @@ export default function AvailabilityEditorPage() {
     onSuccess: (res) => {
       setServerError(null);
       setSaveSuccess(
-        'Availability and buffer saved! Unbooked calendar slots have been updated immediately; existing booked sessions remain untouched.',
+        'Availability saved! Unbooked slots updated immediately.',
       );
       setWindows(
         res.windows.map((w) => ({
@@ -232,15 +233,11 @@ export default function AvailabilityEditorPage() {
         </button>
       </div>
 
-      {saveSuccess && (
-        <div
-          role="status"
-          className="flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950 text-sm"
-        >
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-800" />
-          <span>{saveSuccess}</span>
-        </div>
-      )}
+      <Toast
+        message={saveSuccess}
+        onClose={() => setSaveSuccess(null)}
+        durationMs={3000}
+      />
 
       {(serverError || !liveValidation.valid) && (
         <div
@@ -374,24 +371,30 @@ export default function AvailabilityEditorPage() {
                             >
                               {day.name} window {winOrder + 1} start time
                             </label>
-                            <select
-                              id={`start-${win.globalIndex}`}
-                              value={win.startTime}
-                              onChange={(e) =>
-                                handleTimeChange(
-                                  win.globalIndex,
-                                  'startTime',
-                                  e.target.value,
-                                )
-                              }
-                              className="min-h-[38px] flex-1 rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 font-medium text-stone-900 text-xs"
-                            >
-                              {TEN_MINUTE_TIME_OPTIONS.map((t) => (
-                                <option key={t} value={t}>
-                                  {t}
-                                </option>
-                              ))}
-                            </select>
+                            <div className="relative flex-1">
+                              <select
+                                id={`start-${win.globalIndex}`}
+                                value={win.startTime}
+                                onChange={(e) =>
+                                  handleTimeChange(
+                                    win.globalIndex,
+                                    'startTime',
+                                    e.target.value,
+                                  )
+                                }
+                                className="min-h-[38px] w-full cursor-pointer appearance-none rounded-lg border border-stone-300 bg-white py-1.5 pr-9 pl-3 font-medium text-stone-900 text-xs transition focus:border-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
+                              >
+                                {TEN_MINUTE_TIME_OPTIONS.map((t) => (
+                                  <option key={t} value={t}>
+                                    {t}
+                                  </option>
+                                ))}
+                              </select>
+                              <ChevronDown
+                                className="pointer-events-none absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 text-stone-500"
+                                aria-hidden="true"
+                              />
+                            </div>
 
                             <span className="font-medium text-stone-500 text-xs">
                               to
@@ -403,24 +406,30 @@ export default function AvailabilityEditorPage() {
                             >
                               {day.name} window {winOrder + 1} end time
                             </label>
-                            <select
-                              id={`end-${win.globalIndex}`}
-                              value={win.endTime}
-                              onChange={(e) =>
-                                handleTimeChange(
-                                  win.globalIndex,
-                                  'endTime',
-                                  e.target.value,
-                                )
-                              }
-                              className="min-h-[38px] flex-1 rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 font-medium text-stone-900 text-xs"
-                            >
-                              {TEN_MINUTE_TIME_OPTIONS.map((t) => (
-                                <option key={t} value={t}>
-                                  {t}
-                                </option>
-                              ))}
-                            </select>
+                            <div className="relative flex-1">
+                              <select
+                                id={`end-${win.globalIndex}`}
+                                value={win.endTime}
+                                onChange={(e) =>
+                                  handleTimeChange(
+                                    win.globalIndex,
+                                    'endTime',
+                                    e.target.value,
+                                  )
+                                }
+                                className="min-h-[38px] w-full cursor-pointer appearance-none rounded-lg border border-stone-300 bg-white py-1.5 pr-9 pl-3 font-medium text-stone-900 text-xs transition focus:border-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
+                              >
+                                {TEN_MINUTE_TIME_OPTIONS.map((t) => (
+                                  <option key={t} value={t}>
+                                    {t}
+                                  </option>
+                                ))}
+                              </select>
+                              <ChevronDown
+                                className="pointer-events-none absolute top-1/2 right-2.5 h-4 w-4 -translate-y-1/2 text-stone-500"
+                                aria-hidden="true"
+                              />
+                            </div>
                           </div>
 
                           <button

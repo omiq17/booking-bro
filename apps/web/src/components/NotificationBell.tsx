@@ -135,7 +135,7 @@ export function NotificationBell({ user }: { user: AuthUserDto }) {
           <div className="flex items-center justify-between border-stone-200 border-b bg-stone-50/80 px-4 py-3">
             <div>
               <h2 className="font-semibold text-sm text-stone-900">
-                Notifications & Reminders
+                Notifications
               </h2>
               <p className="text-stone-600 text-xs">
                 Live updates · {user.timezone}

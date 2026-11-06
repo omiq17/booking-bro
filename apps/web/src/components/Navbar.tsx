@@ -524,19 +524,25 @@ export function Navbar() {
             >
               Your Active Timezone
             </label>
-            <select
-              id="mobile-tz-select"
-              value={user.timezone}
-              disabled={timezoneMutation.isPending}
-              onChange={(e) => timezoneMutation.mutate(e.target.value)}
-              className="min-h-[44px] w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900"
-            >
-              {timezoneOptions.map((tz) => (
-                <option key={tz.value} value={tz.value}>
-                  {tz.label}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="mobile-tz-select"
+                value={user.timezone}
+                disabled={timezoneMutation.isPending}
+                onChange={(e) => timezoneMutation.mutate(e.target.value)}
+                className="min-h-[44px] w-full cursor-pointer appearance-none rounded-lg border border-stone-300 bg-white py-2 pr-9 pl-3 text-sm text-stone-900"
+              >
+                {timezoneOptions.map((tz) => (
+                  <option key={tz.value} value={tz.value}>
+                    {tz.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className="pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-stone-500"
+                aria-hidden="true"
+              />
+            </div>
           </div>
 
           <button
