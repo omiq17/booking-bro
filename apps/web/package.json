@@ -1,0 +1,33 @@
+{
+  "name": "@booking-bro/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@booking-bro/shared": "workspace:*",
+    "@tanstack/react-query": "^5.66.0",
+    "lucide-react": "^0.477.0",
+    "luxon": "^3.5.0",
+    "next": "^15.2.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.9",
+    "@types/luxon": "^3.4.2",
+    "@types/node": "^22.13.9",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.9",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  }
+}

@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+:root {
+  /* Semantic Healthcare Design Tokens — Warm Linen / Forest Teal (Default Light Mode) */
+  --bg-canvas: #fafaf9;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #f5f5f4;
+  --text-primary: #1c1917;
+  --text-secondary: #44403c;
+  --text-muted: #57534e;
+  --border-subtle: #e7e5e4;
+  --border-strong: #d6d3d1;
+  --primary-accent: #065f46;
+  --primary-accent-hover: #064e3b;
+  --primary-accent-soft: #ecfdf5;
+  --primary-accent-border: #a7f3d0;
+  --status-locked-bg: #fef3c7;
+  --status-locked-text: #92400e;
+  --status-danger-bg: #fff1f2;
+  --status-danger-text: #be123c;
+}
+
+.dark {
+  /* Dark-Mode Ready Counterpart Tokens — Midnight Slate / Mint Emerald */
+  --bg-canvas: #0c0a09;
+  --bg-surface: #1c1917;
+  --bg-surface-muted: #292524;
+  --text-primary: #f5f5f4;
+  --text-secondary: #d6d3d1;
+  --text-muted: #a8a29e;
+  --border-subtle: #292524;
+  --border-strong: #44403c;
+  --primary-accent: #34d399;
+  --primary-accent-hover: #10b981;
+  --primary-accent-soft: #064e3b;
+  --primary-accent-border: #059669;
+  --status-locked-bg: #451a03;
+  --status-locked-text: #fcd34d;
+  --status-danger-bg: #4c0519;
+  --status-danger-text: #fda4af;
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Semantic utility classes backed by CSS custom properties */
+.bg-canvas {
+  background-color: var(--bg-canvas);
+}
+
+.bg-surface {
+  background-color: var(--bg-surface);
+}
+
+.bg-surface-muted {
+  background-color: var(--bg-surface-muted);
+}
+
+.text-primary-token {
+  color: var(--text-primary);
+}
+
+.text-secondary-token {
+  color: var(--text-secondary);
+}
+
+.text-muted-token {
+  color: var(--text-muted);
+}
+
+.border-subtle {
+  border-color: var(--border-subtle);
+}
+
+.primary-accent {
+  background-color: var(--primary-accent);
+  color: #ffffff;
+}
+
+.primary-accent:hover {
+  background-color: var(--primary-accent-hover);
+}

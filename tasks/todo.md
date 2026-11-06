@@ -273,15 +273,15 @@
 **Description:** Scaffold `apps/web` (Next.js App Router, TypeScript, Tailwind CSS, TanStack Query v5, Lucide icons), configure `next.config.ts` with `rewrites()` proxying `/api/:path*` to Fastify (`API_INTERNAL_URL || 'http://localhost:3001'`), implement the typed API client (`lib/api.ts`), Luxon display helpers (`lib/time.ts`), TanStack Query provider (`lib/query-client.tsx`), and top `Navbar.tsx` (displaying user role badge, active IANA timezone switcher, navigation links, and logout). Establish the calming healthcare design system (Deep Forest Teal `emerald-800`, Warm Linen `stone-50`, Charcoal `stone-900` text) with strict WCAG 2.1 AA contrast.
 
 **Acceptance criteria:**
-- [ ] `next.config.ts` proxies `/api/:path*` so browser requests and `HttpOnly` cookies stay same-origin on `http://localhost:3000`.
-- [ ] `lib/api.ts` provides typed helper methods for auth, professionals, slots, sessions, availability, and notifications, surfacing structured API error messages (`code`, `message`).
-- [ ] `Navbar.tsx` allows switching the user's IANA timezone via `PATCH /api/users/me/timezone` and immediately invalidates slot/session queries.
-- [ ] Establishes the healthcare design system tokens in Tailwind (Emerald 800/900, Stone 50/100/900, Rose 700, Amber 800) with visible focus rings (`focus-visible:ring-2 focus-visible:ring-emerald-700`).
+- [x] `next.config.ts` proxies `/api/:path*` so browser requests and `HttpOnly` cookies stay same-origin on `http://localhost:3000`.
+- [x] `lib/api.ts` provides typed helper methods for auth, professionals, slots, sessions, availability, and notifications, surfacing structured API error messages (`code`, `message`).
+- [x] `Navbar.tsx` allows switching the user's IANA timezone via `PATCH /api/users/me/timezone` and immediately invalidates slot/session queries.
+- [x] Establishes the healthcare design system tokens in Tailwind (Emerald 800/900, Stone 50/100/900, Rose 700, Amber 800) with visible focus rings (`focus-visible:ring-2 focus-visible:ring-emerald-700`).
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/web typecheck`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/web build`
-- [ ] Manual check: Verify `Navbar` renders role-appropriate links (`Find a Professional` + `My Sessions` for members; `My Schedule` + `Availability` for professionals).
+- [x] Tests pass: `pnpm --filter @booking-bro/web typecheck`
+- [x] Build succeeds: `pnpm --filter @booking-bro/web build`
+- [x] Manual check: Verify `Navbar` renders role-appropriate links (`Find a Professional` + `My Sessions` for members; `My Schedule` + `Availability` for professionals).
 
 **Dependencies:** Task 8
 
@@ -301,14 +301,14 @@
 **Description:** Implement `/login` (including 1-click demo account fill buttons for fast reviewer testing), `/signup` (role selector `member` vs `professional`, specialty/bio fields for professionals, and IANA timezone selector auto-detected via `Intl.DateTimeFormat().resolvedOptions().timeZone`), root `app/layout.tsx`, and `NotificationBell.tsx` (polling `/api/notifications` every 15s via TanStack Query, showing unread count badge, and opening a dropdown list with reminder/cancel/reschedule badges and mark-as-read actions).
 
 **Acceptance criteria:**
-- [ ] Users can sign up as `member` or `professional` with an auto-detected or manually chosen IANA timezone, log in, and log out.
-- [ ] `NotificationBell` polls `/api/notifications` when authenticated, displays the unread badge count, and lets users mark individual or all notifications as read with instant cache invalidation.
-- [ ] Unauthenticated visitors attempting protected actions are cleanly guided to `/login`.
+- [x] Users can sign up as `member` or `professional` with an auto-detected or manually chosen IANA timezone, log in, and log out.
+- [x] `NotificationBell` polls `/api/notifications` when authenticated, displays the unread badge count, and lets users mark individual or all notifications as read with instant cache invalidation.
+- [x] Unauthenticated visitors attempting protected actions are cleanly guided to `/login`.
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/web typecheck`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/web build`
-- [ ] Manual check: Sign up, log in, and open the notification bell panel in the browser.
+- [x] Tests pass: `pnpm --filter @booking-bro/web typecheck`
+- [x] Build succeeds: `pnpm --filter @booking-bro/web build`
+- [x] Manual check: Sign up, log in, and open the notification bell panel in the browser.
 
 **Dependencies:** Task 10
 
@@ -327,15 +327,15 @@
 **Description:** Build `/professionals` (directory cards showing name, specialty, bio, timezone, and buffer) and `/professionals/[id]` featuring the **two-column 4-week calendar layout on desktop and collapsible mobile-first stepper on mobile** (`CalendarPicker.tsx`: left column 28-day grid with available slot counts per day in the member's timezone; right column Morning/Afternoon/Evening 10-minute start-time pills for the selected date, with `min-h-[44px]` touch targets) and `ConfirmModal.tsx` (displaying professional name, local date/time in member's timezone + professional's local time, 50-minute duration, and 24-hour cancellation policy before calling `POST /api/sessions`).
 
 **Acceptance criteria:**
-- [ ] Selecting a professional renders a 28-day calendar in the member's timezone where dates with 0 free slots are disabled and dates with slots show Morning/Afternoon/Evening time pills on click.
-- [ ] On mobile (< 1024px), layout collapses gracefully into a touch-friendly date picker and scrollable time pill sheet with >= 44px touch targets.
-- [ ] Clicking a time pill opens the confirmation modal showing all required session details; confirming creates the booking (`POST /api/sessions`) and redirects/updates `My Sessions`.
-- [ ] If a slot was just taken (`409 SLOT_CONFLICT`), the modal displays a clear conflict alert and refreshes available slots automatically.
+- [x] Selecting a professional renders a 28-day calendar in the member's timezone where dates with 0 free slots are disabled and dates with slots show Morning/Afternoon/Evening time pills on click.
+- [x] On mobile (< 1024px), layout collapses gracefully into a touch-friendly date picker and scrollable time pill sheet with >= 44px touch targets.
+- [x] Clicking a time pill opens the confirmation modal showing all required session details; confirming creates the booking (`POST /api/sessions`) and redirects/updates `My Sessions`.
+- [x] If a slot was just taken (`409 SLOT_CONFLICT`), the modal displays a clear conflict alert and refreshes available slots automatically.
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/web typecheck`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/web build`
-- [ ] Manual check: Book a 50-minute session as a member and verify the slot + buffer window immediately disappears from the professional's calendar.
+- [x] Tests pass: `pnpm --filter @booking-bro/web typecheck`
+- [x] Build succeeds: `pnpm --filter @booking-bro/web build`
+- [x] Manual check: Book a 50-minute session as a member and verify the slot + buffer window immediately disappears from the professional's calendar.
 
 **Dependencies:** Task 11
 
@@ -354,14 +354,14 @@
 **Description:** Build `/sessions` (unified role-aware view: for members, Upcoming vs Past/Cancelled/Rescheduled sessions with **Cancel** and **Reschedule** buttons disabled + tooltipped when `< 24h` away; for professionals, Upcoming schedule showing **member names** and anytime **Cancel** button), `RescheduleModal.tsx` (reusing `CalendarPicker` with `?excludeSessionId=<id>` to execute atomic `POST /api/sessions/:id/reschedule`), `/availability` (professional editor for `10`/`20`/`30m` buffer and up to 3 windows/weekday with live validation), and `/` landing page.
 
 **Acceptance criteria:**
-- [ ] In `/sessions`, members can cancel or reschedule sessions `>= 24h` away (including rescheduling by +10 minutes on the same day via `RescheduleModal`), and see a clear disabled lock badge on sessions `< 24h` away; professionals see upcoming sessions with member names and can cancel anytime.
-- [ ] In `/availability`, professionals can configure `10`, `20`, or `30` minute buffers and up to 3 windows (`>= 50m`, 10-min grid) per weekday, with clear inline error messages if windows overlap, touch, or are `< 50m`.
-- [ ] Saving availability immediately updates unbooked slots on `/professionals/[id]` while leaving existing booked sessions in `/sessions` untouched.
+- [x] In `/sessions`, members can cancel or reschedule sessions `>= 24h` away (including rescheduling by +10 minutes on the same day via `RescheduleModal`), and see a clear disabled lock badge on sessions `< 24h` away; professionals see upcoming sessions with member names and can cancel anytime.
+- [x] In `/availability`, professionals can configure `10`, `20`, or `30` minute buffers and up to 3 windows (`>= 50m`, 10-min grid) per weekday, with clear inline error messages if windows overlap, touch, or are `< 50m`.
+- [x] Saving availability immediately updates unbooked slots on `/professionals/[id]` while leaving existing booked sessions in `/sessions` untouched.
 
 **Verification:**
-- [ ] Tests pass: `pnpm --filter @booking-bro/web typecheck`
-- [ ] Build succeeds: `pnpm --filter @booking-bro/web build`
-- [ ] Manual check: Test member reschedule (`>= 24h`), member `< 24h` lock state, professional cancel, and professional availability edit in the browser.
+- [x] Tests pass: `pnpm --filter @booking-bro/web typecheck`
+- [x] Build succeeds: `pnpm --filter @booking-bro/web build`
+- [x] Manual check: Test member reschedule (`>= 24h`), member `< 24h` lock state, professional cancel, and professional availability edit in the browser.
 
 **Dependencies:** Task 12
 
