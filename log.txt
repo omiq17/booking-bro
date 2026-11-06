@@ -1319,3 +1319,34 @@ Audited and purged all internal backend jargon, database terms, and developer ac
 - Verified test suite and Next.js production build
 - Committed changes to `main` (`f816c6e`)
 - Appended Turn #63 entry to `log.txt`
+---
+### Turn #64 — 2026-11-06 23:57:31 (UTC+8) — Replace AI Sparkles Icon & Refine Responsive Navbar Breakpoints
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `3,224` (Cached: `77,930`) | Output: `~5,500`
+
+**User Prompt:**
+> refer to the image, update this icon, looks ai-ish. 
+> then i can see both hamburger and profile button, in ~740px screen.
+> remove find a profession and my session from profile dropdown.
+
+**Output Summary:**
+1. **Replaced AI-esque Sparkles Icon (`apps/web/src/app/page.tsx`)**:
+   - Replaced `<Sparkles />` in the hero badge ("50-Minute Structured Sessions · Zero Double-Booking") with `<ShieldCheck />` (`text-emerald-800`), reflecting clinical healthcare reliability, scheduled appointments, and zero double-booking without generative AI connotations.
+2. **Fixed Dual Hamburger & Profile Button at ~740px (`apps/web/src/components/Navbar.tsx`)**:
+   - **Root Cause**: The timezone and profile dropdown pills used `hidden sm:block` (visible $\ge 640\text{px}$) while the mobile hamburger toggle used `md:hidden` (visible $< 768\text{px}$). At ~740px, both the mobile hamburger AND desktop profile button coexisted.
+   - **Fix Applied**: Aligned responsive breakpoints consistently to `md:` across the navigation bar. Timezone and profile pills now use `hidden md:block`. At $< 768\text{px}$, only the clean mobile hamburger and notification bell render. At $\ge 768\text{px}$, the full desktop navigation, timezone pill, and profile dropdown render while the hamburger is hidden.
+3. **Cleaned Up Profile Dropdown Menu (`apps/web/src/components/Navbar.tsx`)**:
+   - Removed duplicated primary navigation links ("Find a Professional", "My Sessions") from the profile dropdown menu. The menu now cleanly focuses on user identity (initials avatar, name, email) and a styled "Log out" action.
+4. **Verification**:
+   - `pnpm test`: All **64/64 tests passing** across monorepo.
+   - `pnpm typecheck`: 0 errors.
+   - `pnpm --filter @booking-bro/web build`: Clean production build in 1.9s.
+   - Committed changes to git on `main` branch (`3772c88`).
+
+**Actions:**
+- Replaced `Sparkles` with `ShieldCheck` in `apps/web/src/app/page.tsx`
+- Updated `tzRef` and `accountRef` breakpoints from `sm:block` to `md:block` in `apps/web/src/components/Navbar.tsx`
+- Removed navigation links from desktop profile dropdown in `apps/web/src/components/Navbar.tsx`
+- Verified typecheck, web production build, and all 64 unit/integration tests
+- Committed changes to `main` (`3772c88`)
+- Appended Turn #64 entry to `log.txt`
