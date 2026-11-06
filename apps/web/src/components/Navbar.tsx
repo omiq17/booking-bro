@@ -61,8 +61,23 @@ export function Navbar() {
   const accountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-    setTheme(isDark ? 'dark' : 'light');
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const syncTheme = () => {
+      try {
+        const stored = localStorage.getItem('booking-bro-theme');
+        const shouldBeDark =
+          stored === 'dark' || (!stored && mediaQuery.matches);
+        document.documentElement.classList.toggle('dark', shouldBeDark);
+        setTheme(shouldBeDark ? 'dark' : 'light');
+      } catch {
+        const isDark = document.documentElement.classList.contains('dark');
+        setTheme(isDark ? 'dark' : 'light');
+      }
+    };
+
+    syncTheme();
+    mediaQuery.addEventListener('change', syncTheme);
+    return () => mediaQuery.removeEventListener('change', syncTheme);
   }, []);
 
   function toggleTheme() {

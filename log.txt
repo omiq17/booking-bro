@@ -1377,3 +1377,23 @@ Implemented interactive Light & Dark Mode switching across the entire web applic
 - Updated `apps/web/src/components/Navbar.tsx` with interactive `Sun` / `Moon` theme toggle button
 - Verified `pnpm typecheck` and `pnpm --filter @booking-bro/web build`
 - Appended Turn #65 entry to `log.txt`
+---
+### Turn #66 — 2026-11-07 00:33:22 (UTC+8) — Automatic OS System Theme Detection (`prefers-color-scheme`)
+- **Model:** `Claude Opus 4.6` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,579` (Cached: `168,286`) | Output: `~1,800`
+
+**User Prompt:**
+> Is there a system to get the user's default theme and set the dark or light mode according to that by default?
+
+**Output Summary:**
+Implemented automatic OS/browser system theme detection via `window.matchMedia('(prefers-color-scheme: dark)')`:
+1. **Default Before First Paint (`apps/web/src/app/layout.tsx`)**:
+   - Updated the inline `<head>` script so when `localStorage.getItem('booking-bro-theme')` is not set, it automatically inspects `window.matchMedia('(prefers-color-scheme: dark)').matches` and applies `.dark` before first paint if the user's OS is in dark mode.
+2. **Live OS Appearance Listener (`apps/web/src/components/Navbar.tsx`)**:
+   - Added a `matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ...)` listener so if the user switches their macOS/Windows system appearance and hasn't locked a manual override in `localStorage`, the app transitions immediately in real time.
+
+**Actions:**
+- Updated `themeInitScript` in `apps/web/src/app/layout.tsx` to check `prefers-color-scheme: dark`
+- Added live `matchMedia` change listener in `apps/web/src/components/Navbar.tsx`
+- Verified `pnpm --filter @booking-bro/web typecheck` passes with 0 errors
+- Appended Turn #66 entry to `log.txt`
