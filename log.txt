@@ -1285,3 +1285,37 @@ Audited and purged all internal backend jargon, database terms, and developer ac
 
 
 
+---
+### Turn #63 — 2026-11-06 23:44:51 (UTC+8) — Navbar UX Redesign & Dev Server Instant Reload Fix
+- **Model:** `Gemini 3.8 Flash` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `18,904` (Cached: `0`) | Output: `~5,500`
+
+**User Prompt:**
+> go ahead and update.
+> Also, when you update something in the code, the pnpm run dev is not affecting immediately. Can we fix that?
+
+**Output Summary:**
+1. **Navbar UX Redesign (`Navbar.tsx` & `time.ts`)**:
+   - **Compact Timezone Pill**: Replaced the wide native `<select>` with an interactive button pill displaying the globe icon, short city, and formatted offset (e.g. `Singapore · UTC+8`). Clicking opens a floating, accessible dropdown menu with active timezone checkmarks, automatic closing on outside click and `Escape`.
+   - **Unified User Profile Menu**: Replaced the disconnected text name and standalone door logout button with a unified avatar button displaying user initials (`ML`, `AL`, `AR`), first name, and role badge (`Member` / `Pro`). Clicking opens a dropdown card with full user profile info, role-specific navigation shortcuts, and a styled log out action.
+   - **Timezone Helper**: Added `formatTimezonePillLabel` to `time.ts` with comprehensive unit tests in `time.test.ts`.
+2. **Dev Server Instant Hot Reload Fix (`package.json` across workspaces)**:
+   - **Root Cause**: Next.js 15 was running standard Webpack compilation, and `packages/shared` lacked a `dev` script in the monorepo parallel runner, meaning edits to shared models/slots required manual `pnpm build` before web/API recognized them.
+   - **Fix Applied**:
+     - `apps/web/package.json`: Updated `dev` script to `next dev --turbo --port 3000` (Turbopack sub-100ms instant Fast Refresh).
+     - `packages/shared/package.json`: Added `"dev": "tsc -w -p tsconfig.json --preserveWatchOutput"` so running `pnpm dev` keeps shared packages continuously compiled.
+     - `apps/api/package.json`: Updated `dev` script to `tsx watch --include src --include ../../packages/shared/dist src/server.ts` to trigger immediate server reloads when either API or shared code updates.
+3. **Verification**:
+   - `pnpm test`: All **64 tests** passing (31 shared + 27 API + 6 web).
+   - `pnpm typecheck`: 0 errors across all packages.
+   - `pnpm --filter @booking-bro/web build`: Clean production build in 2.1s.
+   - Committed changes to git on `main` branch (`f816c6e`).
+
+**Actions:**
+- Implemented `formatTimezonePillLabel` in `apps/web/src/lib/time.ts` and added unit tests in `apps/web/tests/time.test.ts`
+- Redesigned `apps/web/src/components/Navbar.tsx` with compact Timezone Pill Dropdown and unified Avatar Account Menu
+- Configured Turbopack (`--turbo`) in `apps/web/package.json`
+- Added continuous compiler watch in `packages/shared/package.json` and watch paths in `apps/api/package.json`
+- Verified test suite and Next.js production build
+- Committed changes to `main` (`f816c6e`)
+- Appended Turn #63 entry to `log.txt`
