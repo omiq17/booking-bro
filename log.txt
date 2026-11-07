@@ -1570,3 +1570,20 @@ Refined `AI_USAGE.md` for clean, reviewer-friendly readability: updated `## 1. M
 - Edited `AI_USAGE.md`
 - Appended Turn #73 entry to `log.txt`
 - Committed `README.md`, `AI_USAGE.md`, and `log.txt`
+
+
+---
+### Turn #74 — 2026-11-07 12:18:40 (UTC+8) — Update Models Used Attribution in AI_USAGE.md
+- **Model:** `Claude Opus 4.6 (Thinking)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,088` (Cached: `169,650`) | Output: `149`
+
+**User Prompt:**
+> I need a little bit more adjustment. Phase 4 Implementation should go under Gemini 4 Argon, not Claude Opus. Remove Phase 4 Implementation, DB seed, and Architecture Diagram, all should go to Gemini 4 Argon. So, Gemini 4 Argon should have all four phases. Also, include that we have used Test Driven Development skill and Incremental Implementation skill. Under Gemini 3.5 Flash, usual general tasks and refinement validation is okay. Just include UI/UX polish. 
+
+**Output Summary:**
+Updated `## 1. Models Used` in `AI_USAGE.md` so `Gemini 4 Argon` lists `/test-driven-development`, `/incremental-implementation`, Phase 1–4 implementation, DB seed, and `README.md` architecture diagrams; restored `Claude Opus` to stack selection, business logic discussions, planning docs, and security review; and added `UI/UX polish` under `Gemini 3.5 Flash`.
+
+**Actions:**
+- Edited `AI_USAGE.md`
+- Appended Turn #74 entry to `log.txt`
+- Committed `AI_USAGE.md` and `log.txt`

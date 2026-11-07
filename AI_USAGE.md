@@ -25,10 +25,10 @@ and I can explain them.
 
 | Model             | Used for                                                                                                                               |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Claude Sonnet 4.6 | Reading the task PDF, summarising requirements, Next.js vs Vite lookup                                                                 |
-| Claude Opus 4.6   | Choosing the stack, business logic discussions, planning docs, security review, Phase 4 implementation (Tasks 10–14), DB seed, UI/UX polish, and `README.md` architecture diagrams |
-| Gemini 4 Argon    | Setting up `AGENTS.md` / `log.txt`, state & DST analysis, `/interview-me`, `/spec-driven-development`, and Phase 1, 2 & 3 implementation |
-| Gemini 3.5 Flash  | Usual general tasks, refinement validation, spec review, TDD test suite auditing & decision recording                                  |
+| Claude Sonnet 5.5 | Reading the task PDF, summarising requirements, Next.js vs Vite lookup                                                                 |
+| Claude Opus 5.5   | Choosing the stack, business logic discussions, planning docs, security review                                                         |
+| Gemini 4 Argon    | Setting up `AGENTS.md` / `log.txt`, state & DST analysis, `/interview-me`, `/spec-driven-development`, `/test-driven-development`, `/incremental-implementation`, Phase 1–4 implementation, DB seed, and `README.md` architecture diagrams |
+| Gemini 3.5 Flash  | Usual general tasks, UI/UX polish, refinement validation, spec review, TDD test suite auditing & decision recording                    |
 
 **Agent features used:**
 - Planning mode (`/plan`) to draft and review plans before any files were written
@@ -38,7 +38,7 @@ and I can explain them.
 - Skill `/spec-driven-development` (`spec-driven-development`) to author the capability map, database/API contracts, and test specification in [SPEC.md](SPEC.md)
 - Skill `/constraint-driven-development` (`constraint-driven-development`) to establish an unbendable quality bar contract in `CONSTRAINTS.md` before implementation
 - Skill `/planning-and-task-breakdown` (`planning-and-task-breakdown`) to decompose the specification into 14 verifiable tasks and 4 checkpoints in `tasks/plan.md` and `tasks/todo.md`
-- Skills `/incremental-implementation` (`incremental-implementation`) and `/test-driven-development` (`test-driven-development`) to build Phase 1 (`packages/shared`), Phase 2 (`apps/api`), and Phase 3 (`pg-boss` reminders, booking engine, real-Postgres concurrency suite)
+- Skills `/incremental-implementation` (`incremental-implementation`) and `/test-driven-development` (`test-driven-development`) to build Phase 1 (`packages/shared`), Phase 2 (`apps/api`), Phase 3 (`pg-boss` reminders, booking engine, real-Postgres concurrency suite), and Phase 4 (`apps/web`, DB seed, Docker)
 - Skill `/frontend-ui-engineering` (`frontend-ui-engineering`) to validate WCAG 2.1 AA/AAA contrast ratios, establish an intentional healthcare aesthetic, solve 10-minute slot density on mobile screens, and map the TanStack Query data flow
 - Skill `/code-review-and-quality` (`code-review-and-quality`) to perform a 5-axis system review (Correctness, Readability, Architecture, Security, Performance), mutation testing verification, and dead-code audit across all workspaces
 - `ctx7` CLI rule to verify current documentation for Next.js, Tailwind CSS, and TanStack Query
