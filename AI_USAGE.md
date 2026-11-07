@@ -12,7 +12,7 @@ and I can explain them.
 - [3. Where I Overwrote/Improved the AI](#3-where-i-overwroteimproved-the-ai)
   - [1. Slot layout: split availability windows + flexible start times](#1-slot-layout-split-availability-windows--flexible-start-times-instead-of-a-fixed-hourly-grid)
   - [2. Web framework: Next.js instead of React + Vite](#2-web-framework-nextjs-instead-of-react--vite)
-  - [3. Notification triggers: no notification on initial booking](#3-notification-triggers-interview-me-no-notification-on-initial-booking)
+  - [3. Notification triggers: no notification on initial booking & counterparty-only cancel/reschedule alerts](#3-notification-triggers-interview-me-no-notification-on-initial-booking--counterparty-only-cancelreschedule-alerts)
   - [4. Reschedule reminder logic: skip 24h reminder for near-term slots](#4-reschedule-reminder-logic-skip-24h-reminder-for-near-term-slots)
   - [5. Session mutation schema: require updated_at and separate in-place cancel from new-row reschedule](#5-session-mutation-schema-require-updated_at-and-separate-in-place-cancel-from-new-row-reschedule)
   - [6. Test environment: Docker Compose Postgres instead of Testcontainers](#6-test-environment-docker-compose-postgres-instead-of-testcontainers)
@@ -23,12 +23,12 @@ and I can explain them.
 
 ## 1. Models Used
 
-| Model             | Used for                                                                          |
-| ----------------- | --------------------------------------------------------------------------------- |
-| Claude Sonnet 5.5 | Reading the task PDF, summarising requirements, Next.js vs Vite lookup            |
-| Claude Opus 5.5   | Choosing the stack, business logic discussions, planning docs, security review    |
-| Gemini 4 Argon    | Setting up `AGENTS.md` / `log.txt`, state & DST analysis, `/interview-me`, `/spec-driven-development`, Phase 2 & 3 implementation |
-| Gemini 3.8 Flash  | Refinement validation, spec review, TDD test suite auditing & decision recording  |
+| Model             | Used for                                                                                                                               |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude Sonnet 4.6 | Reading the task PDF, summarising requirements, Next.js vs Vite lookup                                                                 |
+| Claude Opus 4.6   | Choosing the stack, business logic discussions, planning docs, security review, Phase 4 implementation (Tasks 10–14), DB seed, UI/UX polish, and `README.md` architecture diagrams |
+| Gemini 4 Argon    | Setting up `AGENTS.md` / `log.txt`, state & DST analysis, `/interview-me`, `/spec-driven-development`, and Phase 1, 2 & 3 implementation |
+| Gemini 3.5 Flash  | Usual general tasks, refinement validation, spec review, TDD test suite auditing & decision recording                                  |
 
 **Agent features used:**
 - Planning mode (`/plan`) to draft and review plans before any files were written
@@ -40,6 +40,7 @@ and I can explain them.
 - Skill `/planning-and-task-breakdown` (`planning-and-task-breakdown`) to decompose the specification into 14 verifiable tasks and 4 checkpoints in `tasks/plan.md` and `tasks/todo.md`
 - Skills `/incremental-implementation` (`incremental-implementation`) and `/test-driven-development` (`test-driven-development`) to build Phase 1 (`packages/shared`), Phase 2 (`apps/api`), and Phase 3 (`pg-boss` reminders, booking engine, real-Postgres concurrency suite)
 - Skill `/frontend-ui-engineering` (`frontend-ui-engineering`) to validate WCAG 2.1 AA/AAA contrast ratios, establish an intentional healthcare aesthetic, solve 10-minute slot density on mobile screens, and map the TanStack Query data flow
+- Skill `/code-review-and-quality` (`code-review-and-quality`) to perform a 5-axis system review (Correctness, Readability, Architecture, Security, Performance), mutation testing verification, and dead-code audit across all workspaces
 - `ctx7` CLI rule to verify current documentation for Next.js, Tailwind CSS, and TanStack Query
 - Workspace rule (`.agents/rules/logging.md`) enforcing turn-by-turn logging into [log.txt](log.txt) per [AGENTS.md](AGENTS.md)
 - Subagent `test-engineer` (`QA Test Strategy Reviewer`) invoked to audit `SPEC.md` and Section 6 (Testing Strategy) for missing edge cases, schema/contract traps, and test-isolation hazards.
@@ -58,11 +59,11 @@ and I can explain them.
 | Specification (`/spec-driven-development`) | Drafted 6-module capability map, SQL schema, API contracts, and unit/concurrency test matrix in `SPEC.md` | Scrutinized and refined: skipping past 24h reminders on reschedule, adding `updated_at` to `booking_sessions`, 7-day session expiry behavior, and using Docker Postgres directly instead of Testcontainers |
 | Test strategy audit (`test-engineer`) | Audited `SPEC.md` §6 and surfaced edge cases, schema constraint traps, and Vitest/Postgres isolation hazards | Confirmed attaching `'session_rescheduled'` notifications to `newSession.id`, `excludeSessionId` for same-day +10m reschedule, buffer-change snapshot tests, member/pro buffer asymmetry, and sequential test isolation |
 | Task breakdown (`/planning-and-task-breakdown`) | Decomposed `SPEC.md` into 14 dependency-ordered tasks across 4 phases with explicit acceptance criteria and checkpoints in `tasks/plan.md` & `tasks/todo.md` | Reviewed and approved task granularity and verification checkpoints before implementation |
-| Phase 1: Shared Domain (`/test-driven-development`) | Scaffolded `pnpm` monorepo, Docker Postgres init script (`booking_bro` + `booking_bro_test`), and `@booking-bro/shared` pure Luxon slot generator, Zod schemas, and 31 unit tests (`93.31%` line coverage) | Verified all 31 unit tests across `rules.test.ts`, `slots.test.ts`, and `timezones.test.ts` pass with `>= 80%` coverage |
-| Phase 2: DB, Auth & Availability API (`/incremental-implementation`) | Built `@booking-bro/api` Drizzle ORM schema (`schema.ts`), idempotent SQL migration (`0000_init.sql` with `btree_gist` exclusion constraints), Fastify app factory with injectable clock (`app.getNow()`), `argon2id` + `HttpOnly` cookie session auth, and professional directory/slots/availability routes | Provisioned PostgreSQL 16 (`booking_bro` + `booking_bro_test`), verified `\d booking_sessions` and `\d notifications` constraints, and confirmed `pnpm typecheck`, `pnpm build`, and `pnpm test` pass cleanly |
-| Phase 3: Booking Engine, `pg-boss` Reminders & Concurrency Suite (`/test-driven-development`) | Implemented transactional `pg-boss` worker (`boss.ts`, `reminder.service.ts`), booking/cancel/atomic-reschedule engine (`booking.service.ts`, `sessions.ts`), notifications API (`notifications.ts`), and 27 real-PostgreSQL integration & concurrency tests (`concurrency.test.ts`, `sessions.test.ts`, `reminders-and-auth.test.ts`, `auth-and-availability.test.ts`) | Verified all 58 unit + real-PostgreSQL concurrency/integration tests pass in ~5.2s (`pnpm test`) with zero skipped tests |
-| Phase 4: Next.js Web UI & Components (Tasks 10–13) (`/incremental-implementation` + `/frontend-ui-engineering`) | Scaffolded Next.js App Router (`apps/web`), Tailwind CSS v4 semantic tokens, typed API client, TanStack Query provider, 15s notification bell, 1-click demo login, 28-day `CalendarPicker`, `ConfirmModal`, My Sessions (< 24h locked pills, atomic `RescheduleModal`), and Availability editor. Added `apps/web/tests/time.test.ts` (6 tests). | Audited UI copy to remove backend jargon, redesigned Navbar with compact timezone pill & avatar menu, aligned `md:` breakpoints, added OS-aware Light/Dark mode toggle + SVG favicon, and verified all 64 tests pass |
-| Phase 4: Seed, Docker & Final Docs (Task 14) (`/incremental-implementation` + `/documentation-and-adrs`) | Implemented idempotent demo seed (`apps/api/src/db/seed.ts` with `>24h`, `<24h` locked, past, and cross-timezone sessions + near-due ~8s `pg-boss` reminder job), multi-stage `Dockerfile` + full-stack `docker-compose.yml`, `README.md` architecture guide, and `DECISIONS.md` §§9–11 | Verified `pnpm db:seed`, `pnpm test` (64/64 passing), `pnpm typecheck`, `pnpm lint`, and `pnpm build` across all workspaces |
+| Phase 1: Shared Domain (`/test-driven-development`) | Built `@booking-bro/shared` (Zod schemas, Luxon slot generator, and 31 unit tests) | Verified all 31 unit tests pass with `> 93%` coverage |
+| Phase 2: DB, Auth & Availability API (`/incremental-implementation`) | Built Drizzle schema, `0000_init.sql` (`btree_gist` constraints), Fastify app factory, `argon2id` cookie auth, and availability routes | Provisioned Postgres (`booking_bro` + `booking_bro_test`) and verified DB constraints and API routes |
+| Phase 3: Booking Engine, `pg-boss` & Concurrency Tests (`/test-driven-development`) | Built transactional `pg-boss` reminder worker, booking/cancel/atomic-reschedule service, and 27 real-PostgreSQL concurrency & integration tests | Verified all 58 unit and integration tests pass against real PostgreSQL |
+| Phase 4: Next.js Web UI (Tasks 10–13) (`/frontend-ui-engineering`) | Built Next.js 15 App Router pages, 28-day `CalendarPicker`, `RescheduleModal`, 15s notification bell, and 6 frontend unit tests | Refined UI copy, redesigned compact Navbar & avatar menu, added OS-synced Light/Dark mode, top-right Toast, and counterparty-only notifications |
+| Phase 4: Seed, Docker & Final Docs (Task 14) (`/documentation-and-adrs`) | Built idempotent demo seed (`seed.ts`), multi-stage `Dockerfile` + `docker-compose.yml`, `README.md` Mermaid diagrams, and `DECISIONS.md` §§9–11 | Verified `pnpm db:seed`, `pnpm test` (64/64 passing), `pnpm typecheck`, and `pnpm build` |
 
 ---
 
@@ -81,11 +82,11 @@ and I can explain them.
 - **I chose:** Next.js (App Router) paired with the standalone Fastify + Zod API
 - **Why:** Next.js gives structured file-based routing, layouts, and a production growth path (such as SSR/SEO for public professional profiles), while `/api` rewrites and client-rendered calendar views keep the clean Fastify boundary and avoid timezone hydration issues
 
-### 3. Notification triggers (`/interview-me`): no notification on initial booking
+### 3. Notification triggers (`/interview-me`): no notification on initial booking & counterparty-only cancel/reschedule alerts
 
-- **AI suggested:** sending an immediate in-app notification on every new booking in addition to 24h/1h reminders and cancel/reschedule updates
-- **I chose:** only the scheduled 24h and 1h reminders plus cancel and reschedule notifications (no new-booking notification)
-- **Why:** matches the specification (`"When a session is booked, reminders are scheduled for 24 hours and 1 hour before it starts... Cancelling or rescheduling updates the reminders"`) and avoids cluttering the notification list with redundant confirmation noise
+- **AI suggested:** sending an immediate in-app notification on every new booking, and sending cancel/reschedule notifications to both the actor and the counterparty
+- **I chose:** scheduled `24h` and `1h` reminders for both participants, and cancel/reschedule bell notifications **only for the counterparty** while the person performing the action sees an immediate top-right Toast (with no notification on initial booking)
+- **Why:** matches the specification (`"When a session is booked, reminders are scheduled for 24 hours and 1 hour before it starts... Cancelling or rescheduling updates the reminders"`) and avoids notifying a user in their own bell for an action they just took themselves
 
 ### 4. Reschedule reminder logic: skip 24h reminder for near-term slots
 
@@ -112,12 +113,10 @@ and I can explain them.
 
 ### 8. Frontend UI/UX: Design system, healthcare palette, theme mode options, and mobile-first responsiveness
 
-- **AI initial inclination:** Jumping directly into scaffolding components with default AI utility styles and generic layout patterns without evaluating theming or mobile slot density.
-- **I directed & structured:** Guided the design evaluation before writing UI code:
-  - Researched and established a calming healthcare-specific color palette (deep forest teal/emerald `#065F46`, warm linen background `#FAFAF9`, charcoal text `#1C1917`) with strict WCAG 2.1 AA/AAA contrast ratios (> 7.5:1 on actions, > 14:1 on body text).
-  - **Dark/Light Mode Options:** Probed dark and light theme options and directed the architecture to use semantic tokens and CSS variables (`bg-canvas`, `bg-surface`, `text-primary`, `border-subtle`, `primary-accent`), coupled with automatic OS preference detection (`prefers-color-scheme: dark` before first paint) and a 1-click `Sun` / `Moon` toggle in the navbar.
-  - **Consumer-Grade Copy & Navbar UX Polish:** Directed removing internal backend jargon (`PostgreSQL GiST`, `pg-boss`, `blocked_until`) from user-facing UI copy, replacing the wide `<select>` timezone input with a compact `City · UTC+X` pill popover, unifying the user/logout header into an initials avatar dropdown, aligning responsive `md:` breakpoints (~740px), and replacing the AI-style sparkles icon with a clinical `ShieldCheck` badge.
-  - Solved high-density 10-minute slots on mobile via a mobile-first stepper/sheet layout with large touch targets (`min-h-[44px]`).
-  - Chose lightweight, dependency-free Tailwind CSS + Lucide Icons over heavy component frameworks (HeroUI / Shadcn CLI) to avoid bundle bloat and Next.js 15 App Router hydration lag.
-  - Defined clear frontend data flow architecture (TanStack Query cache keys, 15s notification polling, Next.js `/api` proxy rewrites).
-- **Why:** Prevents generic "AI aesthetic" traps, ensures flawless mobile responsiveness and theming flexibility for mental-health users, and locks the visual contract before scaffolding code.
+- **AI initial inclination:** Jumping directly into scaffolding components with default AI styles, technical backend jargon in the UI, and generic layout patterns.
+- **I directed & structured:**
+  - **Calming Healthcare Palette & Light/Dark Theme:** Established an accessible forest-teal and warm-linen palette (WCAG AAA contrast) with automatic OS theme detection (`prefers-color-scheme`) and a 1-click `Sun` / `Moon` toggle.
+  - **2-Column & Mobile Stepper Calendar:** Used a 2-column date/time picker on desktop and a touch-friendly stepper on mobile so 10-minute slots stay easy to scan.
+  - **Clean Copy & Compact Navigation:** Removed internal technical terms (`GiST`, `pg-boss`) from user-facing text, replaced wide dropdowns with a compact `City · UTC+X` timezone pill and avatar menu, and added a 3-second top-right Toast for action feedback.
+  - **Lightweight Stack:** Used pure Tailwind CSS + Lucide Icons + TanStack Query (with Next.js `/api` rewrites) instead of heavy UI libraries.
+- **Why:** Keeps the interface calm, fast, and human-friendly for mental-health users across desktop and mobile.

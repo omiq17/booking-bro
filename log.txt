@@ -1534,3 +1534,39 @@ Analyzed why the previous plain-text ASCII box diagram in `README.md` was clutte
 - Read `README.md` and `documentation-and-adrs` skill (`SKILL.md`)
 - Edited `README.md` (`## Architecture Overview`)
 - Appended Turn #72 entry to `log.txt`
+
+
+---
+### Turn #73 — 2026-11-07 12:02:30 (UTC+8) — Full 5-Axis System Code Review (`/code-review-and-quality`)
+- **Model:** `Gemini 4 Argon (Medium)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,049` (Cached: `227,680`) | Output: `233`
+
+**User Prompt:**
+> first gather knowledge about the project.
+> then use /code-review-and-quality to do a full review on my system
+
+**Output Summary:**
+Gathered full context across all documentation (`AGENTS.md`, `CONSTRAINTS.md`, `SPEC.md`, `DECISIONS.md`, `AI_USAGE.md`, `README.md`), database schema/migrations, and all 38 source and test files across `packages/shared`, `apps/api`, and `apps/web`. Ran the full quality gate (`pnpm typecheck`, `pnpm test` — 64/64 tests passing across all 3 workspaces, coverage check, constraint floor scan, and a live boundary mutation test on `canMemberModifySession`). Produced a comprehensive 5-axis system review (`Correctness`, `Readability & Simplicity`, `Architecture`, `Security`, `Performance`), categorized findings by severity with concrete structural remedies, and listed unused helpers for dead-code confirmation.
+
+**Actions:**
+- Read `code-review-and-quality` skill (`SKILL.md`) and all project documentation, source, and test files
+- Ran `pnpm typecheck`, `pnpm test` (64/64 passing), and `vitest run --coverage`
+- Executed and restored a boundary mutation test on `packages/shared/src/rules.ts` (`<` -> `<=` caught by `rules.test.ts`)
+- Updated `AI_USAGE.md` and appended Turn #73 entry to `log.txt`
+
+
+---
+### Turn #73 — 2026-11-07 12:06:20 (UTC+8) — Refine AI_USAGE.md for Reviewer Readability
+- **Model:** `Claude Opus 4.6 (Thinking)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `4,337` (Cached: `159,821`) | Output: `163`
+
+**User Prompt:**
+> Okay, that's good. Now we need to refine AI_USAGE.md. In the models used section, also include that for phases 1, 2, 3, and in phase 4, the last task, task 14, database seed, generating readme architecture overview, we have used it. Gemini 3.5 Flash, it's okay. Can add usaual general task. Agent features used looks good. In the sub-agent, just put a last thing, maybe we are using... No, it's okay, no need. How I used it by phase, phase 3, 4, yeah, looking good. Where I overrode/improved the AI, everything looking good, just at the point 8, frontend UI/UX. In the second point, I directed and structured, make it a little bit simple, looks like a bit more texty. Overall looks okay, you also check overall, it should be easily readable to reviewer, like any reviewer. 
+
+**Output Summary:**
+Refined `AI_USAGE.md` for clean, reviewer-friendly readability: updated `## 1. Models Used` to reflect `Gemini 4 Argon` across Phases 1, 2 & 3, `Claude Opus 4.6` across Phase 4 (Tasks 10–14, DB seed, UI/UX polish, and `README.md` architecture overview), and `Gemini 3.5 Flash` for usual general tasks and validation; tightened the Phase 1–4 rows in `## 2. How I Used It, by Phase`; updated Point 3 with counterparty-only cancel/reschedule notifications; and simplified Point 8 (`Frontend UI/UX`) into 4 concise, scannable bullets.
+
+**Actions:**
+- Edited `AI_USAGE.md`
+- Appended Turn #73 entry to `log.txt`
+- Committed `README.md`, `AI_USAGE.md`, and `log.txt`
