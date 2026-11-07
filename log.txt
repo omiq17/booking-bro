@@ -1587,3 +1587,23 @@ Updated `## 1. Models Used` in `AI_USAGE.md` so `Gemini 4 Argon` lists `/test-dr
 - Edited `AI_USAGE.md`
 - Appended Turn #74 entry to `log.txt`
 - Committed `AI_USAGE.md` and `log.txt`
+
+
+---
+### Turn #75 — 2026-11-07 12:28:15 (UTC+8) — Refine Sections 9, 10 & 11 in DECISIONS.md
+- **Model:** `Claude Opus 4.6 (Thinking)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,906` (Cached: `178,020`) | Output: `149`
+
+**User Prompt:**
+> Yep, looks good. Make a commit first. 
+> Now come to DECISIONS.md. In the known limitations sections, remove no 4 first. Then move the in-app notifications only down to number three. And then we can put another point like email verification on signup and can have a captcha as well to restrict bot. 
+> In section 10, What I Should Do Next Time, remove point number 3. 
+> From section 11, remove point number 5. 
+
+**Output Summary:**
+Updated `DECISIONS.md` Sections 9, 10, and 11: in `## 9. Known Limitations`, removed item #4 (*Co-Located API & Worker Process*), moved *In-App Notifications Only* to #3, and added #4 (*No Email Verification or CAPTCHA Bot Protection on Sign-Up*); in `## 10. What I Would Do Next with More Time`, removed item #3 (*Server-Sent Events / WebSockets*) and renumbered the remaining 3 items; and in `## 11. Running Safely in Production for a Healthcare Product`, removed item #5 (*High Availability, Backups & Disaster Recovery*).
+
+**Actions:**
+- Edited `DECISIONS.md`
+- Appended Turn #75 entry to `log.txt`
+- Committed `DECISIONS.md` and `log.txt`
