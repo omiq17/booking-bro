@@ -8,38 +8,80 @@ Professionals configure recurring weekly working windows (up to 3 windows/weekda
 
 ## Architecture Overview
 
-```text
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                          Browser (Member / Professional)                     │
-│  • Next.js 15 App Router + TanStack Query v5 + Tailwind CSS v4               │
-│  • 2-Column 28-Day Calendar (Desktop) / Stepper Sheet (Mobile)               │
-│  • Compact IANA Timezone Switcher + OS-Synced Light/Dark Mode Toggle         │
-│  • 15s-Polled Notification Bell (24h/1h Reminders, Cancel & Reschedule)      │
-└──────────────────────────────────────┬───────────────────────────────────────┘
-                                       │ Same-Origin HTTP + HttpOnly Cookie (sid)
-                                       │ Next.js rewrites: /api/:path* ──► :3001
-                                       ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                     Fastify API + pg-boss Worker (apps/api)                  │
-│  • Cookie Session Auth (SHA-256 token hash + argon2id password hashing)      │
-│  • Pure On-the-Fly Slot Generator (@booking-bro/shared + Luxon DST handling) │
-│  • Transactional Booking, Cancel (24h member lock), & Atomic Reschedule      │
-│  • Co-located pg-boss Worker polling 'session-reminder' queue                │
-└──────────────────┬───────────────────────────────────────┬───────────────────┘
-                   │ Drizzle ORM + SQL Transactions        │ pg-boss Job Polling
-                   ▼                                       ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                           PostgreSQL 16 (btree_gist)                         │
-│  • users, auth_sessions, professional_profiles, availability_windows         │
-│  • booking_sessions:                                                         │
-│      - EXCLUDE USING gist (professional_id WITH =, tstzrange(start_at,       │
-│        blocked_until, '[)') WITH &&) WHERE (status = 'booked')               │
-│      - EXCLUDE USING gist (member_id WITH =, tstzrange(start_at,             │
-│        end_at, '[)') WITH &&) WHERE (status = 'booked')                      │
-│  • notifications: UNIQUE (session_id, user_id, kind) + ON CONFLICT DO NOTHING│
-│  • pgboss.job: Transactional 24h & 1h reminder jobs in same DB commit        │
-└──────────────────────────────────────────────────────────────────────────────┘
+BookingBro is organized as a **pnpm monorepo** with three workspaces (`apps/web`, `apps/api`, `packages/shared`) backed by a single **PostgreSQL 16** instance that handles relational storage, concurrency exclusion constraints (`btree_gist`), and durable background reminder jobs (`pg-boss`) inside the same ACID transaction.
+
+### 1. System Topology & Workspace Boundaries
+
+```mermaid
+flowchart TB
+  subgraph Client["Browser Client (Member & Professional)"]
+    UI["Next.js 15 App Router (apps/web) — TanStack Query & Tailwind v4"]
+  end
+
+  subgraph Shared["Shared Domain Package (packages/shared)"]
+    Lib["Zod Schemas · Luxon Timezone Math · On-the-Fly Slot Generator"]
+  end
+
+  subgraph Backend["Backend Server (apps/api — Port 3001)"]
+    API["Fastify REST API — Cookie Auth (sid) · RBAC · Booking Service"]
+    Worker["pg-boss Reminder Worker — 24h & 1h In-App Delivery"]
+  end
+
+  subgraph Database["PostgreSQL 16"]
+    Tables[("Relational Tables (users, availability_windows, booking_sessions, notifications)")]
+    GiST[["GiST Exclusion Constraints (No Pro / Member Overlap)"]]
+    Queue[("pgboss.job (Transactional Job Queue)")]
+  end
+
+  UI -- "Same-Origin /api/* Proxy + HttpOnly Cookie" --> API
+  UI -. "Shared Types & Validation" .-> Lib
+  API -. "Shared Schemas & Slot Math" .-> Lib
+  API -- "ACID Transaction (Session + Job)" --> Tables
+  Tables --- GiST
+  API -- "Enqueue / Cancel Jobs" --> Queue
+  Queue -- "Poll Due Jobs" --> Worker
+  Worker -- "Idempotent Insert (ON CONFLICT DO NOTHING)" --> Tables
 ```
+
+### 2. Booking, Concurrency & Reminder Lifecycle
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor M as Member (Browser)
+  participant W as Next.js Web (:3000)
+  participant A as Fastify API (:3001)
+  participant DB as PostgreSQL 16 (GiST + pg-boss)
+  participant WK as pg-boss Worker
+  actor P as Professional (Browser)
+
+  M->>W: Select date & 10-min slot (Member Timezone)
+  W->>A: POST /api/sessions { professionalId, startAt (UTC) }
+  A->>DB: BEGIN TRANSACTION
+  Note over A,DB: Validate 2h notice & window, INSERT booking_sessions (GiST check), and INSERT pgboss.job (24h & 1h)
+  DB-->>A: COMMIT (or 409 Conflict if slot just taken)
+  A-->>W: 201 Created
+  W-->>M: Top-Right Toast + Redirect to My Sessions
+
+  loop When 24h / 1h Reminder Becomes Due
+    WK->>DB: Fetch due job from pgboss.job
+    WK->>DB: Re-check session status = 'booked'
+    WK->>DB: INSERT notifications ON CONFLICT DO NOTHING
+  end
+
+  P->>W: Poll GET /api/notifications (every 15s)
+  W-->>P: Unread badge + localized reminder in Pro Timezone
+```
+
+### 3. Architectural Layers & Core Guarantees
+
+| Layer | Workspace / Tech | Responsibility | Core Invariant / Guarantee |
+| :--- | :--- | :--- | :--- |
+| **Presentation & State** | `apps/web` (Next.js 15, TanStack Query) | 28-day two-column calendar, timezone switcher, session management, 15s notification polling | All timestamps travel as UTC ISO-8601 and render in the active user's IANA timezone |
+| **Shared Domain Logic** | `packages/shared` (TypeScript, Zod, Luxon) | Request/response schemas, 10-minute slot generator, DST & 24h modification rules | Pure, deterministic functions shared by API and Web with zero I/O dependencies |
+| **API & Auth** | `apps/api` (Fastify, Drizzle ORM, `argon2id`) | Server-side session cookies (`SHA-256` hash), RBAC, booking/cancel/atomic reschedule | Actor identity resolved strictly from `HttpOnly` cookie (`req.user`), never from request body |
+| **Concurrency Guard** | PostgreSQL `btree_gist` | Prevents double-booking for the same professional (`[start_at, blocked_until)`) or member (`[start_at, end_at)`) | Enforced at the database level via `EXCLUDE USING gist (...) WHERE (status = 'booked')` |
+| **Reliable Reminders** | `pg-boss` + `notifications` | Schedules `24h` and `1h` reminders in the same DB transaction as the booking or reschedule | Delivered **exactly once** via `UNIQUE (session_id, user_id, kind)` + `ON CONFLICT DO NOTHING` |
 
 ---
 

@@ -1517,3 +1517,20 @@ Updated `cancelBookingSession` and `rescheduleBookingSession` in `apps/api/src/s
 - Edited `DECISIONS.md` and `AGENTS.md`
 - Ran `pnpm typecheck` and `pnpm test` (64/64 tests passing)
 - Appended Turn #71 entry to `log.txt`
+
+
+---
+### Turn #72 — 2026-11-07 11:49:25 (UTC+8) — Redesign README Architecture Overview with Mermaid Diagrams & Layer Summary Table
+- **Model:** `Claude Opus 4.6 (Thinking)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,402` (Cached: `141,204`) | Output: `145`
+
+**User Prompt:**
+> Refer to the requirement in the doc, it said to give a short architecture overview with a nice-looking diagram. I am very upset by seeing the diagram you have provided in the README. It's not looking good at all and not understandable well. Please check on the diagram, how can we improve it? What are the best practices on creating an architecture overview so that when a reviewer looks, he can have a grasp in first look? Find out the best way to do it. 
+
+**Output Summary:**
+Analyzed why the previous plain-text ASCII box diagram in `README.md` was cluttered and hard to scan, and replaced it using industry best practices (C4 Container-level Mermaid topology diagram + Sequence diagram for the transactional booking/reminder lifecycle + a 5-row Architectural Layers & Core Guarantees table).
+
+**Actions:**
+- Read `README.md` and `documentation-and-adrs` skill (`SKILL.md`)
+- Edited `README.md` (`## Architecture Overview`)
+- Appended Turn #72 entry to `log.txt`
