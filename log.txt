@@ -1607,3 +1607,36 @@ Updated `DECISIONS.md` Sections 9, 10, and 11: in `## 9. Known Limitations`, rem
 - Edited `DECISIONS.md`
 - Appended Turn #75 entry to `log.txt`
 - Committed `DECISIONS.md` and `log.txt`
+
+
+---
+### Turn #74 — 2026-11-07 12:36:30 (UTC+8) — Record Code Review Hardening & Next-Pass Improvements in DECISIONS.md §10
+- **Model:** `Gemini 4 Argon (Medium)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `3,685` (Cached: `238,160`) | Output: `885`
+
+**User Prompt:**
+> I don't have time to implement the considerations you provided me. In this case, check the DECISIONS.md file. In section 10, what should I do next? We need to review the code with a review agent again, make improvements, tighten the boundaries and make the whole codebase more intact etc.
+
+**Output Summary:**
+Updated [DECISIONS.md](DECISIONS.md) Section 10 (*What I Would Do Next with More Time*) with item #4 (**Iterative Code Review Pass, Boundary Hardening & Query Indexing**) to capture the follow-up review-agent pass, transaction/DTO boundary hardening (`createPgBossTxAdapter`, `processReminderJob`, shared response DTOs), composite B-tree indexes + pagination on `notifications`/`booking_sessions`/`availability_windows`, and dead-code/test cleanup.
+
+**Actions:**
+- Read [DECISIONS.md](DECISIONS.md) (§§9–11)
+- Edited [DECISIONS.md](DECISIONS.md) (§10)
+- Appended Turn #74 entry to `log.txt`
+
+
+---
+### Turn #75 — 2026-11-07 12:38:30 (UTC+8) — Simplify DECISIONS.md §10 Item #4
+- **Model:** `Gemini 4 Argon (Medium)` (`Antigravity`) | **Branch:** `main`
+- **Tokens:** Input: `2,798` (Cached: `243,810`) | Output: `598`
+
+**User Prompt:**
+> Don't need to be too descriptive with list points. Just make it a bit simple. 
+
+**Output Summary:**
+Simplified item #4 in [DECISIONS.md](DECISIONS.md) Section 10 into a single concise bullet matching the rest of the section.
+
+**Actions:**
+- Edited [DECISIONS.md](DECISIONS.md) (§10)
+- Appended Turn #75 entry to `log.txt`

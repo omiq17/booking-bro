@@ -246,6 +246,8 @@ Presenting dozens of 10-minute start times across 28 days is unusable if rendere
    - Extend `processReminderJob` in `reminder.service.ts` to dispatch transactional emails (via Postmark/SES with `.ics` calendar attachments) and Web Push / WhatsApp notifications alongside the in-app notification row, using per-channel idempotency keys.
 3. **Smart Slot Packing ("Minimize Gaps" Mode for Professionals):**
    - Give professionals an optional toggle to restrict member start times to slots that pack contiguously against window edges or existing `blocked_until` boundaries, eliminating 10–30 minute calendar fragments while keeping the 10-minute grid math.
+4. **Code Review Hardening, Boundary Tightening & Query Indexing:**
+   - Run another review-agent pass to tighten type and transaction boundaries (shared response DTO schemas between API and web, stricter Drizzle/`pg-boss` transaction client checks), add composite B-tree indexes and pagination on `notifications` and `booking_sessions`, and clean up unused helpers and duplicate test cases.
 
 ---
 
